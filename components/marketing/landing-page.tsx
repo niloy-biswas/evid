@@ -15,12 +15,26 @@ import { FaqSection } from "@/components/marketing/faq-section";
 import { ChangelogSection } from "@/components/marketing/changelog-section";
 import { FinalCta } from "@/components/marketing/final-cta";
 import { LandingFooter } from "@/components/marketing/landing-footer";
+import { ScrollReveal } from "@/components/marketing/scroll-reveal";
 
 /**
  * Marketing landing — fixed Powder dusk theme.
- * Atmosphere lives in the hero; no theme toggle on this page.
+ * Atmosphere lives in the hero; later sections reveal on scroll.
  */
 export function LandingPageView({ isLoggedIn }: { isLoggedIn: boolean }) {
+  const afterHero = [
+    { key: "credibility", node: <CredibilityStrip /> },
+    { key: "problem", node: <ProblemSection /> },
+    { key: "how", node: <HowItWorksSection /> },
+    { key: "capabilities", node: <CapabilitiesSection /> },
+    { key: "showcase", node: <AnalyticsShowcase /> },
+    { key: "compare", node: <ComparisonSection /> },
+    { key: "pricing", node: <PricingContactSection /> },
+    { key: "faq", node: <FaqSection /> },
+    { key: "changelog", node: <ChangelogSection /> },
+    { key: "final-cta", node: <FinalCta isLoggedIn={isLoggedIn} /> },
+  ];
+
   return (
     <div
       data-theme="powder"
@@ -30,16 +44,9 @@ export function LandingPageView({ isLoggedIn }: { isLoggedIn: boolean }) {
 
       <main className="relative z-10 flex-1">
         <HeroSection isLoggedIn={isLoggedIn} />
-        <CredibilityStrip />
-        <ProblemSection />
-        <HowItWorksSection />
-        <CapabilitiesSection />
-        <AnalyticsShowcase />
-        <ComparisonSection />
-        <PricingContactSection />
-        <FaqSection />
-        <ChangelogSection />
-        <FinalCta isLoggedIn={isLoggedIn} />
+        {afterHero.map(({ key, node }) => (
+          <ScrollReveal key={key}>{node}</ScrollReveal>
+        ))}
       </main>
 
       <div className="relative z-10">
