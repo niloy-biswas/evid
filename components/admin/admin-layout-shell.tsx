@@ -85,7 +85,7 @@ export function AdminLayoutShell({ profile, isAdmin, children }: AdminLayoutShel
   const title = getAdminSectionTitle(pathname);
 
   return (
-    <div className="flex h-screen overflow-hidden dark:bg-[#080a0f]">
+    <div className="flex h-screen overflow-hidden dark:bg-background">
       <aside className="w-64 shrink-0 h-screen bg-sidebar border-r border-sidebar-border flex flex-col overflow-hidden">
         <div className="px-5 py-5 border-b border-border/40">
           <div className="flex items-center gap-2.5">
@@ -156,11 +156,11 @@ export function AdminLayoutShell({ profile, isAdmin, children }: AdminLayoutShel
           <div
             className="absolute inset-0 hidden dark:block"
             style={{
-              background: "linear-gradient(160deg, #0d1120 0%, #090b14 45%, #080a0f 100%)",
+              background: "linear-gradient(160deg, var(--neutral-925) 0%, var(--neutral-950) 45%, var(--neutral-950) 100%)",
             }}
           />
           <div className="absolute -top-20 right-1/3 w-[500px] h-[400px] rounded-full bg-primary/[0.07] blur-[120px]" />
-          <div className="absolute bottom-1/4 -left-10 w-[400px] h-[400px] rounded-full bg-[#4f8ef7]/[0.06] blur-[110px]" />
+          <div className="absolute bottom-1/4 -left-10 w-[400px] h-[400px] rounded-full bg-[var(--glow-accent)] blur-[110px]" />
         </div>
 
         <header className="relative z-10 shrink-0 border-b border-border bg-card/80 backdrop-blur-md">

@@ -69,7 +69,7 @@ export function ChatScreen({ dashboard, profile, session, sessions, initialMessa
   const isEmpty = messages.length === 0;
 
   return (
-    <div className="flex h-screen overflow-hidden dark:bg-[#080a0f]">
+    <div className="flex h-screen overflow-hidden dark:bg-background">
       {/* Sidebar */}
       <DashboardSidebar
         dashboard={dashboard}
@@ -85,10 +85,10 @@ export function ChatScreen({ dashboard, profile, session, sessions, initialMessa
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div
             className="absolute inset-0 hidden dark:block"
-            style={{ background: "linear-gradient(160deg, #0d1120 0%, #090b14 45%, #080a0f 100%)" }}
+            style={{ background: "linear-gradient(160deg, var(--neutral-925) 0%, var(--neutral-950) 45%, var(--neutral-950) 100%)" }}
           />
           <div className="absolute -top-20 right-1/3 w-[500px] h-[400px] rounded-full bg-primary/[0.07] blur-[120px]" />
-          <div className="absolute bottom-1/4 -left-10 w-[400px] h-[400px] rounded-full bg-[#4f8ef7]/[0.06] blur-[110px]" />
+          <div className="absolute bottom-1/4 -left-10 w-[400px] h-[400px] rounded-full bg-[var(--glow-accent)] blur-[110px]" />
         </div>
 
         {/* Header */}

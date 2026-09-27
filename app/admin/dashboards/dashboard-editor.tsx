@@ -244,7 +244,7 @@ export function DashboardEditor({
                 variant="outline"
                 disabled={busyStatus}
                 onClick={() => handleStatus("published")}
-                className="text-emerald-600 border-emerald-500/30 hover:bg-emerald-500/10"
+                className="text-success border-success/30 hover:bg-success/10"
               >
                 <Globe className="size-4" />
                 Publish

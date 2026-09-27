@@ -404,7 +404,7 @@ export default function ModelsSettingsPage() {
                         {PROVIDER_LABEL[key]}
                       </p>
                       {keyPresence[key] ? (
-                        <span className="text-[10px] font-medium uppercase tracking-wide text-emerald-600 dark:text-emerald-400">
+                        <span className="text-[10px] font-medium uppercase tracking-wide text-success">
                           Key stored
                         </span>
                       ) : (
@@ -459,7 +459,7 @@ export default function ModelsSettingsPage() {
               </div>
             ) : null}
             {testSuccess && !error ? (
-              <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800 dark:text-emerald-300">
+              <div className="rounded-lg border border-success/30 bg-success/10 px-4 py-3 text-sm text-success">
                 {testSuccess}
               </div>
             ) : null}

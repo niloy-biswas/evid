@@ -396,15 +396,15 @@ export function ChatMessageBubble({ message, readOnly = false }: ChatMessageProp
                   title="Copy"
                   className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
                 >
-                  {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
+                  {copied ? <Check className="h-3.5 w-3.5 text-success" /> : <Copy className="h-3.5 w-3.5" />}
                 </button>
                 {!readOnly && <button
                   onClick={() => saveReaction("liked")}
                   title="Helpful"
                   className={`px-2 py-1 rounded-lg transition-colors ${
                     reaction === "liked"
-                      ? "text-green-500"
-                      : "text-muted-foreground hover:text-green-500 hover:bg-accent"
+                      ? "text-success"
+                      : "text-muted-foreground hover:text-success hover:bg-accent"
                   }`}
                 >
                   <ThumbsUp className="h-3.5 w-3.5" />

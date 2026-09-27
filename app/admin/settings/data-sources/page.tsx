@@ -314,7 +314,7 @@ export default function DataSourcesSettingsPage() {
                       </div>
                     </div>
                     {testMessages[ds.id] ? (
-                      <p className="text-sm text-emerald-500">{testMessages[ds.id]}</p>
+                      <p className="text-sm text-success">{testMessages[ds.id]}</p>
                     ) : null}
                     <div className="flex flex-wrap gap-1">
                       <Button
@@ -426,7 +426,7 @@ export default function DataSourcesSettingsPage() {
               />
             </div>
             {createTestMessage ? (
-              <p className="text-sm text-emerald-500">{createTestMessage}</p>
+              <p className="text-sm text-success">{createTestMessage}</p>
             ) : (
               <p className="text-sm text-muted-foreground">
                 Test the connection first. Save becomes available only after a successful test.

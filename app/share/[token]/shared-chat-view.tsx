@@ -16,7 +16,7 @@ export function SharedChatView({ session, dashboard, messages }: SharedChatViewP
   const router = useRouter();
 
   return (
-    <div className="flex flex-col h-screen dark:bg-[#080a0f]">
+    <div className="flex flex-col h-screen dark:bg-background">
       {/* Header */}
       <div className="flex items-center border-b border-border bg-card/80 backdrop-blur-md shrink-0">
         <button

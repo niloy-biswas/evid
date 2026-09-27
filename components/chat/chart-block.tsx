@@ -1,8 +1,8 @@
 "use client";
 
 import { useRef, useMemo, memo } from "react";
-import { useTheme } from "next-themes";
 import { Download } from "lucide-react";
+import { resolveToken, VIZ_TOKENS } from "@/lib/theme/tokens";
 import {
   BarChart,
   Bar,
@@ -57,15 +57,14 @@ export interface ChartSpec {
   data: Record<string, unknown>[];
 }
 
-const CHART_COLORS = [
-  "#4f8ef7",
-  "#10b981", // emerald
-  "#f59e0b", // amber
-  "#a855f7", // purple
-  "#ec4899", // pink
-  "#06b6d4", // cyan
-  "#e53935",
-];
+// Categorical chart scale, sourced from --chart-1..6 in app/styles/semantic.css.
+// var() works here directly — every use below lands on a real DOM node
+// (ChartConfig.color, Pie data fill, PieLegend inline style), and the
+// cascade already handles light/dark. The only place that needs a
+// resolved value instead of the reference is the PNG/SVG export, which
+// serializes into a separate document with no access to this page's CSS
+// (see resolveToken usage in handleDownload below).
+const CHART_COLORS = VIZ_TOKENS.map((token) => `var(${token})`);
 
 function toLabel(key: string) {
   return key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -118,14 +117,15 @@ function xAxisMargin(shouldRotate: boolean): { top: number; bottom: number } {
 }
 
 function ChartBlockInner({ spec }: { spec: ChartSpec }) {
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme !== "light";
+  // Theme-aware colors as CSS var() references, not TS branching — the
+  // cascade already flips these between light/dark, so there's nothing to
+  // author twice here.
   const c = {
-    grid:    isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.07)",
-    tick:    isDark ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.5)",
-    label:   isDark ? "rgba(255,255,255,0.75)" : "rgba(0,0,0,0.7)",
-    refLine: isDark ? "rgba(255,255,255,0.2)"  : "rgba(0,0,0,0.15)",
-    pieTxt:  isDark ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.5)",
+    grid: "var(--grid-line)",
+    tick: "var(--muted-foreground)",
+    label: "var(--foreground)",
+    refLine: "var(--border)",
+    pieTxt: "var(--muted-foreground)",
   };
 
   const config: ChartConfig = {};
@@ -184,16 +184,12 @@ function ChartBlockInner({ spec }: { spec: ChartSpec }) {
     svgClone.setAttribute("width", String(svgWidth));
     svgClone.setAttribute("height", String(svgHeight));
 
-    // Resolve all CSS variables — scoped chart color vars live on the [data-chart] element
-    const chartContainer = chartRef.current.querySelector("[data-chart]") as HTMLElement | null;
-    const scopedStyles = chartContainer ? getComputedStyle(chartContainer) : getComputedStyle(document.documentElement);
-    const rootStyles = getComputedStyle(document.documentElement);
-
-    const resolveVar = (varName: string): string =>
-      scopedStyles.getPropertyValue(varName).trim() ||
-      rootStyles.getPropertyValue(varName).trim();
-
-    // Also resolve colors from the original live SVG elements (most reliable source)
+    // A cloned SVG loaded into a separate <img>/canvas document has no
+    // access to this page's stylesheet, so any fill/stroke left as
+    // var(...) or color-mix(...) would render as nothing. Inline the
+    // browser's already-resolved computed color from each live element
+    // onto its clone before serializing — this is the one reliable source,
+    // since it resolves any var()/color-mix() chain regardless of depth.
     const liveSvgEls = Array.from(svgEl.querySelectorAll<SVGElement>("*"));
     const clonedEls = Array.from(svgClone.querySelectorAll<SVGElement>("*"));
 
@@ -203,17 +199,8 @@ function ChartBlockInner({ spec }: { spec: ChartSpec }) {
       const liveStyle = getComputedStyle(liveEl);
 
       (["fill", "stroke"] as const).forEach((attr) => {
-        const attrVal = clonedEl.getAttribute(attr);
-        if (attrVal && attrVal.includes("var(")) {
-          const varName = attrVal.match(/var\((--[\w-]+)\)/)?.[1];
-          if (varName) {
-            const resolved = resolveVar(varName);
-            if (resolved) clonedEl.setAttribute(attr, resolved);
-          }
-        }
-        // Also inline the computed style value directly from the live element
         const computed = liveStyle[attr];
-        if (computed && computed !== "none" && computed !== "" && !computed.includes("var(")) {
+        if (computed && computed !== "none" && computed !== "") {
           clonedEl.setAttribute(attr, computed);
         }
       });
@@ -224,6 +211,13 @@ function ChartBlockInner({ spec }: { spec: ChartSpec }) {
     const totalWidth = svgWidth + padding * 2;
 
     const escapeXml = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+    // The legend and header below are hand-built SVG strings, not part of
+    // the live DOM tree walked above, so their colors must be resolved to
+    // concrete values up front rather than left as var() references.
+    const resolvedTickColor = resolveToken("--muted-foreground");
+    const resolvedLabelColor = resolveToken("--foreground");
+    const resolvedVizColors = VIZ_TOKENS.map((token) => resolveToken(token));
 
     // Build pie legend SVG if applicable
     let legendSvg = "";
@@ -238,12 +232,12 @@ function ChartBlockInner({ spec }: { spec: ChartSpec }) {
         const rowIdx = Math.floor(i / 2);
         const x = padding + col * colWidth;
         const y = rowIdx * itemHeight + 8;
-        const color = CHART_COLORS[i % CHART_COLORS.length];
+        const color = resolvedVizColors[i % resolvedVizColors.length];
         const pct = total > 0 ? ((Number(row[spec.value_key!]) / total) * 100).toFixed(1) : "0";
         const name = String(row[spec.name_key!] ?? "");
         const truncated = name.length > 30 ? name.slice(0, 30) + "…" : name;
         rows.push(`<rect x="${x}" y="${y - 9}" width="9" height="9" rx="2" fill="${color}"/>`);
-        rows.push(`<text x="${x + 13}" y="${y}" font-family="Inter,sans-serif" font-size="10" fill="${c.tick}">${escapeXml(truncated)} <tspan font-weight="600" fill="${c.label}">(${pct}%)</tspan></text>`);
+        rows.push(`<text x="${x + 13}" y="${y}" font-family="Inter,sans-serif" font-size="10" fill="${resolvedTickColor}">${escapeXml(truncated)} <tspan font-weight="600" fill="${resolvedLabelColor}">(${pct}%)</tspan></text>`);
       });
       const numRows = Math.ceil(spec.data.length / 2);
       legendHeight = numRows * itemHeight + 16;
@@ -252,9 +246,11 @@ function ChartBlockInner({ spec }: { spec: ChartSpec }) {
 
     const totalHeight = svgHeight + headerHeight + legendHeight + padding;
 
-    const bgColor = isDark ? "#0e1117" : "#ffffff";
-    const titleColor = isDark ? "#ffffff" : "#0d1117";
-    const subtitleColor = isDark ? "#6b7a96" : "#64748b";
+    // --surface-solid/foreground/muted-foreground already carry the
+    // correct light/dark value via the cascade — no isDark check needed.
+    const bgColor = resolveToken("--surface-solid");
+    const titleColor = resolveToken("--foreground");
+    const subtitleColor = resolveToken("--muted-foreground");
     const wrapperSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${totalWidth}" height="${totalHeight}">
   <rect width="${totalWidth}" height="${totalHeight}" fill="${bgColor}" rx="12"/>
   <text x="${padding}" y="${padding + 14}" font-family="Inter,sans-serif" font-size="14" font-weight="600" fill="${titleColor}">${escapeXml(spec.title)}</text>
