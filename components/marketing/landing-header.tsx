@@ -4,16 +4,14 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { BrandMark } from "@/components/brand-mark";
-import { PrimaryCta } from "@/components/marketing/primary-cta";
+import { MarketingCtaPair } from "@/components/marketing/marketing-cta-pair";
 import { MARKETING_NAV } from "@/components/marketing/config";
-import { marketingPrimaryCta } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 
 /** Powder-style minimal chrome: logo + CTA, light over the landscape. */
 export function LandingHeader({ isLoggedIn }: { isLoggedIn: boolean }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const primary = marketingPrimaryCta(isLoggedIn);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -59,10 +57,11 @@ export function LandingHeader({ isLoggedIn }: { isLoggedIn: boolean }) {
           </nav>
 
           <div className="flex items-center gap-2">
-            <PrimaryCta
-              {...primary}
-              className="hidden sm:inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-white text-[var(--powder-bg)] text-sm font-semibold hover:bg-white/90 active:scale-[0.96] transition-[transform,background-color] duration-150"
-              iconClassName="h-3.5 w-3.5"
+            <MarketingCtaPair
+              isLoggedIn={isLoggedIn}
+              tone="hero"
+              size="sm"
+              className="hidden md:inline-flex"
             />
             <button
               type="button"
@@ -90,12 +89,14 @@ export function LandingHeader({ isLoggedIn }: { isLoggedIn: boolean }) {
                   {item.label}
                 </a>
               ))}
-              <PrimaryCta
-                {...primary}
-                className="mt-1 inline-flex items-center justify-center gap-1.5 h-11 rounded-full bg-white text-[var(--powder-bg)] text-sm font-semibold"
-                iconClassName="h-3.5 w-3.5"
-                onClick={() => setOpen(false)}
-              />
+              <div className="mt-2 flex justify-center pb-1">
+                <MarketingCtaPair
+                  isLoggedIn={isLoggedIn}
+                  tone="hero"
+                  size="sm"
+                  onNavigate={() => setOpen(false)}
+                />
+              </div>
             </nav>
           </div>
         )}

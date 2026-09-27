@@ -1,12 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { BRAND, contactMailto, marketingPrimaryCta } from "@/lib/brand";
+import { MarketingCtaPair } from "@/components/marketing/marketing-cta-pair";
 import { usePrefersReducedMotion } from "@/components/marketing/use-reduced-motion";
-import { PrimaryCta } from "@/components/marketing/primary-cta";
 
 export function FinalCta({ isLoggedIn }: { isLoggedIn: boolean }) {
-  const primary = marketingPrimaryCta(isLoggedIn);
   const reduced = usePrefersReducedMotion();
 
   return (
@@ -30,25 +28,8 @@ export function FinalCta({ isLoggedIn }: { isLoggedIn: boolean }) {
         <p className="text-muted-foreground mb-8 max-w-md mx-auto text-pretty">
           Ask Evid, or run it on your own infrastructure.
         </p>
-        <div className="flex flex-wrap items-center justify-center gap-3">
-          <PrimaryCta
-            {...primary}
-            className="inline-flex items-center gap-2 h-11 px-6 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 active:scale-[0.96] transition-[transform,background-color] duration-150 shadow-[0_0_28px_var(--glow-primary)]"
-          />
-          <a
-            href={BRAND.githubUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2 h-11 px-6 rounded-full border border-border/70 bg-card/50 text-sm font-medium hover:bg-white/[0.06] active:scale-[0.96] transition-[transform,background-color] duration-150"
-          >
-            View on GitHub
-          </a>
-          <a
-            href={contactMailto("Evid implementation")}
-            className="text-sm text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
-          >
-            Contact for implementation
-          </a>
+        <div className="flex justify-center">
+          <MarketingCtaPair isLoggedIn={isLoggedIn} tone="surface" />
         </div>
       </div>
     </section>

@@ -4,16 +4,14 @@ import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { HeroDemo } from "@/components/marketing/hero-demo";
 import { HeroSky } from "@/components/marketing/hero-landscape";
-import { PrimaryCta } from "@/components/marketing/primary-cta";
-import { BRAND, marketingPrimaryCta } from "@/lib/brand";
+import { MarketingCtaPair } from "@/components/marketing/marketing-cta-pair";
+import { BRAND } from "@/lib/brand";
 
 /**
  * Powder hero: slate sky, copy, and product demo card.
  * No hill overlays or scroll-cover behavior.
  */
 export function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
-  const primary = marketingPrimaryCta(isLoggedIn);
-
   return (
     <section className="relative isolate overflow-x-clip">
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden>
@@ -40,23 +38,13 @@ export function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
             {BRAND.tagline}
           </h1>
 
-          <p className="text-[15px] sm:text-base text-white/90 font-medium leading-relaxed text-pretty max-w-lg mx-auto mb-6">
+          <p className="text-[15px] sm:text-base text-white/90 font-medium leading-relaxed text-pretty max-w-lg mx-auto mb-8">
             Ask in plain English. Get charts, explanations, and SQL grounded in approved
             dashboards, tables, and business rules.
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-3 mb-8 sm:mb-10">
-            <PrimaryCta
-              {...primary}
-              className="inline-flex items-center gap-2 h-11 px-6 rounded-full bg-white text-[var(--powder-bg)] text-sm font-semibold hover:bg-white/90 active:scale-[0.96] transition-[transform,background-color] duration-150"
-            />
-            <a
-              href="#how-it-works"
-              className="inline-flex items-center justify-center h-11 w-11 rounded-full border border-white/25 bg-white/10 text-white backdrop-blur-md hover:bg-white/20 active:scale-[0.96] transition-[transform,background-color] duration-150"
-              aria-label="See how it works"
-            >
-              <span className="ml-0.5 w-0 h-0 border-y-[6px] border-y-transparent border-l-[10px] border-l-white" />
-            </a>
+          <div className="flex justify-center mb-8 sm:mb-10">
+            <MarketingCtaPair isLoggedIn={isLoggedIn} tone="hero" />
           </div>
         </motion.div>
       </div>
