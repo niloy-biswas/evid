@@ -36,11 +36,11 @@ export function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
             <ArrowRight className="h-3 w-3 opacity-70" />
           </a>
 
-          <h1 className="text-[2.15rem] sm:text-[2.75rem] lg:text-[3.15rem] font-bold tracking-[-0.03em] leading-[1.08] text-balance mb-3.5 text-white">
+          <h1 className="font-heading text-[2.5rem] sm:text-[3.5rem] lg:text-[4.5rem] font-bold tracking-[-0.035em] leading-none text-balance mb-3.5 text-white">
             {BRAND.tagline}
           </h1>
 
-          <p className="text-[15px] sm:text-base text-white/65 leading-relaxed text-pretty max-w-lg mx-auto mb-6">
+          <p className="text-[15px] sm:text-base text-white/90 font-medium leading-relaxed text-pretty max-w-lg mx-auto mb-6">
             Ask in plain English. Get charts, explanations, and SQL grounded in approved
             dashboards, tables, and business rules.
           </p>

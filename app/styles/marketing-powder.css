@@ -3,7 +3,7 @@
  *
  * Edit path for landing color:
  *   1. app/styles/palette.css  — primitive hex values (--powder-*)
- *   2. This file               — semantic remap + hero sky/dissolve/contours
+ *   2. This file               — semantic remap, type, hero sky/dissolve/contours
  * Components consume var(--…) / classes below; no color literals there.
  */
 [data-theme="powder"] {
@@ -19,11 +19,14 @@
   --primary: var(--brand-300);
   --primary-foreground: var(--brand-950);
   --secondary: var(--powder-elevated);
-  --secondary-foreground: var(--neutral-300);
+  --secondary-foreground: var(--neutral-200);
   --muted: var(--powder-elevated);
-  --muted-foreground: var(--neutral-400);
+  /* Secondary chrome on near-black */
+  --muted-foreground: color-mix(in srgb, var(--neutral-0) 88%, var(--powder-bg));
+  /* Supporting body paragraphs — still secondary, easier to read */
+  --powder-copy-muted: color-mix(in srgb, var(--neutral-0) 92%, var(--powder-bg));
   --accent: var(--powder-elevated);
-  --accent-foreground: var(--neutral-200);
+  --accent-foreground: var(--neutral-100);
   --border: color-mix(in srgb, var(--neutral-0) 12%, transparent);
   --input: color-mix(in srgb, var(--neutral-0) 10%, transparent);
   --ring: color-mix(in srgb, var(--brand-300) 45%, transparent);
@@ -78,7 +81,40 @@
   background-color: var(--powder-bg);
   background-image: none;
   color: var(--foreground);
-  font-family: var(--font-marketing), var(--font-sans);
+  /* Body: DM Sans (--font-marketing-body). Headings: Geist Sans 700 (--font-geist-sans). */
+  --font-sans: var(--font-marketing-body), var(--font-noto-bengali), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-geist-sans), var(--font-marketing-body), system-ui, sans-serif;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.55;
+  letter-spacing: -0.011em;
+  -webkit-font-smoothing: antialiased;
+}
+
+[data-theme="powder"] h1,
+[data-theme="powder"] h2,
+[data-theme="powder"] h3,
+[data-theme="powder"] .font-heading {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+[data-theme="powder"] h1 {
+  line-height: 1;
+}
+
+[data-theme="powder"] p,
+[data-theme="powder"] li {
+  text-wrap: pretty;
+}
+
+/* Supporting paragraphs — primary reading, not chrome */
+[data-theme="powder"] p.text-muted-foreground {
+  color: var(--powder-copy-muted);
+  font-weight: 500;
 }
 
 html.dark:has([data-theme="powder"]) body {

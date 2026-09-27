@@ -46,7 +46,7 @@ export function LandingHeader({ isLoggedIn }: { isLoggedIn: boolean }) {
             <BrandMark />
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-1 text-sm text-white/55">
+          <nav className="hidden lg:flex items-center gap-1 text-sm text-white/85">
             {MARKETING_NAV.map((item) => (
               <a
                 key={item.href}

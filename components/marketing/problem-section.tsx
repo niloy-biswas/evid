@@ -70,18 +70,18 @@ export function ProblemSection() {
               {GENERIC_TABLES.map((t, i) => (
                 <motion.div
                   key={t}
-                  initial={reduced ? false : { opacity: 0.35 }}
+                  initial={reduced ? false : { opacity: 0.55 }}
                   animate={
                     inView
                       ? {
-                          opacity: [0.35, 1, 0.45],
+                          opacity: [0.55, 1, 0.8],
                           borderColor: i === 1 || i === 4 ? "var(--warning)" : undefined,
                         }
                       : undefined
                   }
                   transition={{ duration: 1.6, delay: i * 0.08, repeat: reduced ? 0 : 1 }}
                   className={cn(
-                    "rounded-md border border-border/60 px-2 py-2 text-[10px] font-mono text-muted-foreground truncate",
+                    "rounded-md border border-border/60 px-2 py-2 text-[10px] font-mono text-foreground/80 truncate",
                     (i === 1 || i === 4) && "border-warning/40 bg-warning/5"
                   )}
                 >
