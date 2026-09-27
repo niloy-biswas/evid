@@ -20,7 +20,64 @@ export function contactMailto(subject?: string): string {
   return `mailto:${BRAND.supportEmail}?subject=${encodeURIComponent(subject)}`;
 }
 
-/** Primary marketing CTA: open product (signed in) vs book a demo (signed out, no self-serve signup). */
+/**
+ * Optional calendar link (Cal.com, Calendly, Google Appointment schedules, …).
+ * Set `NEXT_PUBLIC_DEMO_BOOKING_URL` to an https URL; /book-demo embeds it when allowed.
+ */
+export function demoBookingUrl(): string | null {
+  const raw = process.env.NEXT_PUBLIC_DEMO_BOOKING_URL?.trim();
+  if (!raw) return null;
+  try {
+    const url = new URL(raw);
+    if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
+function bookingHost(raw: string): string | null {
+  try {
+    return new URL(raw).hostname.replace(/^www\./, "");
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Google Appointment / Calendar share links refuse iframes (X-Frame-Options).
+ * Cal.com / Calendly can be embedded.
+ */
+export function demoBookingAllowsEmbed(url = demoBookingUrl()): boolean {
+  if (!url) return false;
+  const host = bookingHost(url);
+  if (!host) return false;
+  // calendar.app.google is not under *.google.com
+  return host !== "calendar.app.google" && !host.endsWith(".google.com");
+}
+
+/** Embed URL with provider-specific query params. Null when the host blocks iframes. */
+export function demoBookingEmbedUrl(): string | null {
+  const raw = demoBookingUrl();
+  if (!raw || !demoBookingAllowsEmbed(raw)) return null;
+  try {
+    const url = new URL(raw);
+    const host = bookingHost(raw);
+    if (!host) return raw;
+    if (host === "cal.com" || host.endsWith(".cal.com")) {
+      url.searchParams.set("embed", "true");
+      if (!url.searchParams.has("theme")) url.searchParams.set("theme", "dark");
+    } else if (host === "calendly.com" || host.endsWith(".calendly.com")) {
+      url.searchParams.set("embed_domain", "evid");
+      url.searchParams.set("embed_type", "Inline");
+    }
+    return url.toString();
+  } catch {
+    return raw;
+  }
+}
+
+/** Primary marketing CTA: open product (signed in) vs book a demo (signed out). */
 export function marketingPrimaryCta(isLoggedIn: boolean): {
   href: string;
   label: string;
@@ -28,5 +85,5 @@ export function marketingPrimaryCta(isLoggedIn: boolean): {
 } {
   return isLoggedIn
     ? { href: "/app", label: "Open app", external: false }
-    : { href: contactMailto(`Demo request: ${BRAND.name}`), label: "Book a demo", external: true };
+    : { href: "/book-demo", label: "Book a demo", external: false };
 }

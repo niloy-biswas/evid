@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-/** Renders marketingPrimaryCta() as an internal Link or an external <a> (mailto). */
+/** Renders marketingPrimaryCta() as an internal Link or an external <a>. */
 export function PrimaryCta({
   href,
   label,
@@ -25,8 +25,14 @@ export function PrimaryCta({
   );
 
   if (external) {
+    const isHttp = /^https?:\/\//i.test(href);
     return (
-      <a href={href} className={className} onClick={onClick}>
+      <a
+        href={href}
+        className={className}
+        onClick={onClick}
+        {...(isHttp ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+      >
         {children}
       </a>
     );

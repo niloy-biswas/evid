@@ -30,7 +30,7 @@ import {
   HERO_LIVE_REPLY,
 } from "@/components/marketing/demo-data";
 import { usePrefersReducedMotion } from "@/components/marketing/use-reduced-motion";
-import { BRAND, contactMailto } from "@/lib/brand";
+import { BRAND } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 
 type DemoTab = "answer" | "chart" | "sql" | "context";
@@ -542,7 +542,7 @@ export function HeroDemo({ embedded = false }: { embedded?: boolean }) {
               <p className="text-sm text-foreground leading-relaxed px-0.5">
                 {HERO_LIVE_REPLY.prefix}{" "}
                 <a
-                  href={contactMailto(HERO_LIVE_REPLY.demoSubject)}
+                  href="/book-demo"
                   className="text-primary font-medium hover:underline underline-offset-2"
                 >
                   {HERO_LIVE_REPLY.demoLabel}
