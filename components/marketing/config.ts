@@ -21,6 +21,51 @@ export const INTEGRATION_LABELS = [
 ] as const;
 
 /**
+ * Problem section copy + demo contrast. SEO leans on text-to-SQL / AI analytics /
+ * BigQuery / published context without stuffing those phrases into every line.
+ */
+export const PROBLEM_SECTION = {
+  eyebrow: "The problem",
+  headlineLead: "Text-to-SQL reaches your warehouse.",
+  headlineMute: "It still invents what revenue means.",
+  body: "Generic AI analytics will write a query against BigQuery. It will not know which tables are approved, which revenue definition finance signed off on, or whether a dashboard is even published. You get a confident number and no way to defend it.",
+  question: "What was net revenue last month?",
+  ungoverned: {
+    label: "Ungoverned text-to-SQL",
+    tables: [
+      "orders_raw",
+      "orders_v2",
+      "tmp_refunds",
+      "finance_export",
+      "stg_orders",
+      "internal_test",
+    ] as const,
+    riskyTableIndexes: [1, 4] as const,
+    metricLabel: "Revenue",
+    metricTarget: 1.8,
+    metricDecimals: 1,
+    metricPrefix: "$",
+    metricSuffix: "M",
+    footnote: "Joined staging tables. Included refunds and internal transactions.",
+  },
+  governed: {
+    label: "Evid · published context",
+    contextLines: [
+      "Dashboard · Revenue (published)",
+      "Tables · orders_fact, campaigns, enrolments",
+      "Rule · exclude refunds & internal",
+      "Caveat · campaign ended mid-month",
+    ] as const,
+    metricLabel: "Net revenue",
+    metricTarget: 1.42,
+    metricDecimals: 2,
+    metricPrefix: "$",
+    metricSuffix: "M",
+    footnote: "Scoped to approved tables and the published revenue definition.",
+  },
+} as const;
+
+/**
  * Powder-style pricing tiers. No public dollar amounts — priceLabel is a path
  * (Self-host / Custom), not a sticker price. Available CTAs go to /book-demo;
  * roadmap stays mailto.
