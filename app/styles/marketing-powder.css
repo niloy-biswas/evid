@@ -1,0 +1,117 @@
+/**
+ * Landing-only theme. Scoped under [data-theme="powder"].
+ *
+ * Edit path for landing color:
+ *   1. app/styles/palette.css  — primitive hex values (--powder-*)
+ *   2. This file               — semantic remap + hero sky/dissolve/contours
+ * Components consume var(--…) / classes below; no color literals there.
+ */
+[data-theme="powder"] {
+  color-scheme: dark;
+
+  --background: var(--powder-bg);
+  --foreground: var(--neutral-0);
+  --card: var(--powder-surface);
+  --card-foreground: var(--neutral-0);
+  --popover: var(--powder-elevated);
+  --popover-foreground: var(--neutral-0);
+
+  --primary: var(--brand-300);
+  --primary-foreground: var(--brand-950);
+  --secondary: var(--powder-elevated);
+  --secondary-foreground: var(--neutral-300);
+  --muted: var(--powder-elevated);
+  --muted-foreground: var(--neutral-400);
+  --accent: var(--powder-elevated);
+  --accent-foreground: var(--neutral-200);
+  --border: color-mix(in srgb, var(--neutral-0) 12%, transparent);
+  --input: color-mix(in srgb, var(--neutral-0) 10%, transparent);
+  --ring: color-mix(in srgb, var(--brand-300) 45%, transparent);
+
+  --destructive: var(--danger-400);
+  --warning: var(--warn-400);
+  --success: var(--ok-400);
+
+  --chart-1: var(--brand-300);
+  --chart-2: var(--viz-2);
+  --chart-3: var(--viz-3);
+  --chart-4: var(--viz-4);
+  --chart-5: var(--viz-5);
+  --chart-6: var(--viz-6);
+
+  --surface-solid: var(--powder-surface);
+  --glow-primary: color-mix(in srgb, var(--brand-300) 45%, transparent);
+  --glow-accent: color-mix(in srgb, var(--powder-horizon) 40%, transparent);
+  --glow-warm: color-mix(in srgb, var(--powder-horizon) 50%, transparent);
+
+  --radius: 0.875rem;
+
+  /*
+   * Hero composition — retune sky band / dissolve / contour ink here.
+   * Geometry (paths, top/height) stays in hero-landscape.tsx.
+   */
+  --powder-hero-sky: radial-gradient(
+    200% 78% at 50% 0%,
+    var(--powder-sky-top) 0%,
+    var(--powder-sky-mid) 48%,
+    var(--powder-horizon) 78%,
+    color-mix(in srgb, var(--powder-horizon) 35%, var(--powder-bg)) 90%,
+    var(--powder-bg) 100%
+  );
+  --powder-hero-dissolve: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--powder-bg) 8%, transparent) 18%,
+    color-mix(in srgb, var(--powder-bg) 28%, transparent) 40%,
+    color-mix(in srgb, var(--powder-bg) 55%, transparent) 62%,
+    color-mix(in srgb, var(--powder-bg) 82%, transparent) 82%,
+    var(--powder-bg) 96%,
+    var(--powder-bg) 100%
+  );
+
+  --powder-contour-1: color-mix(in srgb, var(--neutral-0) 16%, transparent);
+  --powder-contour-2: color-mix(in srgb, var(--neutral-0) 10%, transparent);
+  --powder-contour-3: color-mix(in srgb, var(--powder-horizon) 28%, transparent);
+  --powder-contour-4: color-mix(in srgb, var(--neutral-0) 7%, transparent);
+  --powder-contour-5: color-mix(in srgb, var(--powder-horizon) 12%, transparent);
+
+  background-color: var(--powder-bg);
+  background-image: none;
+  color: var(--foreground);
+  font-family: var(--font-marketing), var(--font-sans);
+}
+
+html.dark:has([data-theme="powder"]) body {
+  background: var(--powder-bg);
+  background-attachment: scroll;
+}
+
+[data-theme="powder"] ::selection {
+  background: color-mix(in srgb, var(--brand-300) 35%, transparent);
+  color: var(--neutral-0);
+}
+
+/* Hero sky layers — applied from components/marketing/hero-landscape.tsx */
+[data-theme="powder"] .powder-hero-sky {
+  background: var(--powder-hero-sky);
+}
+
+[data-theme="powder"] .powder-hero-dissolve {
+  background: var(--powder-hero-dissolve);
+}
+
+[data-theme="powder"] .powder-contour-1 {
+  stroke: var(--powder-contour-1);
+}
+[data-theme="powder"] .powder-contour-2 {
+  stroke: var(--powder-contour-2);
+}
+[data-theme="powder"] .powder-contour-3 {
+  stroke: var(--powder-contour-3);
+}
+[data-theme="powder"] .powder-contour-4 {
+  stroke: var(--powder-contour-4);
+}
+[data-theme="powder"] .powder-contour-5 {
+  stroke: var(--powder-contour-5);
+}
