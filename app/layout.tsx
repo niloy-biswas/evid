@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
-import { Inter, Noto_Sans_Bengali, Noto_Sans_Mono } from "next/font/google";
+import { Inter, Noto_Sans_Bengali, Noto_Sans_Mono, Outfit } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { BRAND } from "@/lib/brand";
 import "./globals.css";
 
 const inter = Inter({
   variable: "--font-inter",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+});
+
+const outfit = Outfit({
+  variable: "--font-marketing",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
   display: "swap",
@@ -38,7 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <body
         suppressHydrationWarning
-        className={`${inter.variable} ${notoSansBengali.variable} ${notoSansMono.variable} antialiased bg-background text-foreground`}
+        className={`${inter.variable} ${outfit.variable} ${notoSansBengali.variable} ${notoSansMono.variable} antialiased bg-background text-foreground`}
       >
         <ThemeProvider>{children}</ThemeProvider>
       </body>

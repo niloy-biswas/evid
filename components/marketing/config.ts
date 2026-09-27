@@ -167,6 +167,25 @@ export const FAQ_ITEMS: Array<{ id: string; question: string; answer: string }> 
   },
 ];
 
+/** Real, dated updates — sourced from actual shipped commits, not invented. */
+export const CHANGELOG_ITEMS: Array<{ date: string; title: string; body: string }> = [
+  {
+    date: "2026-09-22",
+    title: "New Evid brand identity",
+    body: "Refreshed the logo, mark, and visual identity across the product and landing page.",
+  },
+  {
+    date: "2026-09-22",
+    title: "Clearer comparison table",
+    body: "Redesigned the generic-vs-Evid comparison for easier scanning.",
+  },
+  {
+    date: "2026-09-21",
+    title: "Live hero demo",
+    body: "The landing page now streams a real answer, chart, and SQL instead of a static screenshot.",
+  },
+];
+
 export const CAPABILITIES = [
   {
     id: "registry",

@@ -16,14 +16,15 @@ import {
   YAxis,
 } from "recharts";
 import { SHOWCASE_QUESTIONS } from "@/components/marketing/demo-data";
+import { SectionLabel } from "@/components/marketing/section-label";
 import { usePrefersReducedMotion } from "@/components/marketing/use-reduced-motion";
 import { cn } from "@/lib/utils";
 
 const SERIES_COLORS = [
-  "var(--primary)",
-  "var(--chart-primary)",
-  "var(--muted-foreground)",
-  "hsl(var(--chart-4, 160 60% 45%))",
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
 ];
 
 export function AnalyticsShowcase() {
@@ -32,10 +33,12 @@ export function AnalyticsShowcase() {
   const q = SHOWCASE_QUESTIONS.find((x) => x.id === activeId) ?? SHOWCASE_QUESTIONS[0];
 
   return (
-    <section className="border-b border-border/40 bg-muted/10">
+    <section className="border-b border-border/30">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-24">
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-3 max-w-xl">
-          Ask a business question. Get more than a sentence.
+        <SectionLabel>In action</SectionLabel>
+        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3 max-w-xl text-balance">
+          <span className="text-foreground">Ask a business question.</span>{" "}
+          <span className="text-muted-foreground">Get more than a sentence.</span>
         </h2>
         <p className="text-muted-foreground max-w-xl mb-10 leading-relaxed">
           Pick a question. Evid responds with a metric, chart, observation, and the context
@@ -59,7 +62,7 @@ export function AnalyticsShowcase() {
                   "shrink-0 text-left rounded-xl border px-3.5 py-3 text-sm transition-colors max-w-[260px] lg:max-w-none",
                   activeId === item.id
                     ? "border-primary/40 bg-primary/10 text-foreground"
-                    : "border-border/50 bg-card/30 text-muted-foreground hover:text-foreground hover:bg-muted/40"
+                    : "border-border/50 bg-card/50 text-muted-foreground hover:text-foreground hover:bg-white/[0.04]"
                 )}
               >
                 {item.question}
@@ -74,7 +77,7 @@ export function AnalyticsShowcase() {
               animate={{ opacity: 1, y: 0 }}
               exit={reduced ? undefined : { opacity: 0, y: -6 }}
               transition={{ duration: 0.3 }}
-              className="rounded-2xl border border-border/60 bg-card/40 p-5 sm:p-6"
+              className="rounded-2xl border border-border/60 bg-card/60 p-5 sm:p-6"
               role="tabpanel"
             >
               <div className="flex flex-wrap items-end justify-between gap-3 mb-4">

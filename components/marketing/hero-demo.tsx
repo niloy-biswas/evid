@@ -135,7 +135,7 @@ function ContextTagsStream({ tags, reduced }: { tags: readonly string[]; reduced
   );
 }
 
-export function HeroDemo() {
+export function HeroDemo({ embedded = false }: { embedded?: boolean }) {
   const reduced = usePrefersReducedMotion();
   const rootRef = useRef<HTMLDivElement>(null);
   const liveEndRef = useRef<HTMLDivElement>(null);
@@ -267,12 +267,24 @@ export function HeroDemo() {
   return (
     <div
       ref={rootRef}
-      className="relative rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm overflow-hidden shadow-2xl"
+      className={cn(
+        "relative overflow-hidden",
+        embedded
+          ? "bg-transparent"
+          : "rounded-[1.25rem] border border-border/70 bg-card/80 backdrop-blur-md shadow-[0_24px_80px_var(--overlay-shadow)] outline outline-1 outline-white/10"
+      )}
       aria-label="Product demonstration of Evid answering a revenue question"
     >
-      <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-primary/60 to-transparent pointer-events-none" />
+      {!embedded && (
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/70 to-transparent pointer-events-none" />
+      )}
 
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-border/50 bg-muted/20">
+      <div
+        className={cn(
+          "flex items-center gap-2 px-4 py-3 border-b border-border/50",
+          embedded ? "bg-white/[0.03]" : "bg-muted/30"
+        )}
+      >
         <span className="h-2.5 w-2.5 rounded-full bg-border" />
         <span className="h-2.5 w-2.5 rounded-full bg-border" />
         <span className="h-2.5 w-2.5 rounded-full bg-border" />
@@ -461,7 +473,7 @@ export function HeroDemo() {
                             />
                             <Bar
                               dataKey="enrolments"
-                              fill="var(--chart-primary)"
+                              fill="var(--chart-1)"
                               opacity={0.35}
                               radius={[4, 4, 0, 0]}
                               isAnimationActive={!reduced}

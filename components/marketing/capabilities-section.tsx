@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { CAPABILITIES } from "@/components/marketing/config";
+import { SectionLabel } from "@/components/marketing/section-label";
 import { cn } from "@/lib/utils";
 
 function CapabilityVisual({ id }: { id: string }) {
@@ -133,13 +134,11 @@ function CapabilityVisual({ id }: { id: string }) {
 
 export function CapabilitiesSection() {
   return (
-    <section className="border-b border-border/40">
+    <section className="border-b border-border/30">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-24">
-        <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-3">
-          Product
-        </p>
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-3 max-w-xl">
-          Boring where it counts.
+        <SectionLabel>Product</SectionLabel>
+        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3 max-w-xl text-balance">
+          <span className="text-foreground">Boring where it counts.</span>
         </h2>
         <p className="text-muted-foreground max-w-xl mb-12 leading-relaxed">
           Governance first. Chat second. Every capability below exists to keep answers on the
@@ -154,7 +153,7 @@ export function CapabilitiesSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.35, delay: i * 0.04 }}
-              className="rounded-2xl border border-border/60 bg-card/40 p-5 flex flex-col gap-4"
+              className="rounded-2xl border border-border/60 bg-card/60 p-5 flex flex-col gap-4 hover:border-border transition-colors"
             >
               <div className="min-h-[72px] rounded-xl border border-border/40 bg-muted/15 p-3 flex items-center">
                 <CapabilityVisual id={cap.id} />

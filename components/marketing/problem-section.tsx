@@ -4,22 +4,22 @@ import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import { AlertTriangle, CheckCircle2, Table2 } from "lucide-react";
 import { INTEGRATION_LABELS } from "@/components/marketing/config";
+import { SectionLabel } from "@/components/marketing/section-label";
 import { usePrefersReducedMotion } from "@/components/marketing/use-reduced-motion";
 import { cn } from "@/lib/utils";
 
 export function CredibilityStrip() {
   return (
-    <section className="border-y border-border/40 bg-muted/15">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8 sm:py-10">
-        <p className="text-sm text-muted-foreground text-center mb-5">
-          Built from real analytics workflows at{" "}
-          <span className="text-foreground font-medium">your organization</span>.
+    <section className="border-y border-border/30">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-10 sm:py-12">
+        <p className="text-sm text-muted-foreground text-center mb-6">
+          Built for analytics teams that need answers they can defend.
         </p>
         <ul className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
           {INTEGRATION_LABELS.map((label) => (
             <li
               key={label}
-              className="text-xs font-medium text-muted-foreground border border-border/50 rounded-lg px-3 py-1.5 bg-card/30"
+              className="text-xs font-medium text-muted-foreground border border-border/50 rounded-full px-3.5 py-1.5 bg-card/50"
             >
               {label}
             </li>
@@ -45,13 +45,14 @@ export function ProblemSection() {
   const reduced = usePrefersReducedMotion();
 
   return (
-    <section id="product" className="border-b border-border/40">
+    <section id="product" className="border-b border-border/30">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-24">
-        <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-3">
-          The problem
-        </p>
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight max-w-2xl mb-4">
-          AI knows SQL. It does not know what your business means.
+        <SectionLabel>The problem</SectionLabel>
+        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight max-w-2xl mb-4 text-balance">
+          <span className="text-foreground">AI knows SQL.</span>{" "}
+          <span className="text-muted-foreground">
+            It does not know what your business means.
+          </span>
         </h2>
         <p className="text-muted-foreground max-w-2xl leading-relaxed mb-12">
           Generic tools can reach a warehouse. They still do not know your approved revenue
@@ -60,9 +61,9 @@ export function ProblemSection() {
         </p>
 
         <div ref={ref} className="grid md:grid-cols-2 gap-4 sm:gap-6">
-          {/* Generic side */}
-          <div className="rounded-2xl border border-destructive/25 bg-card/40 p-5 sm:p-6 relative overflow-hidden">
-            <p className="text-xs font-semibold uppercase tracking-wide text-destructive mb-4">
+          {/* Generic side — muted caution, not alarm red */}
+          <div className="rounded-2xl border border-warning/25 bg-card/60 p-5 sm:p-6 relative overflow-hidden">
+            <p className="text-xs font-semibold uppercase tracking-wide text-warning mb-4">
               Generic AI
             </p>
             <div className="grid grid-cols-3 gap-2 mb-5">
@@ -74,14 +75,14 @@ export function ProblemSection() {
                     inView
                       ? {
                           opacity: [0.35, 1, 0.45],
-                          borderColor: i === 1 || i === 4 ? "var(--destructive)" : undefined,
+                          borderColor: i === 1 || i === 4 ? "var(--warning)" : undefined,
                         }
                       : undefined
                   }
                   transition={{ duration: 1.6, delay: i * 0.08, repeat: reduced ? 0 : 1 }}
                   className={cn(
                     "rounded-md border border-border/60 px-2 py-2 text-[10px] font-mono text-muted-foreground truncate",
-                    (i === 1 || i === 4) && "border-destructive/40 bg-destructive/5"
+                    (i === 1 || i === 4) && "border-warning/40 bg-warning/5"
                   )}
                 >
                   <Table2 className="h-3 w-3 inline mr-1 opacity-50" />
@@ -89,10 +90,10 @@ export function ProblemSection() {
                 </motion.div>
               ))}
             </div>
-            <div className="rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3">
+            <div className="rounded-xl border border-warning/30 bg-warning/5 px-4 py-3">
               <p className="text-xs text-muted-foreground mb-1">Revenue</p>
               <p className="text-xl font-bold tabular-nums">$1.8M</p>
-              <p className="mt-2 text-xs text-destructive inline-flex items-start gap-1.5">
+              <p className="mt-2 text-xs text-warning inline-flex items-start gap-1.5">
                 <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
                 Included refunds and internal transactions.
               </p>
@@ -100,7 +101,7 @@ export function ProblemSection() {
           </div>
 
           {/* Evid side */}
-          <div className="rounded-2xl border border-primary/30 bg-card/40 p-5 sm:p-6 relative overflow-hidden">
+          <div className="rounded-2xl border border-primary/30 bg-card/60 p-5 sm:p-6 relative overflow-hidden">
             <p className="text-xs font-semibold uppercase tracking-wide text-primary mb-4">
               Evid
             </p>

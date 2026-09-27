@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Database, Lock, MessageSquare, Shield, Sparkles } from "lucide-react";
+import { SectionLabel } from "@/components/marketing/section-label";
 import { cn } from "@/lib/utils";
 
 const STEPS = [
@@ -124,13 +125,12 @@ export function HowItWorksSection() {
   const step = STEPS[active];
 
   return (
-    <section id="how-it-works" className="border-b border-border/40 bg-muted/10">
+    <section id="how-it-works" className="border-b border-border/30">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-24">
-        <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-3">
-          How it works
-        </p>
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-3">
-          Three steps. Fewer questionable answers.
+        <SectionLabel>How it works</SectionLabel>
+        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3 text-balance">
+          <span className="text-foreground">Three steps.</span>{" "}
+          <span className="text-muted-foreground">Fewer questionable answers.</span>
         </h2>
         <p className="text-muted-foreground max-w-xl mb-10 leading-relaxed">
           Connect a source, publish governed context, then ask. Evid stays on the approved
@@ -149,7 +149,7 @@ export function HowItWorksSection() {
                     "w-full text-left rounded-xl border px-4 py-3 transition-colors",
                     active === i
                       ? "border-primary/40 bg-primary/10"
-                      : "border-border/50 bg-card/30 hover:bg-muted/40"
+                      : "border-border/50 bg-card/50 hover:bg-white/[0.04]"
                   )}
                 >
                   <span className="text-[11px] font-mono text-muted-foreground">0{i + 1}</span>
@@ -168,7 +168,7 @@ export function HowItWorksSection() {
             ))}
           </ol>
 
-          <div className="rounded-2xl border border-border/60 bg-card/40 p-6 min-h-[280px]">
+          <div className="rounded-2xl border border-border/60 bg-card/60 p-6 min-h-[280px]">
             <AnimatePresence mode="wait">
               <motion.div
                 key={step.id}
