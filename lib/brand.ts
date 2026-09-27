@@ -10,8 +10,8 @@ export const BRAND = {
     "Governed AI analytics with published context, approved tables, inspectable SQL, and self-hosted deployment options.",
   /** Short line under the name in product chrome */
   productLabel: "Governed AI analytics",
-  supportEmail: "hello@niloy.tech",
-  githubUrl: "https://github.com/niloy-biswas/Evid",
+  supportEmail: "hello@evid.cc",
+  githubUrl: "https://github.com/niloy-biswas/evid",
   footerLine: "Evid. Governed answers from your own data.",
 } as const;
 
