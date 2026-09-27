@@ -29,6 +29,7 @@ import {
   HERO_DEMO_QUESTION,
   HERO_LIVE_REPLY,
 } from "@/components/marketing/demo-data";
+import { StreamingText } from "@/components/marketing/streaming-text";
 import { usePrefersReducedMotion } from "@/components/marketing/use-reduced-motion";
 import { BRAND } from "@/lib/brand";
 import { cn } from "@/lib/utils";
@@ -47,61 +48,6 @@ const DEMO_TAB_ITEMS: Array<{
   { id: "sql", label: "SQL", icon: Code2, dwellMs: 5000 },
   { id: "context", label: "Context", icon: LayoutList, dwellMs: 4000 },
 ];
-
-function useTypewriter(text: string, reduced: boolean, charsPerSec = 48) {
-  const [out, setOut] = useState("");
-
-  useEffect(() => {
-    if (reduced) {
-      setOut(text);
-      return;
-    }
-    setOut("");
-    let i = 0;
-    const stepMs = Math.max(12, Math.round(1000 / charsPerSec));
-    const id = window.setInterval(() => {
-      i += 1;
-      if (i >= text.length) {
-        setOut(text);
-        window.clearInterval(id);
-        return;
-      }
-      setOut(text.slice(0, i));
-    }, stepMs);
-    return () => window.clearInterval(id);
-  }, [text, reduced, charsPerSec]);
-
-  return out;
-}
-
-function StreamingText({
-  text,
-  reduced,
-  charsPerSec = 48,
-  className,
-  as: Tag = "p",
-}: {
-  text: string;
-  reduced: boolean;
-  charsPerSec?: number;
-  className?: string;
-  as?: "p" | "pre" | "span";
-}) {
-  const out = useTypewriter(text, reduced, charsPerSec);
-  const done = out.length >= text.length;
-
-  return (
-    <Tag className={className} aria-label={text}>
-      {out}
-      {!reduced && !done && (
-        <span
-          className="inline-block w-[0.5ch] h-[1em] align-[-0.1em] bg-primary/70 animate-pulse ml-0.5"
-          aria-hidden
-        />
-      )}
-    </Tag>
-  );
-}
 
 function ContextTagsStream({ tags, reduced }: { tags: readonly string[]; reduced: boolean }) {
   const [visible, setVisible] = useState(0);
