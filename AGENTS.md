@@ -24,7 +24,7 @@ Next.js app: **published** BI dashboards (`dashboards`), **per-dashboard chat** 
 | Pages | `app/` — **`/`** marketing (public), **`/app`** dashboard selector (auth), `/login`, `/signup`, `/auth/callback`, `/chat/[dashboardId]` → `/chat/[dashboardId]/[sessionNumber]`, `/share/[token]`, **`/admin/**`** |
 | Marketing UI | **`components/marketing/`** (landing sections, demo data, config copy) |
 | Brand | **`lib/brand.ts`** |
-| Color tokens | **`app/styles/palette.css`** (hex) → **`semantic.css`** / **`marketing-powder.css`** (roles). Landing Powder: edit `--powder-*` in palette, retune hero sky in `marketing-powder.css` |
+| Color tokens | **`app/styles/palette.css`** (hex) → **`semantic.css`** / **`marketing-powder.css`** (roles). Landing Powder: edit `--powder-*` in palette, retune hero sky / muted copy / type in `marketing-powder.css`. Display: Geist Sans (`geist/font/sans`); body: DM Sans (`--font-marketing-body`) |
 | Chat API | `app/api/chat/*` |
 | Sessions API | `app/api/sessions/*` |
 | Admin API | **`app/api/admin/**`** (dashboards, settings, users; enforce `user_role` server-side) |
