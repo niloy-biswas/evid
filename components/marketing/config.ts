@@ -1,5 +1,3 @@
-export type StatusBadge = "Available" | "Roadmap" | "Coming soon";
-
 export const MARKETING_NAV = [
   { href: "#product", label: "Product" },
   { href: "#how-it-works", label: "How it works" },
@@ -22,55 +20,85 @@ export const INTEGRATION_LABELS = [
   "OpenAI-compatible models",
 ] as const;
 
-/** Pricing / contact cards. No dollar amounts; all CTAs are email except roadmap/coming-soon items. */
+/**
+ * Powder-style pricing tiers. No public dollar amounts — priceLabel is a path
+ * (Self-host / Custom), not a sticker price. Available CTAs go to /book-demo;
+ * roadmap stays mailto.
+ */
+export type PricingFeature =
+  | { kind: "metric"; label: string; value: string }
+  | { kind: "check"; label: string; included: boolean };
+
 export const PRICING_PLANS: Array<{
   id: string;
-  title: string;
-  status: StatusBadge;
+  name: string;
+  priceLabel: string;
+  priceHint?: string;
   blurb: string;
-  points: string[];
+  features: PricingFeature[];
   ctaLabel: string;
-  subject: string;
+  /** Internal path or mailto subject key — see pricing section for wiring */
+  cta: { type: "demo" } | { type: "mailto"; subject: string };
+  highlighted?: boolean;
 }> = [
   {
     id: "community",
-    title: "Community",
-    status: "Roadmap",
+    name: "Community",
+    priceLabel: "Self-host",
+    priceHint: "Roadmap",
     blurb: "Run Evid yourself. Bring your own Supabase, warehouse, and model keys.",
-    points: [
-      "Self-hosted on your infrastructure",
-      "Published context and approved tables",
-      "Open-source friendly path",
+    features: [
+      { kind: "metric", label: "Hosting", value: "Your infra" },
+      { kind: "metric", label: "Dashboards", value: "Unlimited" },
+      { kind: "metric", label: "Data sources", value: "BYO BigQuery" },
+      { kind: "check", label: "Published context", included: true },
+      { kind: "check", label: "Approved tables", included: true },
+      { kind: "check", label: "Inspectable SQL", included: true },
+      { kind: "check", label: "Managed hosting", included: false },
+      { kind: "check", label: "Implementation help", included: false },
     ],
-    ctaLabel: "Contact about Community",
-    subject: "Evid Community",
+    ctaLabel: "Talk about Community",
+    cta: { type: "mailto", subject: "Evid Community" },
   },
   {
     id: "cloud",
-    title: "Cloud + implementation",
-    status: "Available",
+    name: "Cloud",
+    priceLabel: "Custom",
+    priceHint: "Available",
     blurb: "We host the app and help you connect dashboards, rules, and data sources.",
-    points: [
-      "Managed Evid Cloud",
-      "Warehouse and context setup support",
-      "Role-based admin for your team",
+    features: [
+      { kind: "metric", label: "Hosting", value: "Managed" },
+      { kind: "metric", label: "Dashboards", value: "Unlimited" },
+      { kind: "metric", label: "Data sources", value: "Per dashboard" },
+      { kind: "check", label: "Published context", included: true },
+      { kind: "check", label: "Approved tables", included: true },
+      { kind: "check", label: "Inspectable SQL", included: true },
+      { kind: "check", label: "Managed hosting", included: true },
+      { kind: "check", label: "Implementation help", included: true },
     ],
-    ctaLabel: "Contact about Cloud",
-    subject: "Evid Cloud and implementation",
+    ctaLabel: "Book a demo",
+    cta: { type: "demo" },
+    highlighted: true,
   },
   {
     id: "setup",
-    title: "We set it up for you",
-    status: "Available",
+    name: "Setup",
+    priceLabel: "Custom",
+    priceHint: "Available",
     blurb:
-      "A full setup service: we wire your stack, publish your first dashboards, and hand over a working workspace.",
-    points: [
-      "End-to-end configuration",
-      "Business rules and approved tables",
-      "Handoff and walkthrough for your team",
+      "We wire your stack, publish your first dashboards, and hand over a working workspace.",
+    features: [
+      { kind: "metric", label: "Hosting", value: "Your choice" },
+      { kind: "metric", label: "Dashboards", value: "First set shipped" },
+      { kind: "metric", label: "Data sources", value: "Configured for you" },
+      { kind: "check", label: "Published context", included: true },
+      { kind: "check", label: "Approved tables", included: true },
+      { kind: "check", label: "Inspectable SQL", included: true },
+      { kind: "check", label: "Managed hosting", included: false },
+      { kind: "check", label: "Full setup + handoff", included: true },
     ],
-    ctaLabel: "Contact about setup",
-    subject: "Evid setup service",
+    ctaLabel: "Book a demo",
+    cta: { type: "demo" },
   },
 ];
 
