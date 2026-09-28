@@ -45,7 +45,9 @@ export function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
         <div className="powder-hero-glow absolute inset-0" />
       </div>
 
-      <div className="relative z-20 mx-auto max-w-6xl px-4 sm:px-6 pt-8 sm:pt-12">
+      {/* pt compensates for the fixed header (h-14) it no longer reserves flow
+          space for, plus the section's own pt-8/pt-12 breathing room. */}
+      <div className="relative z-20 mx-auto max-w-6xl px-4 sm:px-6 pt-[5.5rem] sm:pt-[6.5rem]">
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
