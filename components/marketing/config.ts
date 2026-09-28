@@ -108,12 +108,12 @@ export const DEPLOY_OPTIONS: Array<{
   },
   {
     id: "community",
-    name: "Community Edition",
-    status: "Coming soon",
-    blurb: "Self-host Evid yourself.",
+    name: "Self-host",
+    status: "Docker soon",
+    blurb: "Run Evid yourself under the Elastic License 2.0.",
     points: ["Your Supabase, warehouse, and model keys", "Unlimited dashboards"],
     ctaLabel: "Get notified",
-    cta: { type: "mailto", subject: "Evid Community Edition" },
+    cta: { type: "mailto", subject: "Evid self-hosting" },
     available: false,
   },
 ];
@@ -155,7 +155,7 @@ export const FAQ_ITEMS: Array<{ id: string; question: string; answer: string }> 
     id: "self-host",
     question: "Can we self-host Evid?",
     answer:
-      "Community Edition for self-hosting is coming soon. Today we can run Evid for you or set it up in your environment.",
+      "Yes. Evid is licensed under the Elastic License 2.0, so you can run it in your own environment, just not resell it as a hosted service. Docker packaging is coming soon, and we can set it up for you today.",
   },
   {
     id: "roles",
