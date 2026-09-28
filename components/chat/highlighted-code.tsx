@@ -38,7 +38,7 @@ export function HighlightedCode({ code, language, wrapperClassName = "", customS
         title="Copy code"
         className="absolute top-2 right-2 z-10 flex items-center gap-1 px-1.5 py-1 rounded-md text-xs opacity-0 group-hover/hlcode:opacity-100 transition-opacity bg-black/30 hover:bg-black/50 text-white/70 hover:text-white"
       >
-        {copied ? <Check className="h-3 w-3 text-green-400" /> : <Copy className="h-3 w-3" />}
+        {copied ? <Check className="h-3 w-3 text-success" /> : <Copy className="h-3 w-3" />}
       </button>
       <SyntaxHighlighter
         language={language}
@@ -49,11 +49,11 @@ export function HighlightedCode({ code, language, wrapperClassName = "", customS
           margin: 0,
           padding: "1rem",
           border: "1px solid var(--border)",
-          background: isDark ? "#1a1d23" : "#f6f8fa",
+          background: "var(--card)",
           ...customStyle,
         }}
         showLineNumbers={code.split("\n").length > 8}
-        lineNumberStyle={{ color: isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.25)", fontSize: "0.7rem" }}
+        lineNumberStyle={{ color: "var(--muted-foreground)", fontSize: "0.7rem" }}
       >
         {code}
       </SyntaxHighlighter>

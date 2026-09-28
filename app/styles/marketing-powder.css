@@ -1,0 +1,153 @@
+/**
+ * Landing-only theme. Scoped under [data-theme="powder"].
+ *
+ * Edit path for landing color:
+ *   1. app/styles/palette.css  — primitive hex values (--powder-*)
+ *   2. This file               — semantic remap, type, hero sky/dissolve/contours
+ * Components consume var(--…) / classes below; no color literals there.
+ */
+[data-theme="powder"] {
+  color-scheme: dark;
+
+  --background: var(--powder-bg);
+  --foreground: var(--neutral-0);
+  --card: var(--powder-surface);
+  --card-foreground: var(--neutral-0);
+  --popover: var(--powder-elevated);
+  --popover-foreground: var(--neutral-0);
+
+  --primary: var(--brand-300);
+  --primary-foreground: var(--brand-950);
+  --secondary: var(--powder-elevated);
+  --secondary-foreground: var(--neutral-200);
+  --muted: var(--powder-elevated);
+  /* Secondary chrome on near-black */
+  --muted-foreground: color-mix(in srgb, var(--neutral-0) 88%, var(--powder-bg));
+  /* Supporting body paragraphs — still secondary, easier to read */
+  --powder-copy-muted: color-mix(in srgb, var(--neutral-0) 92%, var(--powder-bg));
+  --accent: var(--powder-elevated);
+  --accent-foreground: var(--neutral-100);
+  --border: color-mix(in srgb, var(--neutral-0) 12%, transparent);
+  --input: color-mix(in srgb, var(--neutral-0) 10%, transparent);
+  --ring: color-mix(in srgb, var(--brand-300) 45%, transparent);
+
+  --destructive: var(--danger-400);
+  --warning: var(--warn-400);
+  --success: var(--ok-400);
+
+  --chart-1: var(--brand-300);
+  --chart-2: var(--viz-2);
+  --chart-3: var(--viz-3);
+  --chart-4: var(--viz-4);
+  --chart-5: var(--viz-5);
+  --chart-6: var(--viz-6);
+
+  --surface-solid: var(--powder-surface);
+  --glow-primary: color-mix(in srgb, var(--brand-300) 45%, transparent);
+  --glow-accent: color-mix(in srgb, var(--powder-horizon) 40%, transparent);
+  --glow-warm: color-mix(in srgb, var(--powder-horizon) 50%, transparent);
+
+  --radius: 0.875rem;
+
+  /*
+   * Hero composition — retune sky band / dissolve / contour ink here.
+   * Geometry (paths, top/height) stays in hero-landscape.tsx.
+   */
+  --powder-hero-sky: radial-gradient(
+    200% 78% at 50% 0%,
+    var(--powder-sky-top) 0%,
+    var(--powder-sky-mid) 48%,
+    var(--powder-horizon) 78%,
+    color-mix(in srgb, var(--powder-horizon) 35%, var(--powder-bg)) 90%,
+    var(--powder-bg) 100%
+  );
+  --powder-hero-dissolve: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--powder-bg) 8%, transparent) 18%,
+    color-mix(in srgb, var(--powder-bg) 28%, transparent) 40%,
+    color-mix(in srgb, var(--powder-bg) 55%, transparent) 62%,
+    color-mix(in srgb, var(--powder-bg) 82%, transparent) 82%,
+    var(--powder-bg) 96%,
+    var(--powder-bg) 100%
+  );
+
+  --powder-contour-1: color-mix(in srgb, var(--neutral-0) 16%, transparent);
+  --powder-contour-2: color-mix(in srgb, var(--neutral-0) 10%, transparent);
+  --powder-contour-3: color-mix(in srgb, var(--powder-horizon) 28%, transparent);
+  --powder-contour-4: color-mix(in srgb, var(--neutral-0) 7%, transparent);
+  --powder-contour-5: color-mix(in srgb, var(--powder-horizon) 12%, transparent);
+
+  background-color: var(--powder-bg);
+  background-image: none;
+  color: var(--foreground);
+  /* Body: DM Sans (--font-marketing-body). Headings: Geist Sans 700 (--font-geist-sans). */
+  --font-sans: var(--font-marketing-body), var(--font-noto-bengali), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-geist-sans), var(--font-marketing-body), system-ui, sans-serif;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.55;
+  letter-spacing: -0.011em;
+  -webkit-font-smoothing: antialiased;
+}
+
+[data-theme="powder"] h1,
+[data-theme="powder"] h2,
+[data-theme="powder"] h3,
+[data-theme="powder"] .font-heading {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+[data-theme="powder"] h1 {
+  line-height: 1;
+}
+
+[data-theme="powder"] p,
+[data-theme="powder"] li {
+  text-wrap: pretty;
+}
+
+/* Supporting paragraphs — primary reading, not chrome */
+[data-theme="powder"] p.text-muted-foreground {
+  color: var(--powder-copy-muted);
+  font-weight: 500;
+}
+
+html.dark:has([data-theme="powder"]) body {
+  background: var(--powder-bg);
+  background-attachment: scroll;
+}
+
+[data-theme="powder"] ::selection {
+  background: color-mix(in srgb, var(--brand-300) 35%, transparent);
+  color: var(--neutral-0);
+}
+
+/* Hero sky layers — applied from components/marketing/hero-landscape.tsx */
+[data-theme="powder"] .powder-hero-sky {
+  background: var(--powder-hero-sky);
+}
+
+[data-theme="powder"] .powder-hero-dissolve {
+  background: var(--powder-hero-dissolve);
+}
+
+[data-theme="powder"] .powder-contour-1 {
+  stroke: var(--powder-contour-1);
+}
+[data-theme="powder"] .powder-contour-2 {
+  stroke: var(--powder-contour-2);
+}
+[data-theme="powder"] .powder-contour-3 {
+  stroke: var(--powder-contour-3);
+}
+[data-theme="powder"] .powder-contour-4 {
+  stroke: var(--powder-contour-4);
+}
+[data-theme="powder"] .powder-contour-5 {
+  stroke: var(--powder-contour-5);
+}

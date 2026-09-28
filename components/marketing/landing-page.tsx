@@ -12,31 +12,41 @@ import { AnalyticsShowcase } from "@/components/marketing/analytics-showcase";
 import { ComparisonSection } from "@/components/marketing/comparison-section";
 import { PricingContactSection } from "@/components/marketing/pricing-section";
 import { FaqSection } from "@/components/marketing/faq-section";
+import { ChangelogSection } from "@/components/marketing/changelog-section";
 import { FinalCta } from "@/components/marketing/final-cta";
 import { LandingFooter } from "@/components/marketing/landing-footer";
+import { ScrollReveal } from "@/components/marketing/scroll-reveal";
 
+/**
+ * Marketing landing — fixed Powder dusk theme.
+ * Atmosphere lives in the hero; later sections reveal on scroll.
+ */
 export function LandingPageView({ isLoggedIn }: { isLoggedIn: boolean }) {
-  return (
-    <div className="min-h-screen flex flex-col relative overflow-x-hidden bg-background text-foreground">
-      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-        <div className="absolute top-[-18%] left-1/2 -translate-x-1/2 w-[720px] h-[480px] rounded-full bg-primary/5 blur-[120px]" />
-        <div className="absolute top-[35%] right-[-10%] w-[420px] h-[420px] rounded-full bg-[var(--chart-primary-glow)] blur-[100px]" />
-        <div className="absolute bottom-[10%] left-[-5%] w-[320px] h-[320px] rounded-full bg-[var(--brand-red-glow)] blur-[90px]" />
-      </div>
+  const afterHero = [
+    { key: "credibility", node: <CredibilityStrip /> },
+    { key: "problem", node: <ProblemSection /> },
+    { key: "how", node: <HowItWorksSection /> },
+    { key: "capabilities", node: <CapabilitiesSection /> },
+    { key: "showcase", node: <AnalyticsShowcase /> },
+    { key: "compare", node: <ComparisonSection /> },
+    { key: "pricing", node: <PricingContactSection /> },
+    { key: "faq", node: <FaqSection /> },
+    { key: "changelog", node: <ChangelogSection /> },
+    { key: "final-cta", node: <FinalCta isLoggedIn={isLoggedIn} /> },
+  ];
 
+  return (
+    <div
+      data-theme="powder"
+      className="dark min-h-screen flex flex-col relative overflow-x-clip bg-background text-foreground"
+    >
       <LandingHeader isLoggedIn={isLoggedIn} />
 
       <main className="relative z-10 flex-1">
         <HeroSection isLoggedIn={isLoggedIn} />
-        <CredibilityStrip />
-        <ProblemSection />
-        <HowItWorksSection />
-        <CapabilitiesSection />
-        <AnalyticsShowcase />
-        <ComparisonSection />
-        <PricingContactSection />
-        <FaqSection />
-        <FinalCta isLoggedIn={isLoggedIn} />
+        {afterHero.map(({ key, node }) => (
+          <ScrollReveal key={key}>{node}</ScrollReveal>
+        ))}
       </main>
 
       <div className="relative z-10">

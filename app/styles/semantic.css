@@ -1,0 +1,104 @@
+/**
+ * Tier 2 — semantic roles. Every value here is a var() reference or a
+ * color-mix() of one — zero literals. This is what components/CSS
+ * actually consume (bg-primary, text-muted-foreground, var(--chart-1), …).
+ *
+ * Rebranding never touches this file: it only changes which primitive
+ * stop each role points at, and that mapping is deliberately stable.
+ */
+:root {
+  --background: var(--neutral-50);
+  --foreground: var(--neutral-950);
+  --card: color-mix(in srgb, var(--neutral-0) 72%, transparent);
+  --card-foreground: var(--neutral-950);
+  --popover: color-mix(in srgb, var(--neutral-0) 94%, transparent);
+  --popover-foreground: var(--neutral-950);
+  --primary: var(--brand-600);
+  --primary-foreground: var(--neutral-0);
+  --secondary: color-mix(in srgb, var(--neutral-100) 75%, transparent);
+  --secondary-foreground: var(--neutral-800);
+  --muted: color-mix(in srgb, var(--neutral-100) 75%, transparent);
+  --muted-foreground: var(--neutral-600);
+  --accent: color-mix(in srgb, var(--neutral-200) 85%, transparent);
+  --accent-foreground: var(--neutral-800);
+  --border: color-mix(in srgb, var(--neutral-950) 9%, transparent);
+  --input: color-mix(in srgb, var(--neutral-0) 70%, transparent);
+  --ring: color-mix(in srgb, var(--primary) 35%, transparent);
+  --grid-line: color-mix(in srgb, var(--neutral-950) 7%, transparent);
+  --radius: 0.75rem;
+
+  --destructive: var(--danger-600);
+  --warning: var(--warn-600);
+  --success: var(--ok-600);
+
+  --sidebar: color-mix(in srgb, var(--neutral-0) 60%, transparent);
+  --sidebar-foreground: var(--neutral-800);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--neutral-100);
+  --sidebar-accent-foreground: var(--neutral-600);
+  --sidebar-border: color-mix(in srgb, var(--neutral-950) 7%, transparent);
+  --sidebar-ring: var(--ring);
+
+  /* Categorical chart scale. chart-1 is the brand color, so "the main
+     number" is always brand-colored. Light mode uses the "-deep" stops
+     of viz-3/4/5/6 so they hold up against a near-white background. */
+  --chart-1: var(--brand-500);
+  --chart-2: var(--viz-2-deep);
+  --chart-3: var(--viz-3-deep);
+  --chart-4: var(--viz-4-deep);
+  --chart-5: var(--viz-5-deep);
+  --chart-6: var(--viz-6-deep);
+
+  /* Opaque surface for canvas/PNG export — transparency rasterizes badly. */
+  --surface-solid: var(--neutral-0);
+
+  --glow-primary: color-mix(in srgb, var(--primary) 30%, transparent);
+  --glow-accent: color-mix(in srgb, var(--chart-1) 15%, transparent);
+}
+
+.dark {
+  --background: var(--neutral-950);
+  --foreground: var(--neutral-100);
+  --card: var(--neutral-900);
+  --card-foreground: var(--neutral-100);
+  --popover: var(--neutral-900);
+  --popover-foreground: var(--neutral-100);
+  --primary: var(--brand-400);
+  --primary-foreground: var(--brand-950); /* NOT white — #34B6CE + white is 2.43:1, fails */
+  --secondary: var(--neutral-800);
+  --secondary-foreground: var(--neutral-400);
+  --muted: var(--neutral-800);
+  --muted-foreground: var(--neutral-500);
+  --accent: var(--neutral-700);
+  --accent-foreground: var(--neutral-300);
+  --border: color-mix(in srgb, var(--neutral-0) 9%, transparent);
+  --input: color-mix(in srgb, var(--neutral-0) 6%, transparent);
+  --ring: color-mix(in srgb, var(--primary) 40%, transparent);
+  --grid-line: color-mix(in srgb, var(--neutral-0) 4.5%, transparent);
+
+  --destructive: var(--danger-400);
+  --warning: var(--warn-400);
+  --success: var(--ok-400);
+
+  --sidebar: var(--neutral-925);
+  --sidebar-foreground: var(--neutral-300);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--neutral-800);
+  --sidebar-accent-foreground: var(--neutral-400);
+  --sidebar-border: color-mix(in srgb, var(--neutral-0) 6%, transparent);
+  --sidebar-ring: var(--ring);
+
+  --chart-1: var(--brand-400);
+  --chart-2: var(--viz-2);
+  --chart-3: var(--viz-3);
+  --chart-4: var(--viz-4);
+  --chart-5: var(--viz-5);
+  --chart-6: var(--viz-6);
+
+  --surface-solid: var(--neutral-900);
+
+  --glow-primary: color-mix(in srgb, var(--primary) 35%, transparent);
+  --glow-accent: color-mix(in srgb, var(--chart-1) 20%, transparent);
+}

@@ -41,8 +41,9 @@ export async function proxy(request: NextRequest) {
 
   const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/signup");
   const isPublicApi = pathname.startsWith("/api/public");
-  // Marketing landing is public; product lives under /app
-  const isPublicMarketing = pathname === "/";
+  // Marketing landing + demo booking are public; product lives under /app
+  const isPublicMarketing =
+    pathname === "/" || pathname === "/book-demo" || pathname.startsWith("/book-demo/");
 
   if (!user && !isAuthPage && !isPublicApi && !isPublicMarketing) {
     const url = request.nextUrl.clone();

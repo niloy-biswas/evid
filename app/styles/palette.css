@@ -1,0 +1,88 @@
+/**
+ * Tier 1 — primitives. The ONLY file in this repo permitted to contain a
+ * color literal (hex / rgb / rgba). Everything else references these by
+ * var(), directly or through app/styles/semantic.css.
+ *
+ * To rebrand: change --brand-* below and nothing else. See the "Rebranding"
+ * section of the color-system plan for the two contrast checks to re-run.
+ *
+ * Primitives are named by ROLE (--brand-*), not by hue (--teal-*), so a
+ * future hue change is a value edit here, not a rename across the codebase.
+ * A ramp does not change per theme — themes pick different stops of the
+ * same ramp in semantic.css, they do not redefine values here.
+ */
+:root {
+  /* Brand ramp — hue ~192 (teal) */
+  --brand-50: #ecfbfd;
+  --brand-100: #d0f3f8;
+  --brand-200: #a3e6f0;
+  --brand-300: #6bd2e3;
+  --brand-400: #34b6ce; /* dark primary       8.15:1 on --neutral-950 */
+  --brand-500: #1897b2;
+  --brand-600: #0c6a80; /* light primary      6.22:1 on white */
+  --brand-700: #126275;
+  --brand-800: #16505f;
+  --brand-900: #16424f;
+  --brand-950: #072a33; /* dark primary-fg    6.23:1 on --brand-400 */
+
+  /* Neutral ramp — teal-tinted, not navy */
+  --neutral-0: #ffffff;
+  --neutral-50: #f4f7f8;
+  --neutral-100: #e9eff2;
+  --neutral-200: #dce5e9;
+  --neutral-300: #c3d1d5;
+  --neutral-400: #b4c4c9;
+  --neutral-500: #84949b;
+  --neutral-600: #5a6b73;
+  --neutral-700: #1b262b;
+  --neutral-800: #141d21;
+  --neutral-900: #11191d; /* lifted from #0d1417, L 7.1% -> 9.0% */
+  --neutral-925: #0f1619; /* lifted from #090f12, L 5.3% -> 8.0% */
+  --neutral-950: #0d1416; /* lifted from #070b0d, L 3.9% -> 7.0% — GitHub dark's bg is also ~7.1% L */
+
+  /* Status ramps — deliberately not the brand hue */
+  --danger-400: #f0564b;
+  --danger-600: #c62b22;
+  --warn-400: #e0a340;
+  --warn-600: #b87a14;
+  --ok-400: #2ebd85;
+  --ok-600: #0e8f5f;
+
+  /* Categorical viz. viz-1 is the brand and lives on the brand ramp
+     (see semantic.css --chart-1). "-deep" stops are for light mode,
+     where the bright stops wash out against a near-white background. */
+  --viz-2: #7c8cf8;
+  --viz-2-deep: #5a6be0; /* indigo */
+  --viz-3: #e0a340;
+  --viz-3-deep: #b87a14; /* sand   */
+  --viz-4: #4ed8a0;
+  --viz-4-deep: #21b37e; /* mint   */
+  --viz-5: #e8739f;
+  --viz-5-deep: #c74b7a; /* rose   */
+  --viz-6: #b48ae8;
+  --viz-6-deep: #8e5fc9; /* violet */
+
+  /* Elevation shadow. Pure black regardless of theme — depth, not brand,
+     so it deliberately doesn't come from the neutral ramp. */
+  --overlay-shadow: rgba(0, 0, 0, 0.6);
+
+  /*
+   * Powder marketing primitives
+   * ───────────────────────────
+   * Two layers (matches powder.framer.website):
+   *   1. Hero sky  — --powder-sky-* + --powder-horizon*
+   *   2. Page body — --powder-bg / surface / elevated (near-dark after hero)
+   *
+   * Rebrand the landing: edit values here, then (if needed) retune stops in
+   * app/styles/marketing-powder.css under "Hero composition". Components
+   * should not hardcode Powder hex/rgba.
+   */
+  --powder-sky-top: #1b2228;
+  --powder-sky-mid: #353f44;
+  --powder-horizon: #d39794;
+  --powder-horizon-soft: #e4b8b4;
+  --powder-bg: #0e1114;
+  --powder-surface: #181c21;
+  --powder-elevated: #22272e;
+  --powder-glass: rgba(14, 17, 20, 0.82);
+}

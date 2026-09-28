@@ -148,7 +148,7 @@ export default function SignupPage() {
       {/* Ambient glow */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute top-[25%] left-1/2 -translate-x-1/2 w-[700px] h-[600px] rounded-full bg-primary/7 blur-[160px]" />
-        <div className="absolute bottom-0 right-1/4 w-[300px] h-[300px] rounded-full bg-[#4f8ef7]/5 blur-[120px]" />
+        <div className="absolute bottom-0 right-1/4 w-[300px] h-[300px] rounded-full bg-[var(--glow-accent)] blur-[120px]" />
       </div>
 
       {/* Vertical accent lines */}
@@ -161,7 +161,7 @@ export default function SignupPage() {
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className="relative w-full max-w-[380px]"
       >
-        <div className="bg-card border border-border/60 rounded-2xl shadow-[0_32px_80px_rgba(0,0,0,0.6)] overflow-hidden">
+        <div className="bg-card border border-border/60 rounded-2xl shadow-[0_32px_80px_var(--overlay-shadow)] overflow-hidden">
           {/* Top accent */}
           <div className="h-[1.5px] bg-gradient-to-r from-transparent via-primary/80 to-transparent" />
 
@@ -286,7 +286,7 @@ export default function SignupPage() {
                     className={`w-full h-11 px-4 pr-10 rounded-xl bg-input border text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 transition-all duration-200 ${
                       showDomainFeedback
                         ? isValidDomain
-                          ? "border-emerald-500/50 focus:border-emerald-500/70 focus:ring-emerald-500/15"
+                          ? "border-success/50 focus:border-success/70 focus:ring-success/15"
                           : "border-destructive/50 focus:border-destructive/70 focus:ring-destructive/15"
                         : "border-border/60 focus:border-primary/50 focus:ring-primary/15"
                     }`}
@@ -294,7 +294,7 @@ export default function SignupPage() {
                   {showDomainFeedback && (
                     <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
                       {isValidDomain ? (
-                        <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                        <CheckCircle2 className="h-4 w-4 text-success" />
                       ) : (
                         <XCircle className="h-4 w-4 text-destructive" />
                       )}
@@ -340,10 +340,10 @@ export default function SignupPage() {
               <button
                 type="submit"
                 disabled={loading || (restrictedDomain && showDomainFeedback && !isValidDomain)}
-                className="w-full h-11 mt-1 bg-primary hover:bg-primary/90 active:bg-primary/80 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl flex items-center justify-center gap-2 shadow-[0_4px_24px_rgba(229,57,53,0.35)] hover:shadow-[0_4px_32px_rgba(229,57,53,0.5)] transition-all duration-200"
+                className="w-full h-11 mt-1 bg-primary hover:bg-primary/90 active:bg-primary/80 disabled:opacity-50 disabled:cursor-not-allowed text-primary-foreground text-sm font-semibold rounded-xl flex items-center justify-center gap-2 shadow-[0_4px_24px_var(--glow-primary)] hover:shadow-[0_4px_32px_var(--glow-primary)] transition-all duration-200"
               >
                 {loading ? (
-                  <span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                  <span className="h-4 w-4 rounded-full border-2 border-current/30 border-t-current animate-spin" />
                 ) : (
                   <>
                     <UserPlus className="h-4 w-4" />

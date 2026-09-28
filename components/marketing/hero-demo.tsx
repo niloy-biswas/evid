@@ -29,8 +29,9 @@ import {
   HERO_DEMO_QUESTION,
   HERO_LIVE_REPLY,
 } from "@/components/marketing/demo-data";
+import { StreamingText } from "@/components/marketing/streaming-text";
 import { usePrefersReducedMotion } from "@/components/marketing/use-reduced-motion";
-import { BRAND, contactMailto } from "@/lib/brand";
+import { BRAND } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 
 type DemoTab = "answer" | "chart" | "sql" | "context";
@@ -48,63 +49,8 @@ const DEMO_TAB_ITEMS: Array<{
   { id: "context", label: "Context", icon: LayoutList, dwellMs: 4000 },
 ];
 
-function useTypewriter(text: string, reduced: boolean, charsPerSec = 48) {
-  const [out, setOut] = useState("");
-
-  useEffect(() => {
-    if (reduced) {
-      setOut(text);
-      return;
-    }
-    setOut("");
-    let i = 0;
-    const stepMs = Math.max(12, Math.round(1000 / charsPerSec));
-    const id = window.setInterval(() => {
-      i += 1;
-      if (i >= text.length) {
-        setOut(text);
-        window.clearInterval(id);
-        return;
-      }
-      setOut(text.slice(0, i));
-    }, stepMs);
-    return () => window.clearInterval(id);
-  }, [text, reduced, charsPerSec]);
-
-  return out;
-}
-
-function StreamingText({
-  text,
-  reduced,
-  charsPerSec = 48,
-  className,
-  as: Tag = "p",
-}: {
-  text: string;
-  reduced: boolean;
-  charsPerSec?: number;
-  className?: string;
-  as?: "p" | "pre" | "span";
-}) {
-  const out = useTypewriter(text, reduced, charsPerSec);
-  const done = out.length >= text.length;
-
-  return (
-    <Tag className={className} aria-label={text}>
-      {out}
-      {!reduced && !done && (
-        <span
-          className="inline-block w-[0.5ch] h-[1em] align-[-0.1em] bg-primary/70 animate-pulse ml-0.5"
-          aria-hidden
-        />
-      )}
-    </Tag>
-  );
-}
-
 function ContextTagsStream({ tags, reduced }: { tags: readonly string[]; reduced: boolean }) {
-  const [visible, setVisible] = useState(0);
+  const [visible, setVisible] = useState(reduced ? tags.length : 0);
 
   useEffect(() => {
     if (reduced) {
@@ -113,7 +59,7 @@ function ContextTagsStream({ tags, reduced }: { tags: readonly string[]; reduced
     }
     setVisible(0);
     const timers = tags.map((_, i) =>
-      window.setTimeout(() => setVisible(i + 1), 280 + i * 520)
+      window.setTimeout(() => setVisible(i + 1), 40 + i * 70)
     );
     return () => timers.forEach((id) => window.clearTimeout(id));
   }, [reduced, tags]);
@@ -123,9 +69,9 @@ function ContextTagsStream({ tags, reduced }: { tags: readonly string[]; reduced
       {tags.slice(0, visible).map((tag) => (
         <motion.li
           key={tag}
-          initial={reduced ? false : { opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25 }}
+          initial={reduced ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
           className="text-xs rounded-md border border-border/60 bg-muted/30 px-3 py-2 text-foreground/90"
         >
           {tag}
@@ -135,10 +81,9 @@ function ContextTagsStream({ tags, reduced }: { tags: readonly string[]; reduced
   );
 }
 
-export function HeroDemo() {
+export function HeroDemo({ embedded = false }: { embedded?: boolean }) {
   const reduced = usePrefersReducedMotion();
   const rootRef = useRef<HTMLDivElement>(null);
-  const liveEndRef = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
   const [stage, setStage] = useState<Stage>("idle");
   const [contextDone, setContextDone] = useState(0);
@@ -146,7 +91,7 @@ export function HeroDemo() {
   const [metric, setMetric] = useState(0);
   const [chartReady, setChartReady] = useState(false);
   const [draft, setDraft] = useState("");
-  const [liveUserMessage, setLiveUserMessage] = useState<string | null>(null);
+  const [liveTurn, setLiveTurn] = useState<{ id: string; user: string } | null>(null);
 
   const activeTab = DEMO_TAB_ITEMS.find((t) => t.id === tab) ?? DEMO_TAB_ITEMS[0];
 
@@ -183,6 +128,7 @@ export function HeroDemo() {
     setMetric(0);
     setChartReady(false);
     setTab("answer");
+    setLiveTurn(null);
 
     timers.push(
       window.setTimeout(() => {
@@ -237,14 +183,6 @@ export function HeroDemo() {
   }, [inView, reduced]);
 
   useEffect(() => {
-    if (!liveUserMessage) return;
-    liveEndRef.current?.scrollIntoView({
-      behavior: reduced ? "auto" : "smooth",
-      block: "nearest",
-    });
-  }, [liveUserMessage, reduced]);
-
-  useEffect(() => {
     if (stage !== "result" || !inView) return;
 
     const timer = window.setTimeout(() => {
@@ -260,19 +198,31 @@ export function HeroDemo() {
   const sendLiveMessage = () => {
     const text = draft.trim();
     if (!text) return;
-    setLiveUserMessage(text);
+    setLiveTurn({ id: String(Date.now()), user: text });
     setDraft("");
   };
 
   return (
     <div
       ref={rootRef}
-      className="relative rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm overflow-hidden shadow-2xl"
+      className={cn(
+        "relative overflow-hidden",
+        embedded
+          ? "bg-transparent"
+          : "rounded-[1.25rem] border border-border/70 bg-card/80 backdrop-blur-md shadow-[0_24px_80px_var(--overlay-shadow)] outline outline-1 outline-white/10"
+      )}
       aria-label="Product demonstration of Evid answering a revenue question"
     >
-      <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-primary/60 to-transparent pointer-events-none" />
+      {!embedded && (
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/70 to-transparent pointer-events-none" />
+      )}
 
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-border/50 bg-muted/20">
+      <div
+        className={cn(
+          "flex items-center gap-2 px-4 py-3 border-b border-border/50",
+          embedded ? "bg-white/[0.03]" : "bg-muted/30"
+        )}
+      >
         <span className="h-2.5 w-2.5 rounded-full bg-border" />
         <span className="h-2.5 w-2.5 rounded-full bg-border" />
         <span className="h-2.5 w-2.5 rounded-full bg-border" />
@@ -333,14 +283,33 @@ export function HeroDemo() {
           )}
         </AnimatePresence>
 
-        <AnimatePresence>
+        <AnimatePresence initial={false}>
           {stage === "result" && (
             <motion.div
-              initial={reduced ? false : { opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35 }}
-              className="rounded-xl border border-border/60 bg-background/60 overflow-hidden"
+              key="result-panel"
+              initial={reduced ? false : { height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={reduced ? undefined : { height: 0, opacity: 0 }}
+              transition={
+                reduced
+                  ? { duration: 0 }
+                  : {
+                      height: { type: "spring", duration: 0.55, bounce: 0 },
+                      opacity: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
+                    }
+              }
+              className="overflow-hidden"
             >
+              <motion.div
+                initial={reduced ? false : { opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={
+                  reduced
+                    ? { duration: 0 }
+                    : { duration: 0.35, delay: 0.12, ease: [0.22, 1, 0.36, 1] }
+                }
+                className="relative z-10 rounded-xl border border-border/60 bg-background/60 overflow-hidden"
+              >
               <div className="px-3 sm:px-4 pt-3 flex flex-col gap-2">
                 <p className="text-[11px] font-medium text-primary tracking-wide">
                   {HERO_ANSWER.foundLabel}
@@ -389,7 +358,23 @@ export function HeroDemo() {
                 </div>
               </div>
 
-              <div className="p-3 sm:p-4 h-[13.5rem] sm:h-[15.5rem]" role="tabpanel">
+              <div
+                className="relative p-3 sm:p-4 h-[13.5rem] sm:h-[15.5rem] overflow-hidden"
+                role="tabpanel"
+              >
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.div
+                    key={tab}
+                    initial={reduced ? false : { opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={reduced ? undefined : { opacity: 0, y: -6 }}
+                    transition={
+                      reduced
+                        ? { duration: 0 }
+                        : { duration: 0.28, ease: [0.22, 1, 0.36, 1] }
+                    }
+                    className="h-full w-full"
+                  >
                 {tab === "answer" && (
                   <div className="h-full flex flex-col justify-center space-y-3">
                     <div className="flex flex-wrap items-end gap-3">
@@ -461,11 +446,11 @@ export function HeroDemo() {
                             />
                             <Bar
                               dataKey="enrolments"
-                              fill="var(--chart-primary)"
+                              fill="var(--chart-1)"
                               opacity={0.35}
                               radius={[4, 4, 0, 0]}
                               isAnimationActive={!reduced}
-                              animationDuration={900}
+                              animationDuration={700}
                             />
                             <Line
                               type="monotone"
@@ -474,7 +459,7 @@ export function HeroDemo() {
                               strokeWidth={2}
                               dot={false}
                               isAnimationActive={!reduced}
-                              animationDuration={1100}
+                              animationDuration={800}
                             />
                             <Line
                               type="monotone"
@@ -484,7 +469,7 @@ export function HeroDemo() {
                               strokeDasharray="4 4"
                               dot={false}
                               isAnimationActive={!reduced}
-                              animationDuration={1100}
+                              animationDuration={800}
                             />
                           </ComposedChart>
                         </ResponsiveContainer>
@@ -510,34 +495,74 @@ export function HeroDemo() {
                 {tab === "context" && (
                   <ContextTagsStream tags={HERO_ANSWER.contextTags} reduced={reduced} />
                 )}
+                  </motion.div>
+                </AnimatePresence>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              </motion.div>
 
-        <AnimatePresence>
-          {liveUserMessage && (
-            <motion.div
-              initial={reduced ? false : { opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-3"
-            >
-              <div className="flex justify-end">
-                <div className="max-w-[90%] rounded-2xl rounded-br-md bg-primary text-primary-foreground px-4 py-2.5 text-sm leading-relaxed">
-                  {liveUserMessage}
-                </div>
+              <div className="relative z-0 -mt-2 overflow-hidden">
+                <AnimatePresence initial={false}>
+                  {liveTurn && (
+                    <motion.div
+                      key="live-slot"
+                      initial={reduced ? false : { height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={reduced ? undefined : { height: 0, opacity: 0 }}
+                      transition={
+                        reduced
+                          ? { duration: 0 }
+                          : {
+                              height: { type: "spring", duration: 0.45, bounce: 0 },
+                              opacity: { duration: 0.28, ease: [0.22, 1, 0.36, 1] },
+                            }
+                      }
+                      className="overflow-hidden pt-5"
+                    >
+                      <AnimatePresence initial={false}>
+                        <motion.div
+                          key={liveTurn.id}
+                          initial={reduced ? false : { opacity: 0, y: 18 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={
+                            reduced
+                              ? undefined
+                              : {
+                                  opacity: 0,
+                                  y: -80,
+                                  position: "absolute",
+                                  left: 0,
+                                  right: 0,
+                                  top: 0,
+                                }
+                          }
+                          transition={
+                            reduced
+                              ? { duration: 0 }
+                              : { duration: 0.34, ease: [0.22, 1, 0.36, 1] }
+                          }
+                          className="space-y-2.5"
+                        >
+                          <div className="flex justify-end">
+                            <div className="max-w-[90%] rounded-2xl rounded-br-md bg-primary text-primary-foreground px-4 py-2.5 text-sm leading-relaxed">
+                              {liveTurn.user}
+                            </div>
+                          </div>
+                          <p className="text-sm text-foreground leading-relaxed px-0.5">
+                            {HERO_LIVE_REPLY.prefix}{" "}
+                            <a
+                              href="/book-demo"
+                              className="text-primary font-medium hover:underline underline-offset-2"
+                            >
+                              {HERO_LIVE_REPLY.demoLabel}
+                            </a>
+                            .
+                          </p>
+                        </motion.div>
+                      </AnimatePresence>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
-              <p className="text-sm text-foreground leading-relaxed px-0.5">
-                {HERO_LIVE_REPLY.prefix}{" "}
-                <a
-                  href={contactMailto(HERO_LIVE_REPLY.demoSubject)}
-                  className="text-primary font-medium hover:underline underline-offset-2"
-                >
-                  {HERO_LIVE_REPLY.demoLabel}
-                </a>
-                .
-              </p>
-              <div ref={liveEndRef} />
             </motion.div>
           )}
         </AnimatePresence>

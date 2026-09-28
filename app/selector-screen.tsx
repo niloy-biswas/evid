@@ -29,7 +29,7 @@ export function SelectorScreen({ dashboards, profile }: SelectorScreenProps) {
       {/* Ambient glow background */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[700px] h-[500px] rounded-full bg-primary/5 blur-[120px]" />
-        <div className="absolute bottom-[-10%] left-[30%] w-[400px] h-[400px] rounded-full bg-[#4f8ef7]/5 blur-[100px]" />
+        <div className="absolute bottom-[-10%] left-[30%] w-[400px] h-[400px] rounded-full bg-[var(--glow-accent)] blur-[100px]" />
       </div>
 
       {/* Card */}

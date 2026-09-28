@@ -4,8 +4,8 @@ Governed AI analytics. Ask questions in plain English and get charts, explanatio
 
 **Tagline:** Ask your data. Get answers backed by evidence.
 
-Repo: [github.com/niloy-biswas/Evid](https://github.com/niloy-biswas/Evid)  
-Contact: [hello@niloy.tech](mailto:hello@niloy.tech)
+Repo: [github.com/niloy-biswas/evid](https://github.com/niloy-biswas/evid)  
+Contact: [hello@evid.cc](mailto:hello@evid.cc)
 
 ## How it works
 
@@ -167,4 +167,4 @@ hooks/
 
 ## License / contact
 
-Open-source distribution details will follow the Community Edition packaging. For Cloud, implementation, or setup services, email **hello@niloy.tech**.
+Open-source distribution details will follow the Community Edition packaging. For Cloud, implementation, or setup services, email **hello@evid.cc**.

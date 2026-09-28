@@ -109,10 +109,10 @@ export default function LoginPage() {
         }}
       />
 
-      {/* Ambient red glow */}
+      {/* Ambient brand glow */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute top-[30%] left-1/2 -translate-x-1/2 w-[700px] h-[500px] rounded-full bg-primary/8 blur-[160px]" />
-        <div className="absolute bottom-0 left-1/4 w-[300px] h-[300px] rounded-full bg-[#4f8ef7]/5 blur-[120px]" />
+        <div className="absolute bottom-0 left-1/4 w-[300px] h-[300px] rounded-full bg-[var(--glow-accent)] blur-[120px]" />
       </div>
 
       {/* Vertical accent lines */}
@@ -126,7 +126,7 @@ export default function LoginPage() {
         className="relative w-full max-w-[380px]"
       >
         {/* Card */}
-        <div className="bg-card border border-border/60 rounded-2xl shadow-[0_32px_80px_rgba(0,0,0,0.6)] overflow-hidden">
+        <div className="bg-card border border-border/60 rounded-2xl shadow-[0_32px_80px_var(--overlay-shadow)] overflow-hidden">
           {/* Top gradient accent */}
           <div className="h-[1.5px] bg-gradient-to-r from-transparent via-primary/80 to-transparent" />
 
@@ -262,10 +262,10 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full h-11 mt-1 bg-primary hover:bg-primary/90 active:bg-primary/80 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl flex items-center justify-center gap-2 shadow-[0_4px_24px_rgba(229,57,53,0.35)] hover:shadow-[0_4px_32px_rgba(229,57,53,0.5)] transition-all duration-200"
+                className="w-full h-11 mt-1 bg-primary hover:bg-primary/90 active:bg-primary/80 disabled:opacity-50 disabled:cursor-not-allowed text-primary-foreground text-sm font-semibold rounded-xl flex items-center justify-center gap-2 shadow-[0_4px_24px_var(--glow-primary)] hover:shadow-[0_4px_32px_var(--glow-primary)] transition-all duration-200"
               >
                 {loading ? (
-                  <span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                  <span className="h-4 w-4 rounded-full border-2 border-current/30 border-t-current animate-spin" />
                 ) : (
                   <>
                     <LogIn className="h-4 w-4" />

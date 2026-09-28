@@ -1,5 +1,3 @@
-export type StatusBadge = "Available" | "Roadmap" | "Coming soon";
-
 export const MARKETING_NAV = [
   { href: "#product", label: "Product" },
   { href: "#how-it-works", label: "How it works" },
@@ -22,55 +20,130 @@ export const INTEGRATION_LABELS = [
   "OpenAI-compatible models",
 ] as const;
 
-/** Pricing / contact cards. No dollar amounts; all CTAs are email except roadmap/coming-soon items. */
+/**
+ * Problem section copy + demo contrast. SEO leans on text-to-SQL / AI analytics /
+ * BigQuery / published context without stuffing those phrases into every line.
+ */
+export const PROBLEM_SECTION = {
+  eyebrow: "The problem",
+  headlineLead: "Text-to-SQL reaches your warehouse.",
+  headlineMute: "It still invents what revenue means.",
+  body: "Generic AI analytics will write a query against BigQuery. It will not know which tables are approved, which revenue definition finance signed off on, or whether a dashboard is even published. You get a confident number and no way to defend it.",
+  question: "What was net revenue last month?",
+  ungoverned: {
+    label: "Ungoverned text-to-SQL",
+    tables: [
+      "orders_raw",
+      "orders_v2",
+      "tmp_refunds",
+      "finance_export",
+      "stg_orders",
+      "internal_test",
+    ] as const,
+    riskyTableIndexes: [1, 4] as const,
+    metricLabel: "Revenue",
+    metricTarget: 1.8,
+    metricDecimals: 1,
+    metricPrefix: "$",
+    metricSuffix: "M",
+    footnote: "Joined staging tables. Included refunds and internal transactions.",
+  },
+  governed: {
+    label: "Evid · published context",
+    contextLines: [
+      "Dashboard · Revenue (published)",
+      "Tables · orders_fact, campaigns, enrolments",
+      "Rule · exclude refunds & internal",
+      "Caveat · campaign ended mid-month",
+    ] as const,
+    metricLabel: "Net revenue",
+    metricTarget: 1.42,
+    metricDecimals: 2,
+    metricPrefix: "$",
+    metricSuffix: "M",
+    footnote: "Scoped to approved tables and the published revenue definition.",
+  },
+} as const;
+
+/**
+ * Powder-style pricing tiers. No public dollar amounts — priceLabel is a path
+ * (Self-host / Custom), not a sticker price. Available CTAs go to /book-demo;
+ * roadmap stays mailto.
+ */
+export type PricingFeature =
+  | { kind: "metric"; label: string; value: string }
+  | { kind: "check"; label: string; included: boolean };
+
 export const PRICING_PLANS: Array<{
   id: string;
-  title: string;
-  status: StatusBadge;
+  name: string;
+  priceLabel: string;
+  priceHint?: string;
   blurb: string;
-  points: string[];
+  features: PricingFeature[];
   ctaLabel: string;
-  subject: string;
+  /** Internal path or mailto subject key — see pricing section for wiring */
+  cta: { type: "demo" } | { type: "mailto"; subject: string };
+  highlighted?: boolean;
 }> = [
   {
     id: "community",
-    title: "Community",
-    status: "Roadmap",
+    name: "Community",
+    priceLabel: "Self-host",
+    priceHint: "Roadmap",
     blurb: "Run Evid yourself. Bring your own Supabase, warehouse, and model keys.",
-    points: [
-      "Self-hosted on your infrastructure",
-      "Published context and approved tables",
-      "Open-source friendly path",
+    features: [
+      { kind: "metric", label: "Hosting", value: "Your infra" },
+      { kind: "metric", label: "Dashboards", value: "Unlimited" },
+      { kind: "metric", label: "Data sources", value: "BYO BigQuery" },
+      { kind: "check", label: "Published context", included: true },
+      { kind: "check", label: "Approved tables", included: true },
+      { kind: "check", label: "Inspectable SQL", included: true },
+      { kind: "check", label: "Managed hosting", included: false },
+      { kind: "check", label: "Implementation help", included: false },
     ],
-    ctaLabel: "Contact about Community",
-    subject: "Evid Community",
+    ctaLabel: "Talk about Community",
+    cta: { type: "mailto", subject: "Evid Community" },
   },
   {
     id: "cloud",
-    title: "Cloud + implementation",
-    status: "Available",
+    name: "Cloud",
+    priceLabel: "Custom",
+    priceHint: "Available",
     blurb: "We host the app and help you connect dashboards, rules, and data sources.",
-    points: [
-      "Managed Evid Cloud",
-      "Warehouse and context setup support",
-      "Role-based admin for your team",
+    features: [
+      { kind: "metric", label: "Hosting", value: "Managed" },
+      { kind: "metric", label: "Dashboards", value: "Unlimited" },
+      { kind: "metric", label: "Data sources", value: "Per dashboard" },
+      { kind: "check", label: "Published context", included: true },
+      { kind: "check", label: "Approved tables", included: true },
+      { kind: "check", label: "Inspectable SQL", included: true },
+      { kind: "check", label: "Managed hosting", included: true },
+      { kind: "check", label: "Implementation help", included: true },
     ],
-    ctaLabel: "Contact about Cloud",
-    subject: "Evid Cloud and implementation",
+    ctaLabel: "Book a demo",
+    cta: { type: "demo" },
+    highlighted: true,
   },
   {
     id: "setup",
-    title: "We set it up for you",
-    status: "Available",
+    name: "Setup",
+    priceLabel: "Custom",
+    priceHint: "Available",
     blurb:
-      "A full setup service: we wire your stack, publish your first dashboards, and hand over a working workspace.",
-    points: [
-      "End-to-end configuration",
-      "Business rules and approved tables",
-      "Handoff and walkthrough for your team",
+      "We wire your stack, publish your first dashboards, and hand over a working workspace.",
+    features: [
+      { kind: "metric", label: "Hosting", value: "Your choice" },
+      { kind: "metric", label: "Dashboards", value: "First set shipped" },
+      { kind: "metric", label: "Data sources", value: "Configured for you" },
+      { kind: "check", label: "Published context", included: true },
+      { kind: "check", label: "Approved tables", included: true },
+      { kind: "check", label: "Inspectable SQL", included: true },
+      { kind: "check", label: "Managed hosting", included: false },
+      { kind: "check", label: "Full setup + handoff", included: true },
     ],
-    ctaLabel: "Contact about setup",
-    subject: "Evid setup service",
+    ctaLabel: "Book a demo",
+    cta: { type: "demo" },
   },
 ];
 
@@ -164,6 +237,25 @@ export const FAQ_ITEMS: Array<{ id: string; question: string; answer: string }> 
     question: "Can each dashboard use a separate BigQuery project?",
     answer:
       "Yes. Assign an encrypted data source (project, location, credentials) independently per dashboard from the admin workspace.",
+  },
+];
+
+/** Real, dated updates — sourced from actual shipped commits, not invented. */
+export const CHANGELOG_ITEMS: Array<{ date: string; title: string; body: string }> = [
+  {
+    date: "2026-09-22",
+    title: "New Evid brand identity",
+    body: "Refreshed the logo, mark, and visual identity across the product and landing page.",
+  },
+  {
+    date: "2026-09-22",
+    title: "Clearer comparison table",
+    body: "Redesigned the generic-vs-Evid comparison for easier scanning.",
+  },
+  {
+    date: "2026-09-21",
+    title: "Live hero demo",
+    body: "The landing page now streams a real answer, chart, and SQL instead of a static screenshot.",
   },
 ];
 

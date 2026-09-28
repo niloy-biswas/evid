@@ -18,11 +18,11 @@ const STATUS_TABS: { label: string; value: StatusFilter }[] = [
 const STATUS_BADGE: Record<string, { label: string; className: string }> = {
   published: {
     label: "Published",
-    className: "bg-emerald-500/15 text-emerald-500 border border-emerald-500/25",
+    className: "bg-success/15 text-success border border-success/25",
   },
   draft: {
     label: "Draft",
-    className: "bg-amber-500/15 text-amber-500 border border-amber-500/25",
+    className: "bg-warning/15 text-warning border border-warning/25",
   },
   archived: {
     label: "Archived",
@@ -222,7 +222,7 @@ export function DashboardRegistry({ dashboards: initial, isAdmin }: Props) {
                                 size="xs"
                                 disabled={isBusy}
                                 onClick={() => transition(d.id, "published")}
-                                className="text-emerald-600 border-emerald-500/30 hover:bg-emerald-500/10"
+                                className="text-success border-success/30 hover:bg-success/10"
                               >
                                 <Globe className="size-3" />
                                 Publish
@@ -234,7 +234,7 @@ export function DashboardRegistry({ dashboards: initial, isAdmin }: Props) {
                                 size="xs"
                                 disabled={isBusy}
                                 onClick={() => transition(d.id, "draft")}
-                                className="text-amber-600 border-amber-500/30 hover:bg-amber-500/10"
+                                className="text-warning border-warning/30 hover:bg-warning/10"
                               >
                                 <FileText className="size-3" />
                                 Unpublish

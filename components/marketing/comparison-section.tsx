@@ -2,6 +2,7 @@
 
 import { Check, X } from "lucide-react";
 import { COMPARISON_ROWS } from "@/components/marketing/config";
+import { SectionLabel } from "@/components/marketing/section-label";
 
 function Cell({ value, emphasis }: { value: string; emphasis?: boolean }) {
   if (value === "Yes" || value === "No") {
@@ -24,16 +25,17 @@ function Cell({ value, emphasis }: { value: string; emphasis?: boolean }) {
 
 export function ComparisonSection() {
   return (
-    <section className="border-b border-border/40 bg-muted/10">
+    <section className="border-b border-border/30">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-24">
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-3">
-          Not another SQL chatbot.
+        <SectionLabel>Compare</SectionLabel>
+        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3 text-balance">
+          <span className="text-foreground">Not another SQL chatbot.</span>
         </h2>
         <p className="text-muted-foreground max-w-xl mb-10 leading-relaxed">
           Evid works beside your existing BI tools. It does not need to replace them.
         </p>
 
-        <div className="overflow-x-auto rounded-2xl border border-border/60">
+        <div className="overflow-x-auto rounded-2xl border border-border/60 bg-card/40">
           <table className="w-full min-w-[560px] table-fixed text-sm">
             <colgroup>
               <col className="w-[40%]" />
