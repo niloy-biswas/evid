@@ -12,14 +12,6 @@ export const TRUST_LABELS = [
   "BigQuery supported",
 ] as const;
 
-export const INTEGRATION_LABELS = [
-  "BigQuery",
-  "Supabase",
-  "LangGraph",
-  "Opik",
-  "OpenAI-compatible models",
-] as const;
-
 /**
  * Problem section copy + demo contrast. SEO leans on text-to-SQL / AI analytics /
  * BigQuery / published context without stuffing those phrases into every line.

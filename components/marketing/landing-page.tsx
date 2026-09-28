@@ -2,10 +2,7 @@
 
 import { LandingHeader } from "@/components/marketing/landing-header";
 import { HeroSection } from "@/components/marketing/hero-section";
-import {
-  CredibilityStrip,
-  ProblemSection,
-} from "@/components/marketing/problem-section";
+import { ProblemSection } from "@/components/marketing/problem-section";
 import { HowItWorksSection } from "@/components/marketing/how-it-works";
 import { CapabilitiesSection } from "@/components/marketing/capabilities-section";
 import { AnalyticsShowcase } from "@/components/marketing/analytics-showcase";
@@ -24,7 +21,6 @@ import { SmoothScroll } from "@/components/marketing/smooth-scroll";
  */
 export function LandingPageView({ isLoggedIn }: { isLoggedIn: boolean }) {
   const afterHero = [
-    { key: "credibility", node: <CredibilityStrip /> },
     { key: "problem", node: <ProblemSection /> },
     { key: "how", node: <HowItWorksSection /> },
     { key: "capabilities", node: <CapabilitiesSection /> },
