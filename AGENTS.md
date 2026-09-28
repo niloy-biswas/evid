@@ -4,6 +4,8 @@ Compact orientation for coding agents. Read this before large changes.
 
 Product brand: **Evid** (`lib/brand.ts`: name, tagline, `supportEmail`, `githubUrl`, `marketingPrimaryCta`, `contactMailto`, optional `demoBookingUrl` via `NEXT_PUBLIC_DEMO_BOOKING_URL`). `/book-demo` uses the Powder hero sky; Google Appointment links open via button (cannot iframe); Cal.com/Calendly can embed. Shared mark: **`components/brand-mark.tsx`**. Public marketing at **`/`**; demo booking at **`/book-demo`**; authenticated product home at **`/app`**.
 
+License: **Elastic License 2.0** (`LICENSE`); source-available, not OSI open source. Do not describe Evid as "open source" in copy.
+
 ## What this is
 
 Next.js app: **published** BI dashboards (`dashboards`), **per-dashboard chat** (`chat_sessions` / `chat_messages`), **LangGraph** analytics agent against **BigQuery**, optional **share-by-link**. **Admin workspace** (`/admin`) lets editors/admins manage dashboard lifecycle, context (rules, caveats, instructions, example questions, table allowlist), data sources, AI provider settings, and signup email domain, without editing SQL by hand for day-to-day work.
@@ -103,4 +105,4 @@ npm run lint
 - Prefer **data access through `lib/supabase/`** (`queries` / `admin-queries` / server client) rather than ad hoc Supabase usage spread across the tree.
 - Marketing copy and demo data: keep in **`components/marketing/config.ts`** and **`demo-data.ts`**; brand identity in **`lib/brand.ts`**.
 - Landing color: never hardcode Powder hex in components — primitives in **`app/styles/palette.css`**, hero composition in **`app/styles/marketing-powder.css`**. Run **`npm run lint:tokens`**.
-- Do not advertise roadmap items (for example Docker Compose, Community Edition, non-BigQuery connectors) as available on the landing page; label them "Coming soon".
+- Do not advertise roadmap items (for example Docker packaging, non-BigQuery connectors) as available on the landing page; label them "Coming soon".
