@@ -132,7 +132,13 @@ export function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
         src="/marketing/hero/hero-hill-foreground.webp"
         width={2464}
         height={488}
-      />
+      >
+        {/* Fade to page background well above the section's clip line (see
+            --powder-hero-foreground-fade), so the image — which still has
+            ~3vw hanging past the section edge, per the -bottom offset above —
+            reads as solid background before that overhang gets cropped. */}
+        <div className="powder-hero-foreground-fade absolute inset-x-0 bottom-0 h-1/2" />
+      </HillLayer>
     </section>
   );
 }
