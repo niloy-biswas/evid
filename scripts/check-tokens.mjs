@@ -20,6 +20,7 @@ const ALLOWLIST = new Set([
   "app/styles/palette.css", // the one place hex is allowed to live
   "components/auth/google-icon.tsx", // Google brand guidelines mandate exact hexes
   "components/ui/chart.tsx", // matches Recharts' own SVG attribute selectors (stroke='#ccc'), not a color declaration
+  "app/opengraph-image.tsx", // ImageResponse renders outside the CSS cascade; cannot read var(--token)
   "lib/theme/tokens.ts", // doc-comment example only
 ]);
 

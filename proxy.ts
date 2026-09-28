@@ -1,6 +1,16 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+/** Crawler files, social image, and legal pages must never bounce to /login. */
+const PUBLIC_PATHS = new Set([
+  "/robots.txt",
+  "/sitemap.xml",
+  "/opengraph-image",
+  "/twitter-image",
+  "/privacy",
+  "/terms",
+]);
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -43,7 +53,10 @@ export async function proxy(request: NextRequest) {
   const isPublicApi = pathname.startsWith("/api/public");
   // Marketing landing + demo booking are public; product lives under /app
   const isPublicMarketing =
-    pathname === "/" || pathname === "/book-demo" || pathname.startsWith("/book-demo/");
+    pathname === "/" ||
+    pathname === "/book-demo" ||
+    pathname.startsWith("/book-demo/") ||
+    PUBLIC_PATHS.has(pathname);
 
   if (!user && !isAuthPage && !isPublicApi && !isPublicMarketing) {
     const url = request.nextUrl.clone();
