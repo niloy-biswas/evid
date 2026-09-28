@@ -72,6 +72,46 @@
     var(--powder-bg) 100%
   );
 
+  /* Landing hero sky (Powder reference): full-section radial, no dissolve. */
+  --powder-hero-glow: radial-gradient(
+    200% 83% at 50% 0%,
+    var(--powder-sky-top) 0%,
+    var(--powder-sky-mid) 42%,
+    var(--powder-horizon) 100%
+  );
+
+  /*
+   * Horizon light around the far ridge. The glow (above the ridge) ends on the
+   * same tint the haze (over the ridge) starts on, so sky and hill blend.
+   */
+  --powder-hero-horizon: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--powder-horizon) 18%, transparent) 55%,
+    color-mix(in srgb, var(--powder-horizon) 50%, transparent) 100%
+  );
+  --powder-hero-haze: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--powder-horizon) 50%, transparent) 0%,
+    color-mix(in srgb, var(--powder-horizon) 32%, transparent) 18%,
+    color-mix(in srgb, var(--powder-horizon) 12%, transparent) 38%,
+    transparent 55%
+  );
+
+  /*
+   * Foreground hill's bottom edge, faded to solid page background. The
+   * -bottom-[3vw] offset on that layer (hero-section.tsx) sinks ~15% of the
+   * image past the section's clip line, so the ramp must reach 100% well
+   * before that (40% into this band) — otherwise the clip cuts through a
+   * partial tint and leaves a visible seam against the flat section below.
+   */
+  --powder-hero-foreground-fade: linear-gradient(
+    180deg,
+    transparent 0%,
+    var(--background) 40%,
+    var(--background) 100%
+  );
+
   --powder-contour-1: color-mix(in srgb, var(--neutral-0) 16%, transparent);
   --powder-contour-2: color-mix(in srgb, var(--neutral-0) 10%, transparent);
   --powder-contour-3: color-mix(in srgb, var(--powder-horizon) 28%, transparent);
@@ -134,6 +174,22 @@ html.dark:has([data-theme="powder"]) body {
 
 [data-theme="powder"] .powder-hero-dissolve {
   background: var(--powder-hero-dissolve);
+}
+
+[data-theme="powder"] .powder-hero-glow {
+  background: var(--powder-hero-glow);
+}
+
+[data-theme="powder"] .powder-hero-horizon {
+  background: var(--powder-hero-horizon);
+}
+
+[data-theme="powder"] .powder-hero-haze {
+  background: var(--powder-hero-haze);
+}
+
+[data-theme="powder"] .powder-hero-foreground-fade {
+  background: var(--powder-hero-foreground-fade);
 }
 
 [data-theme="powder"] .powder-contour-1 {

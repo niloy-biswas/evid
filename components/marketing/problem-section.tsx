@@ -1,31 +1,9 @@
 "use client";
 
-import { INTEGRATION_LABELS, PROBLEM_SECTION } from "@/components/marketing/config";
+import { PROBLEM_SECTION } from "@/components/marketing/config";
 import { ProblemContrastDemo } from "@/components/marketing/problem-contrast-demo";
 import { SectionLabel } from "@/components/marketing/section-label";
 import { ScrollWordReveal } from "@/components/marketing/scroll-word-reveal";
-
-export function CredibilityStrip() {
-  return (
-    <section className="border-y border-border/30">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-10 sm:py-12">
-        <p className="text-sm text-muted-foreground text-center mb-6">
-          Governed AI analytics for teams that need BigQuery answers they can defend.
-        </p>
-        <ul className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
-          {INTEGRATION_LABELS.map((label) => (
-            <li
-              key={label}
-              className="text-xs font-medium text-muted-foreground border border-border/50 rounded-full px-3.5 py-1.5 bg-card/50"
-            >
-              {label}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
-  );
-}
 
 const PROBLEM_COPY_BLOCKS = [
   {

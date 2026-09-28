@@ -231,7 +231,14 @@ export function HeroDemo({ embedded = false }: { embedded?: boolean }) {
         </span>
       </div>
 
-      <div className="p-4 sm:p-5 space-y-4 min-h-[420px] sm:min-h-[460px]">
+      {/* Embedded (hero): reserve the finished answer's height so streaming
+          never resizes the card and shifts the parallax layers around it. */}
+      <div
+        className={cn(
+          "p-4 sm:p-5 space-y-4",
+          embedded ? "min-h-[532px] sm:min-h-[572px]" : "min-h-[420px] sm:min-h-[460px]"
+        )}
+      >
         <AnimatePresence>
           {(stage === "question" || stage === "context" || stage === "result") && (
             <motion.div
