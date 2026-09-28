@@ -67,9 +67,12 @@ export function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
             {BRAND.tagline}
           </h1>
 
-          <p className="text-[15px] sm:text-base text-white/90 font-medium leading-relaxed text-pretty max-w-lg mx-auto mb-8">
-            Ask in plain English. Get charts, explanations, and SQL grounded in approved
-            dashboards, tables, and business rules.
+          <p className="text-[15px] sm:text-base text-white/90 font-medium leading-relaxed text-pretty max-w-lg mx-auto mb-2">
+            Governed AI analytics for BigQuery. Charts, explanations, and SQL grounded in your
+            approved tables and business rules.
+          </p>
+          <p className="text-xs text-white/60 mb-8">
+            Postgres, MySQL, and Snowflake coming soon
           </p>
 
           <div className="flex justify-center mb-8 sm:mb-10">

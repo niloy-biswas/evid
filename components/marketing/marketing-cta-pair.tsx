@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { GitHubIcon } from "@/components/marketing/github-icon";
 import { usePrefersReducedMotion } from "@/components/marketing/use-reduced-motion";
-import { BRAND, marketingPrimaryCta } from "@/lib/brand";
+import { marketingPrimaryCta } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 
 type Tone = "hero" | "surface";
@@ -69,7 +68,7 @@ function AnimatedCta({
   variant: Variant;
   tone: Tone;
   size: Size;
-  icon?: "arrow" | "github";
+  icon?: "arrow";
   reduced: boolean;
   onNavigate?: () => void;
 }) {
@@ -118,9 +117,6 @@ function AnimatedCta({
         />
       ) : null}
       <span className="relative z-10 inline-flex items-center gap-2">
-        {icon === "github" ? (
-          <GitHubIcon className={cn(iconClass, "opacity-85")} />
-        ) : null}
         <RollingText text={label} reduced={reduced} />
         {icon === "arrow" ? <ArrowRight className={iconClass} aria-hidden /> : null}
       </span>
@@ -149,19 +145,22 @@ function AnimatedCta({
 }
 
 /**
- * Book a demo + View on GitHub with FeatDev CTA hover (rolling type + liquid fill).
+ * Book a demo + See how it works with FeatDev CTA hover (rolling type + liquid fill).
  */
 export function MarketingCtaPair({
   isLoggedIn,
   tone = "hero",
   size = "md",
   className,
+  showSecondary = true,
   onNavigate,
 }: {
   isLoggedIn: boolean;
   tone?: Tone;
   size?: Size;
   className?: string;
+  /** Outline "See how it works" button beside the primary CTA. */
+  showSecondary?: boolean;
   onNavigate?: () => void;
 }) {
   const primary = marketingPrimaryCta(isLoggedIn);
@@ -180,17 +179,17 @@ export function MarketingCtaPair({
         reduced={reduced}
         onNavigate={onNavigate}
       />
-      <AnimatedCta
-        href={BRAND.githubUrl}
-        label={size === "sm" ? "GitHub" : "View on GitHub"}
-        external
-        variant="outline"
-        tone={tone}
-        size={size}
-        icon="github"
-        reduced={reduced}
-        onNavigate={onNavigate}
-      />
+      {showSecondary ? (
+        <AnimatedCta
+          href="#how-it-works"
+          label="See how it works"
+          variant="outline"
+          tone={tone}
+          size={size}
+          reduced={reduced}
+          onNavigate={onNavigate}
+        />
+      ) : null}
     </div>
   );
 }

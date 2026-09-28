@@ -4,6 +4,8 @@ Compact orientation for coding agents. Read this before large changes.
 
 Product brand: **Evid** (`lib/brand.ts`: name, tagline, `supportEmail`, `githubUrl`, `marketingPrimaryCta`, `contactMailto`, optional `demoBookingUrl` via `NEXT_PUBLIC_DEMO_BOOKING_URL`). `/book-demo` uses the Powder hero sky; Google Appointment links open via button (cannot iframe); Cal.com/Calendly can embed. Shared mark: **`components/brand-mark.tsx`**. Public marketing at **`/`**; demo booking at **`/book-demo`**; authenticated product home at **`/app`**.
 
+License: **Elastic License 2.0** (`LICENSE`); source-available, not OSI open source. Do not describe Evid as "open source" in copy.
+
 ## What this is
 
 Next.js app: **published** BI dashboards (`dashboards`), **per-dashboard chat** (`chat_sessions` / `chat_messages`), **LangGraph** analytics agent against **BigQuery**, optional **share-by-link**. **Admin workspace** (`/admin`) lets editors/admins manage dashboard lifecycle, context (rules, caveats, instructions, example questions, table allowlist), data sources, AI provider settings, and signup email domain, without editing SQL by hand for day-to-day work.
@@ -22,7 +24,8 @@ Next.js app: **published** BI dashboards (`dashboards`), **per-dashboard chat** 
 | Area | Path |
 |------|------|
 | Pages | `app/` — **`/`** marketing (public), **`/book-demo`** demo booking (public), **`/app`** dashboard selector (auth), `/login`, `/signup`, `/auth/callback`, `/chat/[dashboardId]` → `/chat/[dashboardId]/[sessionNumber]`, `/share/[token]`, **`/admin/**`** |
-| Marketing UI | **`components/marketing/`** (landing sections, demo data, config copy) |
+| Marketing UI | **`components/marketing/`** (landing sections, demo data, config copy; `auto-cycle.tsx` = shared auto-advance hook for tabs/steppers) |
+| SEO / legal | `app/robots.ts`, `app/sitemap.ts`, `app/opengraph-image.tsx`, `app/privacy`, `app/terms` (shell: `components/legal/`). Origin = `SITE_URL` in `lib/brand.ts` (`NEXT_PUBLIC_SITE_URL`) |
 | Brand | **`lib/brand.ts`** |
 | Color tokens | **`app/styles/palette.css`** (hex) → **`semantic.css`** / **`marketing-powder.css`** (roles). Landing Powder: edit `--powder-*` in palette, retune hero sky / muted copy / type in `marketing-powder.css`. Display: Geist Sans (`geist/font/sans`); body: DM Sans (`--font-marketing-body`) |
 | Chat API | `app/api/chat/*` |
@@ -49,7 +52,7 @@ See **`.env.example`**. Highlights:
 
 ## Auth edge handler
 
-Root **`proxy.ts`** refreshes Supabase session cookies, redirects unauthenticated users to `/login` (except **`/`** marketing, **`/book-demo`**, **`/auth/*`**, **`/api/public/*`**, login/signup), and skips **`/auth/*`** so OAuth PKCE cookies are not corrupted before `app/auth/callback/route.ts`. Logged-in users on auth pages redirect to **`/app`**.
+Root **`proxy.ts`** refreshes Supabase session cookies, redirects unauthenticated users to `/login` (except **`/`** marketing, **`/book-demo`**, **`/privacy`**, **`/terms`**, **`/robots.txt`**, **`/sitemap.xml`**, **`/opengraph-image`**, **`/auth/*`**, **`/api/public/*`**, login/signup; extend `PUBLIC_PATHS` in `proxy.ts` for new public pages), and skips **`/auth/*`** so OAuth PKCE cookies are not corrupted before `app/auth/callback/route.ts`. Logged-in users on auth pages redirect to **`/app`**.
 
 > If production ever shows **no redirects** while logged out, confirm Next’s expected **`middleware`** export for your deployment; this repo uses **`proxy.ts`** as the session edge entry. Align with Next docs for your version.
 
@@ -102,4 +105,4 @@ npm run lint
 - Prefer **data access through `lib/supabase/`** (`queries` / `admin-queries` / server client) rather than ad hoc Supabase usage spread across the tree.
 - Marketing copy and demo data: keep in **`components/marketing/config.ts`** and **`demo-data.ts`**; brand identity in **`lib/brand.ts`**.
 - Landing color: never hardcode Powder hex in components — primitives in **`app/styles/palette.css`**, hero composition in **`app/styles/marketing-powder.css`**. Run **`npm run lint:tokens`**.
-- Do not advertise roadmap items (for example Docker Compose) as available on the landing page.
+- Do not advertise roadmap items (for example Docker packaging, non-BigQuery connectors) as available on the landing page; label them "Coming soon".

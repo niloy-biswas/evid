@@ -1,77 +1,55 @@
 # Evid
 
+**Ask your data. Get answers backed by evidence.**
+
 Governed AI analytics. Ask questions in plain English and get charts, explanations, and inspectable SQL, grounded in approved dashboards, tables, and business rules.
 
-**Tagline:** Ask your data. Get answers backed by evidence.
+[Website](https://evid.cc) · [Book a demo](https://evid.cc/book-demo) · [hello@evid.cc](mailto:hello@evid.cc)
 
-Repo: [github.com/niloy-biswas/evid](https://github.com/niloy-biswas/evid)  
-Contact: [hello@evid.cc](mailto:hello@evid.cc)
+![License: ELv2](https://img.shields.io/badge/license-Elastic%202.0-blue)
+![Next.js 16](https://img.shields.io/badge/Next.js-16-black)
+![Status: BigQuery](https://img.shields.io/badge/warehouse-BigQuery-4285F4)
+
+## Why Evid
+
+Text-to-SQL will query your warehouse, but it does not know which tables are approved or which revenue definition finance signed off on. Evid publishes that context first, then lets people ask.
+
+- **Published context.** Editors draft business rules, caveats, and instructions. Admins publish. Chat only sees what is published.
+- **Approved tables.** Each dashboard is limited to an explicit table allowlist.
+- **Inspectable answers.** Every answer comes with its chart, SQL, source tables, and the context that shaped it.
+- **Per-dashboard data sources.** Encrypted credentials, assigned independently per dashboard.
+- **Bring your own model.** Anthropic, OpenAI, or OpenRouter, configured by env or in the admin UI.
+
+## Status
+
+| Area | State |
+|------|-------|
+| BigQuery | Supported |
+| PostgreSQL, MySQL, Snowflake | Coming soon |
+| Managed hosting (Evid Cloud) | Available, [contact us](mailto:hello@evid.cc) |
+| Self-hosting | Allowed under ELv2; Docker packaging coming soon |
 
 ## How it works
 
 ```
 User message
   → Next.js API route
-    → LangGraph ReAct agent (Anthropic / OpenAI)
-      → BigQuery tools (execute_query, describe_table, list_tables)
-    → Streamed response with inline tool call blocks
-  → Supabase (session + message persistence)
+    → LangGraph ReAct agent (Anthropic / OpenAI / OpenRouter)
+      → BigQuery tools (list_tables, describe_table, execute_query)
+    → Streamed response with inline tool-call blocks
+  → Supabase (sessions, messages, encrypted settings)
 ```
 
-Chat only uses **published** dashboard context (rules, caveats, approved tables). Editors draft; admins publish.
+## Quick start
 
-## App routes
-
-| Path | Who | What |
-|------|-----|------|
-| `/` | Public | Marketing landing |
-| `/app` | Signed in | Dashboard selector |
-| `/chat/...` | Signed in | Analytics chat |
-| `/admin/...` | Editor / admin | Context registry and settings |
-| `/login`, `/signup` | Public | Auth |
-
-Brand strings live in `lib/brand.ts`.
-
-## Prerequisites
-
-- Node.js 18+
-- A Supabase project
-- An Anthropic or OpenAI API key (env and/or admin UI)
-- A GCP service account with BigQuery Data Viewer + BigQuery Job User (or per-dashboard data sources in admin)
-- (Optional) An Opik account for LLM tracing
-
-## Setup
-
-**1. Install dependencies**
+**Requirements:** Node.js 20+, a Supabase project, an LLM API key, and a GCP service account with BigQuery Data Viewer and Job User roles.
 
 ```bash
 npm install
+cp .env.example .env.local   # then fill in the values
 ```
 
-**2. Configure environment variables**
-
-```bash
-cp .env.example .env.local
-```
-
-Important variables (see `.env.example` for the full list):
-
-| Variable | Description |
-|----------|-------------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Server-only; admin APIs and encrypted settings |
-| `SETTINGS_ENCRYPTION_KEY` | Encrypt AI keys and BigQuery JSON from the admin UI |
-| `ADMIN_EMAIL` | Optional first-boot admin promotion |
-| `ALLOWED_EMAIL_DOMAIN` | Optional signup domain fallback before DB settings |
-| `MODEL_PROVIDER` | `anthropic`, `openai`, or `openrouter` |
-| `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` / `OPENROUTER_API_KEY` | Provider keys |
-| `BIGQUERY_PROJECT` | Fallback GCP project when a dashboard has no data source |
-| `GOOGLE_APPLICATION_CREDENTIALS_JSON` | Fallback service account JSON (single line) |
-
-**3. Set up Supabase**
-
-Apply migrations in order (SQL editor or Supabase CLI):
+Apply the Supabase migrations in order (SQL editor or CLI):
 
 ```text
 supabase/migrations/000_current_schema.sql
@@ -79,92 +57,55 @@ supabase/migrations/001_admin_workspace.sql
 supabase/migrations/002_admin_top_dashboards_by_messages.sql
 ```
 
-Optional seed data: `supabase/seeds/`.
-
-In Supabase Authentication settings, disable email confirmations if you want frictionless local signup.
-
-**4. BigQuery credentials**
-
-Prefer configuring a data source under **Admin → Settings → Data sources**, then assigning it on each dashboard.
-
-For local fallback via env:
-
-```bash
-# Minify the JSON to a single line
-cat your-service-account.json | tr -d '\n'
-# Paste as GOOGLE_APPLICATION_CREDENTIALS_JSON=...
-```
-
-Or use Application Default Credentials and leave the JSON unset:
-
-```bash
-gcloud auth application-default login
-```
-
-**5. Run the development server**
+Optional demo data lives in `supabase/seeds/`. Then:
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) for the landing page, then sign in to use `/app`.
+Open [http://localhost:3000](http://localhost:3000), sign up, and use `/app`. Set `ADMIN_EMAIL` to promote your first admin.
 
-## Switching LLM providers
+### Key environment variables
 
-Env fallback:
+Full list in [`.env.example`](.env.example).
 
-```bash
-MODEL_PROVIDER=anthropic   # uses ANTHROPIC_DEFAULT_MODEL
-MODEL_PROVIDER=openai      # uses OPENAI_DEFAULT_MODEL
-MODEL_PROVIDER=openrouter  # uses OPENROUTER_DEFAULT_MODEL — proxies many vendors, one API key
-```
+| Variable | Purpose |
+|----------|---------|
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase client |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server only; admin APIs |
+| `SETTINGS_ENCRYPTION_KEY` | Encrypts AI keys and BigQuery credentials stored from the admin UI |
+| `MODEL_PROVIDER` | `anthropic`, `openai`, or `openrouter` |
+| `BIGQUERY_PROJECT`, `GOOGLE_APPLICATION_CREDENTIALS_JSON` | Fallback when a dashboard has no data source |
+| `NEXT_PUBLIC_SITE_URL` | Canonical origin for sitemap and social tags |
 
-Admins can also set provider, model, and encrypted API key under **Admin → Settings → Models** (overrides env when configured).
+Prefer configuring BigQuery under **Admin → Settings → Data sources** and assigning it per dashboard. Provider, model, and key can also be set under **Admin → Settings → Models**, which overrides env.
 
-## Deploying
+## Routes
 
-1. Set all required variables from `.env.example` in your host (for example Vercel).
-2. Apply the Supabase migrations to a fresh project.
-3. Prefer admin-configured BigQuery data sources; keep env BigQuery vars as fallback if needed.
-
-Docker / self-host packaging is on the roadmap (see `PLAN.md`). Cloud Supabase plus a containerized Next.js app is the intended first self-host path.
+| Path | Who | What |
+|------|-----|------|
+| `/` | Public | Marketing landing |
+| `/app` | Signed in | Dashboard selector |
+| `/chat/...` | Signed in | Analytics chat |
+| `/admin/...` | Editor / admin | Context registry and settings |
 
 ## Project structure
 
 ```text
-app/
-  page.tsx                 Public marketing landing
-  app/                     Authenticated product home (dashboard selector)
-  admin/                   Admin workspace
-  api/chat/                Chat, save, reaction
-  api/sessions/            Sessions and sharing
-  api/admin/               Dashboard and settings APIs (role-checked)
-  chat/                    Per-dashboard chat UI
-  share/                   Shared session view
-components/
-  marketing/               Landing page sections
-  chat/                    Chat UI
-  admin/                   Admin shell
-  dashboard/               Selector and sidebar
-lib/
-  brand.ts                 Product name, tagline, contact, GitHub
-  application/             LangGraph agent domain
-  supabase/                queries, admin-queries, clients
-  types.ts                 Shared TypeScript types
-supabase/
-  migrations/              Numbered schema migrations
-  seeds/                   Optional demo data
-docs/
-  COMPETITOR_ANALYSIS.md   Competitive landscape notes
-hooks/
-  use-chat.ts              Streaming chat client
+app/           Pages and API routes (chat, sessions, admin)
+components/    marketing/, chat/, admin/, dashboard/
+lib/           brand.ts, application/ (LangGraph agent), supabase/
+supabase/      migrations/ and seeds/
 ```
 
-## Docs for agents and planning
+Scripts: `npm run dev`, `build`, `typecheck`, `lint`, `lint:tokens`. Agent and contributor orientation is in [`AGENTS.md`](AGENTS.md); the roadmap is in [`PLAN.md`](PLAN.md).
 
-- `AGENTS.md` — orientation for coding agents
-- `PLAN.md` — operational checklist, remaining work, self-host roadmap
+## Contributing
 
-## License / contact
+Contributions are welcome. Open an [issue](https://github.com/niloy-biswas/evid/issues) to discuss larger changes first, then send a pull request. Run `npm run typecheck`, `npm run lint`, and `npm run lint:tokens` before you submit. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for details.
 
-Open-source distribution details will follow the Community Edition packaging. For Cloud, implementation, or setup services, email **hello@evid.cc**.
+## License
+
+Evid is **source-available** under the [Elastic License 2.0](LICENSE) (ELv2). You can use, copy, modify, and redistribute it, including inside your own business. You may not offer it to third parties as a hosted or managed service, and you may not remove license notices or circumvent license-key functionality.
+
+Need Evid hosted, set up for you, or licensed for a hosted offering? Email **[hello@evid.cc](mailto:hello@evid.cc)**.

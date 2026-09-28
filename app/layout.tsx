@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { DM_Sans, Inter, Noto_Sans_Bengali, Noto_Sans_Mono } from "next/font/google";
 import { GeistSans } from "geist/font/sans";
 import { ThemeProvider } from "@/components/theme-provider";
-import { BRAND } from "@/lib/brand";
+import { BRAND, SITE_URL } from "@/lib/brand";
 import "./globals.css";
 
 const inter = Inter({
@@ -34,6 +34,7 @@ const notoSansMono = Noto_Sans_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: `${BRAND.name}: Governed AI Analytics`,
     template: `%s · ${BRAND.name}`,

@@ -4,12 +4,11 @@ import { LandingHeader } from "@/components/marketing/landing-header";
 import { HeroSection } from "@/components/marketing/hero-section";
 import { ProblemSection } from "@/components/marketing/problem-section";
 import { HowItWorksSection } from "@/components/marketing/how-it-works";
-import { CapabilitiesSection } from "@/components/marketing/capabilities-section";
 import { AnalyticsShowcase } from "@/components/marketing/analytics-showcase";
 import { ComparisonSection } from "@/components/marketing/comparison-section";
-import { PricingContactSection } from "@/components/marketing/pricing-section";
+import { DeploymentSection } from "@/components/marketing/deployment-section";
+import { SecuritySection } from "@/components/marketing/security-section";
 import { FaqSection } from "@/components/marketing/faq-section";
-import { ChangelogSection } from "@/components/marketing/changelog-section";
 import { FinalCta } from "@/components/marketing/final-cta";
 import { LandingFooter } from "@/components/marketing/landing-footer";
 import { ScrollReveal } from "@/components/marketing/scroll-reveal";
@@ -21,14 +20,13 @@ import { SmoothScroll } from "@/components/marketing/smooth-scroll";
  */
 export function LandingPageView({ isLoggedIn }: { isLoggedIn: boolean }) {
   const afterHero = [
+    { key: "showcase", node: <AnalyticsShowcase /> },
     { key: "problem", node: <ProblemSection /> },
     { key: "how", node: <HowItWorksSection /> },
-    { key: "capabilities", node: <CapabilitiesSection /> },
-    { key: "showcase", node: <AnalyticsShowcase /> },
+    { key: "security", node: <SecuritySection /> },
     { key: "compare", node: <ComparisonSection /> },
-    { key: "pricing", node: <PricingContactSection /> },
+    { key: "deployment", node: <DeploymentSection /> },
     { key: "faq", node: <FaqSection /> },
-    { key: "changelog", node: <ChangelogSection /> },
     { key: "final-cta", node: <FinalCta isLoggedIn={isLoggedIn} /> },
   ];
 

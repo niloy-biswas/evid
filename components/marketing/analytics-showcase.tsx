@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Area,
@@ -16,6 +15,7 @@ import {
   YAxis,
 } from "recharts";
 import { SHOWCASE_QUESTIONS } from "@/components/marketing/demo-data";
+import { CycleBar, useAutoCycle } from "@/components/marketing/auto-cycle";
 import { SectionLabel } from "@/components/marketing/section-label";
 import { usePrefersReducedMotion } from "@/components/marketing/use-reduced-motion";
 import { cn } from "@/lib/utils";
@@ -27,47 +27,53 @@ const SERIES_COLORS = [
   "var(--chart-4)",
 ];
 
+const CYCLE_MS = 6000;
+
 export function AnalyticsShowcase() {
-  const [activeId, setActiveId] = useState(SHOWCASE_QUESTIONS[0].id);
   const reduced = usePrefersReducedMotion();
-  const q = SHOWCASE_QUESTIONS.find((x) => x.id === activeId) ?? SHOWCASE_QUESTIONS[0];
+  const cycle = useAutoCycle(SHOWCASE_QUESTIONS.length, CYCLE_MS);
+  const q = SHOWCASE_QUESTIONS[cycle.active];
 
   return (
-    <section className="border-b border-border/30">
+    <section id="product" className="border-b border-border/30 scroll-mt-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-24">
         <SectionLabel>In action</SectionLabel>
-        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3 max-w-xl text-balance">
-          <span className="text-foreground">Ask a business question.</span>{" "}
-          <span className="text-muted-foreground">Get more than a sentence.</span>
+        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-10 max-w-xl text-balance">
+          <span className="text-foreground">Ask anything.</span>{" "}
+          <span className="text-muted-foreground">See the evidence.</span>
         </h2>
-        <p className="text-muted-foreground max-w-xl mb-10 leading-relaxed">
-          Pick a question. Evid responds with a metric, chart, observation, and the context
-          that scoped it.
-        </p>
 
-        <div className="grid lg:grid-cols-[280px_1fr] gap-4 lg:gap-6">
+        <div
+          ref={cycle.ref}
+          {...cycle.hoverProps}
+          className="grid lg:grid-cols-[280px_1fr] gap-4 lg:gap-6"
+        >
           <div
             className="flex lg:flex-col gap-2 overflow-x-auto pb-1 lg:pb-0"
             role="tablist"
             aria-label="Sample questions"
           >
-            {SHOWCASE_QUESTIONS.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                role="tab"
-                aria-selected={activeId === item.id}
-                onClick={() => setActiveId(item.id)}
-                className={cn(
-                  "shrink-0 text-left rounded-xl border px-3.5 py-3 text-sm transition-colors max-w-[260px] lg:max-w-none",
-                  activeId === item.id
-                    ? "border-primary/40 bg-primary/10 text-foreground"
-                    : "border-border/50 bg-card/50 text-muted-foreground hover:text-foreground hover:bg-white/[0.04]"
-                )}
-              >
-                {item.question}
-              </button>
-            ))}
+            {SHOWCASE_QUESTIONS.map((item, i) => {
+              const active = cycle.active === i;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => cycle.select(i)}
+                  className={cn(
+                    "relative shrink-0 text-left rounded-xl border px-3.5 py-3 text-sm transition-colors max-w-[260px] lg:max-w-none",
+                    active
+                      ? "border-primary/40 bg-primary/10 text-foreground"
+                      : "border-border/50 bg-card/50 text-muted-foreground hover:text-foreground hover:bg-white/[0.04]"
+                  )}
+                >
+                  {item.question}
+                  {active ? <CycleBar running={cycle.running} ms={CYCLE_MS} /> : null}
+                </button>
+              );
+            })}
           </div>
 
           <AnimatePresence mode="wait">
@@ -99,13 +105,13 @@ export function AnalyticsShowcase() {
                 </ul>
               </div>
 
-              <p className="text-sm text-foreground leading-relaxed mb-2">{q.summary}</p>
-              <p className="text-xs text-muted-foreground mb-5">{q.observation}</p>
+              <p className="text-sm text-foreground leading-relaxed mb-5">{q.summary}</p>
 
               <div className="h-52 sm:h-60 w-full">
                 <ShowcaseChart q={q} reduced={reduced} />
               </div>
-              <p className="mt-3 text-xs text-muted-foreground">{q.textualSummary}</p>
+              <p className="sr-only">{q.textualSummary}</p>
+              <p className="mt-3 text-[11px] text-muted-foreground/70">Sample data</p>
             </motion.div>
           </AnimatePresence>
         </div>

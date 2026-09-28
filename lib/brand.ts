@@ -7,13 +7,19 @@ export const BRAND = {
   description:
     "Ask questions in plain English and get charts, explanations, and SQL grounded in approved dashboards, tables, and business rules.",
   ogDescription:
-    "Governed AI analytics with published context, approved tables, inspectable SQL, and self-hosted deployment options.",
+    "Governed AI analytics with published context, approved tables, and inspectable SQL. Live on BigQuery.",
   /** Short line under the name in product chrome */
   productLabel: "Governed AI analytics",
   supportEmail: "hello@evid.cc",
   githubUrl: "https://github.com/niloy-biswas/evid",
   footerLine: "Evid. Governed answers from your own data.",
 } as const;
+
+/** Canonical public origin. Override with NEXT_PUBLIC_SITE_URL for previews. */
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://evid.cc").replace(
+  /\/+$/,
+  ""
+);
 
 export function contactMailto(subject?: string): string {
   if (!subject) return `mailto:${BRAND.supportEmail}`;
