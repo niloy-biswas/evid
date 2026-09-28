@@ -26,10 +26,10 @@ export function FinalCta({ isLoggedIn }: { isLoggedIn: boolean }) {
           <span className="text-muted-foreground">the answer.</span>
         </motion.h2>
         <p className="text-muted-foreground mb-8 max-w-md mx-auto text-pretty">
-          Ask Evid, or run it on your own infrastructure.
+          See it on your own data.
         </p>
         <div className="flex justify-center">
-          <MarketingCtaPair isLoggedIn={isLoggedIn} tone="surface" />
+          <MarketingCtaPair isLoggedIn={isLoggedIn} tone="surface" showSecondary={false} />
         </div>
       </div>
     </section>

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { BrandMark } from "@/components/brand-mark";
 import { BRAND, contactMailto } from "@/lib/brand";
 
@@ -17,26 +18,19 @@ export function LandingFooter() {
               Product
             </p>
             <ul className="space-y-2.5 text-sm text-muted-foreground">
-              <li>
-                <a href="#product" className="hover:text-foreground transition-colors">
-                  Product
-                </a>
-              </li>
-              <li>
-                <a href="#how-it-works" className="hover:text-foreground transition-colors">
-                  How it works
-                </a>
-              </li>
-              <li>
-                <a href="#pricing" className="hover:text-foreground transition-colors">
-                  Pricing
-                </a>
-              </li>
-              <li>
-                <a href="#faq" className="hover:text-foreground transition-colors">
-                  FAQ
-                </a>
-              </li>
+              {[
+                { href: "#product", label: "Product" },
+                { href: "#how-it-works", label: "How it works" },
+                { href: "#security", label: "Security" },
+                { href: "#deployment", label: "Deployment" },
+                { href: "#faq", label: "FAQ" },
+              ].map((l) => (
+                <li key={l.href}>
+                  <a href={l.href} className="hover:text-foreground transition-colors">
+                    {l.label}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
           <div>
@@ -55,16 +49,6 @@ export function LandingFooter() {
                 </a>
               </li>
               <li>
-                <a href="#pricing" className="hover:text-foreground transition-colors">
-                  Self-hosting
-                </a>
-              </li>
-              <li>
-                <a href="#pricing" className="hover:text-foreground transition-colors">
-                  Roadmap
-                </a>
-              </li>
-              <li>
                 <span className="text-muted-foreground/60">Documentation (soon)</span>
               </li>
             </ul>
@@ -80,10 +64,14 @@ export function LandingFooter() {
                 </a>
               </li>
               <li>
-                <span className="text-muted-foreground/60">Privacy (soon)</span>
+                <Link href="/privacy" className="hover:text-foreground transition-colors">
+                  Privacy
+                </Link>
               </li>
               <li>
-                <span className="text-muted-foreground/60">Terms (soon)</span>
+                <Link href="/terms" className="hover:text-foreground transition-colors">
+                  Terms
+                </Link>
               </li>
             </ul>
           </div>

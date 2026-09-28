@@ -28,12 +28,10 @@ export function ComparisonSection() {
     <section className="border-b border-border/30">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-24">
         <SectionLabel>Compare</SectionLabel>
-        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3 text-balance">
-          <span className="text-foreground">Not another SQL chatbot.</span>
+        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-10 text-balance">
+          <span className="text-foreground">Raw text-to-SQL</span>{" "}
+          <span className="text-muted-foreground">vs Evid.</span>
         </h2>
-        <p className="text-muted-foreground max-w-xl mb-10 leading-relaxed">
-          Evid works beside your existing BI tools. It does not need to replace them.
-        </p>
 
         <div className="overflow-x-auto rounded-2xl border border-border/60 bg-card/40">
           <table className="w-full min-w-[560px] table-fixed text-sm">
@@ -46,7 +44,7 @@ export function ComparisonSection() {
               <tr className="border-b border-border/60 bg-muted/30">
                 <th className="px-4 py-3 text-left font-semibold text-foreground">Capability</th>
                 <th className="px-4 py-3 text-center font-semibold text-muted-foreground">
-                  Generic SQL chatbot
+                  Raw-schema text-to-SQL
                 </th>
                 <th className="px-4 py-3 text-center font-semibold text-primary bg-primary/5">
                   Evid

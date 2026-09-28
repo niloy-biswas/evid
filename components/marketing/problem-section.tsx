@@ -21,7 +21,7 @@ const PROBLEM_COPY_BLOCKS = [
 
 export function ProblemSection() {
   return (
-    <section id="product" className="border-b border-border/30">
+    <section className="border-b border-border/30">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-24">
         <div className="max-w-3xl mb-10 sm:mb-12">
           <SectionLabel>{PROBLEM_SECTION.eyebrow}</SectionLabel>
