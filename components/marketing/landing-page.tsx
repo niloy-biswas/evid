@@ -16,6 +16,7 @@ import { ChangelogSection } from "@/components/marketing/changelog-section";
 import { FinalCta } from "@/components/marketing/final-cta";
 import { LandingFooter } from "@/components/marketing/landing-footer";
 import { ScrollReveal } from "@/components/marketing/scroll-reveal";
+import { SmoothScroll } from "@/components/marketing/smooth-scroll";
 
 /**
  * Marketing landing — fixed Powder dusk theme.
@@ -36,22 +37,24 @@ export function LandingPageView({ isLoggedIn }: { isLoggedIn: boolean }) {
   ];
 
   return (
-    <div
-      data-theme="powder"
-      className="dark min-h-screen flex flex-col relative overflow-x-clip bg-background text-foreground"
-    >
-      <LandingHeader isLoggedIn={isLoggedIn} />
+    <SmoothScroll>
+      <div
+        data-theme="powder"
+        className="dark min-h-screen flex flex-col relative overflow-x-clip bg-background text-foreground"
+      >
+        <LandingHeader isLoggedIn={isLoggedIn} />
 
-      <main className="relative z-10 flex-1">
-        <HeroSection isLoggedIn={isLoggedIn} />
-        {afterHero.map(({ key, node }) => (
-          <ScrollReveal key={key}>{node}</ScrollReveal>
-        ))}
-      </main>
+        <main className="relative z-10 flex-1">
+          <HeroSection isLoggedIn={isLoggedIn} />
+          {afterHero.map(({ key, node }) => (
+            <ScrollReveal key={key}>{node}</ScrollReveal>
+          ))}
+        </main>
 
-      <div className="relative z-10">
-        <LandingFooter />
+        <div className="relative z-10">
+          <LandingFooter />
+        </div>
       </div>
-    </div>
+    </SmoothScroll>
   );
 }
