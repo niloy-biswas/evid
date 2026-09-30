@@ -13,7 +13,7 @@ export const MARKETING_NAV = [
 export const PROBLEM_SECTION = {
   eyebrow: "The problem",
   headlineLead: "Text-to-SQL reaches your warehouse.",
-  headlineMute: "It still invents what revenue means.",
+  headlineMute: "It still guesses what revenue means.",
   body: "Text-to-SQL will query your warehouse. It will not know which tables are approved or which revenue definition finance signed off on.",
   question: "What was net revenue last month?",
   ungoverned: {
@@ -26,13 +26,14 @@ export const PROBLEM_SECTION = {
       "stg_orders",
       "internal_test",
     ] as const,
-    riskyTableIndexes: [1, 4] as const,
+    riskyTableIndexes: [1, 2, 4, 5] as const,
     metricLabel: "Revenue",
     metricTarget: 1.8,
     metricDecimals: 1,
     metricPrefix: "$",
     metricSuffix: "M",
-    footnote: "Joined staging tables. Included refunds and internal transactions.",
+    footnote:
+      "Joined a duplicate table and staging data. Included refunds and internal transactions.",
   },
   governed: {
     label: "Evid · published context",
