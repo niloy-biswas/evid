@@ -1,7 +1,6 @@
 "use client";
 
 import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
-import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { HeroDemo } from "@/components/marketing/hero-demo";
@@ -54,15 +53,6 @@ export function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
           transition={{ duration: 0.45 }}
           className="mx-auto max-w-5xl text-center"
         >
-          <a
-            href="#product"
-            className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/30 backdrop-blur-md px-3.5 py-1.5 text-[12px] font-medium text-white/90 hover:bg-black/40 transition-colors mb-5"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" aria-hidden />
-            New: governed answers with inspectable SQL
-            <ArrowRight className="h-3 w-3 opacity-70" />
-          </a>
-
           <h1 className="font-heading text-[2.5rem] sm:text-[3.5rem] lg:text-[4.5rem] font-bold tracking-[-0.035em] leading-none text-balance mb-3.5 text-white">
             {BRAND.tagline}
           </h1>
