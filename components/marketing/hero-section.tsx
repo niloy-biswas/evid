@@ -1,7 +1,6 @@
 "use client";
 
 import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
-import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { HeroDemo } from "@/components/marketing/hero-demo";
@@ -23,6 +22,51 @@ const PARALLAX_SPEED = { far: 83, near: 91, card: 92 } as const;
 /** Powder's hill entrance: each layer rises from below on a 1s spring. */
 const HILL_ENTER = { far: 72, near: 48, foreground: 36 } as const;
 const HILL_SPRING = { type: "spring", bounce: 0, duration: 1 } as const;
+
+const EVIDENCE_TOP = Array.from("evidence.");
+const EVIDENCE_BOTTOM = "evid.";
+
+/**
+ * On hover, rolls "evidence." up character by character (left to right) to
+ * reveal "evid." — same per-character wave as MarketingCtaPair's RollingText.
+ *
+ * Sizer is per-column (max of top/bottom glyph): continuous "evidence." is
+ * narrower via kerning, so that + overflow/flex-shrink squashed the trailing ".".
+ */
+function EvidenceSwap({ reduced }: { reduced: boolean }) {
+  if (reduced) return <>evidence.</>;
+
+  return (
+    // overflow must stay off this element: an inline-block's baseline falls back to its
+    // bottom margin edge the moment overflow isn't "visible", regardless of in-flow content
+    // (CSS2.1 10.8.1) — so clipping happens on the nested absolute span below instead.
+    <span className="group relative inline-block text-left align-baseline">
+      <span aria-hidden className="invisible inline-flex">
+        {EVIDENCE_TOP.map((ch, i) => (
+          <span key={i} className="inline-grid whitespace-pre">
+            <span className="col-start-1 row-start-1">{ch}</span>
+            <span className="col-start-1 row-start-1">{EVIDENCE_BOTTOM[i] ?? "\u00A0"}</span>
+          </span>
+        ))}
+      </span>
+      <span className="absolute inset-0 overflow-hidden">
+        <span aria-hidden className="absolute inset-x-0 top-0 flex">
+          {EVIDENCE_TOP.map((ch, i) => (
+            <span
+              key={i}
+              className="flex shrink-0 flex-col transition-transform duration-[450ms] ease-[cubic-bezier(0.2,0,0,1)] group-hover:-translate-y-1/2"
+              style={{ transitionDelay: `${i * 18}ms` }}
+            >
+              <span className="block whitespace-pre">{ch}</span>
+              <span className="block whitespace-pre">{EVIDENCE_BOTTOM[i] ?? "\u00A0"}</span>
+            </span>
+          ))}
+        </span>
+      </span>
+      <span className="sr-only">evidence.</span>
+    </span>
+  );
+}
 
 /**
  * Powder hero: slate sky, copy, and product demo card over a 3-layer hill
@@ -54,17 +98,10 @@ export function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
           transition={{ duration: 0.45 }}
           className="mx-auto max-w-5xl text-center"
         >
-          <a
-            href="#product"
-            className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/30 backdrop-blur-md px-3.5 py-1.5 text-[12px] font-medium text-white/90 hover:bg-black/40 transition-colors mb-5"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" aria-hidden />
-            New: governed answers with inspectable SQL
-            <ArrowRight className="h-3 w-3 opacity-70" />
-          </a>
-
           <h1 className="font-heading text-[2.5rem] sm:text-[3.5rem] lg:text-[4.5rem] font-bold tracking-[-0.035em] leading-none text-balance mb-3.5 text-white">
-            {BRAND.tagline}
+            {BRAND.tagline.split("evidence.")[0]}
+            <EvidenceSwap reduced={reduced} />
+            {BRAND.tagline.split("evidence.")[1]}
           </h1>
 
           <p className="text-[15px] sm:text-base text-white/90 font-medium leading-relaxed text-pretty max-w-lg mx-auto mb-2">

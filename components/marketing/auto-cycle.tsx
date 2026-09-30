@@ -37,20 +37,16 @@ export function useAutoCycle(count: number, ms: number) {
   };
 }
 
-/** Thin progress line along the bottom edge of the active item. */
+/** Fills the active item's own background as its timer progresses. */
 export function CycleBar({ running, ms }: { running: boolean; ms: number }) {
   return (
-    <span
+    <motion.span
       aria-hidden
-      className="pointer-events-none absolute inset-x-3 bottom-0 h-0.5 overflow-hidden rounded-full"
-    >
-      <motion.span
-        key={String(running)}
-        className="block h-full origin-left bg-primary/70"
-        initial={{ scaleX: running ? 0 : 1 }}
-        animate={{ scaleX: 1 }}
-        transition={{ duration: running ? ms / 1000 : 0, ease: "linear" }}
-      />
-    </span>
+      key={String(running)}
+      className="pointer-events-none absolute inset-0 origin-left bg-primary/15"
+      initial={{ scaleX: running ? 0 : 1 }}
+      animate={{ scaleX: 1 }}
+      transition={{ duration: running ? ms / 1000 : 0, ease: "linear" }}
+    />
   );
 }

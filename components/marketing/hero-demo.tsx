@@ -439,6 +439,7 @@ export function HeroDemo({ embedded = false }: { embedded?: boolean }) {
                                 borderRadius: 8,
                                 fontSize: 12,
                               }}
+                              cursor={{ fill: "var(--foreground)", opacity: 0.06 }}
                             />
                             <ReferenceLine
                               x="W4"
@@ -452,7 +453,7 @@ export function HeroDemo({ embedded = false }: { embedded?: boolean }) {
                               }}
                             />
                             <Bar
-                              dataKey="enrolments"
+                              dataKey="signups"
                               fill="var(--chart-1)"
                               opacity={0.35}
                               radius={[4, 4, 0, 0]}
@@ -483,7 +484,7 @@ export function HeroDemo({ embedded = false }: { embedded?: boolean }) {
                       )}
                     </div>
                     <p className="sr-only">
-                      Combination chart of weekly revenue and enrolments with previous-period
+                      Combination chart of weekly revenue and signups with previous-period
                       comparison and a campaign-end annotation at week 4.
                     </p>
                   </div>

@@ -16,6 +16,7 @@ import {
 } from "recharts";
 import { SHOWCASE_QUESTIONS } from "@/components/marketing/demo-data";
 import { CycleBar, useAutoCycle } from "@/components/marketing/auto-cycle";
+import { MarketingCtaPair } from "@/components/marketing/marketing-cta-pair";
 import { SectionLabel } from "@/components/marketing/section-label";
 import { usePrefersReducedMotion } from "@/components/marketing/use-reduced-motion";
 import { cn } from "@/lib/utils";
@@ -27,9 +28,9 @@ const SERIES_COLORS = [
   "var(--chart-4)",
 ];
 
-const CYCLE_MS = 6000;
+const CYCLE_MS = 4000;
 
-export function AnalyticsShowcase() {
+export function AnalyticsShowcase({ isLoggedIn }: { isLoggedIn: boolean }) {
   const reduced = usePrefersReducedMotion();
   const cycle = useAutoCycle(SHOWCASE_QUESTIONS.length, CYCLE_MS);
   const q = SHOWCASE_QUESTIONS[cycle.active];
@@ -63,24 +64,38 @@ export function AnalyticsShowcase() {
                   aria-selected={active}
                   onClick={() => cycle.select(i)}
                   className={cn(
-                    "relative shrink-0 text-left rounded-xl border px-3.5 py-3 text-sm transition-colors max-w-[260px] lg:max-w-none",
+                    "relative shrink-0 overflow-hidden text-left rounded-xl border px-3.5 py-3 text-sm transition-colors max-w-[260px] lg:max-w-none",
                     active
-                      ? "border-primary/40 bg-primary/10 text-foreground"
+                      ? "border-primary/40 bg-card/50 text-foreground"
                       : "border-border/50 bg-card/50 text-muted-foreground hover:text-foreground hover:bg-white/[0.04]"
                   )}
                 >
-                  {item.question}
                   {active ? <CycleBar running={cycle.running} ms={CYCLE_MS} /> : null}
+                  <span className="relative">{item.question}</span>
                 </button>
               );
             })}
+
+            <div className="hidden lg:flex flex-1 flex-col justify-end gap-3 rounded-xl border border-border/40 border-dashed p-4">
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                See it answer questions on your own warehouse, with your own rules.
+              </p>
+              <MarketingCtaPair
+                isLoggedIn={isLoggedIn}
+                tone="surface"
+                size="sm"
+                showSecondary={false}
+                className="justify-start"
+              />
+            </div>
           </div>
 
           <AnimatePresence mode="wait">
             <motion.div
               key={q.id}
               initial={reduced ? false : { opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
+              whileInView={reduced ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
               exit={reduced ? undefined : { opacity: 0, y: -6 }}
               transition={{ duration: 0.3 }}
               className="rounded-2xl border border-border/60 bg-card/60 p-5 sm:p-6"
@@ -172,7 +187,7 @@ function ShowcaseChart({
             axisLine={false}
             tickLine={false}
           />
-          <Tooltip contentStyle={tooltipStyle} />
+          <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "var(--foreground)", opacity: 0.06 }} />
           <Bar
             dataKey="growth"
             fill="var(--primary)"
@@ -191,7 +206,7 @@ function ShowcaseChart({
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
           <XAxis dataKey="label" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} axisLine={false} tickLine={false} />
           <YAxis tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} axisLine={false} tickLine={false} />
-          <Tooltip contentStyle={tooltipStyle} />
+          <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "var(--foreground)", opacity: 0.06 }} />
           {q.series.map((s, i) => (
             <Bar
               key={s}

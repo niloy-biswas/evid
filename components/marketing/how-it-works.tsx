@@ -47,7 +47,8 @@ function StepVisual({ id }: { id: StepId }) {
           <motion.div
             key={line}
             initial={{ opacity: 0, x: -8 }}
-            animate={{ opacity: 1, x: 0 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
             transition={{ delay: i * 0.1 }}
             className="rounded-lg border border-border/60 bg-muted/20 px-3 py-2 text-xs text-foreground/90"
           >
@@ -56,7 +57,8 @@ function StepVisual({ id }: { id: StepId }) {
         ))}
         <motion.span
           initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
           transition={{ delay: 0.4 }}
           className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-primary text-primary-foreground text-xs font-medium"
         >
@@ -78,7 +80,8 @@ function StepVisual({ id }: { id: StepId }) {
           <motion.div
             key={t.name}
             initial={{ opacity: 0, x: -8 }}
-            animate={{ opacity: 1, x: 0 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
             transition={{ delay: i * 0.1 }}
             className={cn(
               "rounded-lg border px-3 py-2 text-xs font-mono flex items-center justify-between",
@@ -108,13 +111,14 @@ function StepVisual({ id }: { id: StepId }) {
         </div>
         <motion.div
           initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
           transition={{ delay: 0.25 }}
           className="rounded-xl border border-border/60 bg-muted/20 p-3 space-y-1.5"
         >
           <p className="text-[11px] text-primary font-medium">Evid found something</p>
           <p className="text-xs text-foreground leading-relaxed">
-            Net revenue −12.4%, mostly SSC after the campaign ended.
+            Net revenue −12.4%, mostly Enterprise after the campaign ended.
           </p>
         </motion.div>
       </div>
@@ -140,7 +144,8 @@ function StepVisual({ id }: { id: StepId }) {
       </div>
       <motion.pre
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, amount: 0.4 }}
         transition={{ delay: 0.15 }}
         className="rounded-lg border border-border/60 bg-muted/20 p-3 text-[11px] leading-relaxed font-mono text-foreground/90 overflow-x-auto"
       >
@@ -167,9 +172,9 @@ export function HowItWorksSection() {
         <div
           ref={cycle.ref}
           {...cycle.hoverProps}
-          className="hidden md:grid md:grid-cols-[260px_1fr] gap-8 items-start"
+          className="hidden md:grid md:grid-cols-[260px_1fr] gap-8"
         >
-          <ol className="space-y-2">
+          <ol className="flex h-full flex-col justify-between gap-2">
             {STEPS.map((s, i) => {
               const active = cycle.active === i;
               return (
@@ -179,15 +184,15 @@ export function HowItWorksSection() {
                     onClick={() => cycle.select(i)}
                     aria-current={active ? "step" : undefined}
                     className={cn(
-                      "relative w-full text-left rounded-xl border px-4 py-3 transition-colors",
+                      "relative w-full overflow-hidden text-left rounded-xl border px-4 py-2.5 transition-colors",
                       active
-                        ? "border-primary/40 bg-primary/10"
+                        ? "border-primary/40 bg-card/50"
                         : "border-border/50 bg-card/50 hover:bg-white/[0.04]"
                     )}
                   >
-                    <span className="text-[11px] font-mono text-muted-foreground">0{i + 1}</span>
-                    <p className="text-sm font-semibold mt-0.5">{s.title}</p>
                     {active ? <CycleBar running={cycle.running} ms={CYCLE_MS} /> : null}
+                    <span className="relative text-[11px] font-mono text-muted-foreground">0{i + 1}</span>
+                    <p className="relative text-sm font-semibold mt-0.5">{s.title}</p>
                   </button>
                 </li>
               );
@@ -199,7 +204,8 @@ export function HowItWorksSection() {
               <motion.div
                 key={step.id}
                 initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
                 exit={{ opacity: 0, y: -6 }}
                 transition={{ duration: 0.35 }}
               >

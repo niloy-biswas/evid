@@ -13,7 +13,7 @@ export const MARKETING_NAV = [
 export const PROBLEM_SECTION = {
   eyebrow: "The problem",
   headlineLead: "Text-to-SQL reaches your warehouse.",
-  headlineMute: "It still invents what revenue means.",
+  headlineMute: "It still guesses what revenue means.",
   body: "Text-to-SQL will query your warehouse. It will not know which tables are approved or which revenue definition finance signed off on.",
   question: "What was net revenue last month?",
   ungoverned: {
@@ -26,19 +26,20 @@ export const PROBLEM_SECTION = {
       "stg_orders",
       "internal_test",
     ] as const,
-    riskyTableIndexes: [1, 4] as const,
+    riskyTableIndexes: [1, 2, 4, 5] as const,
     metricLabel: "Revenue",
     metricTarget: 1.8,
     metricDecimals: 1,
     metricPrefix: "$",
     metricSuffix: "M",
-    footnote: "Joined staging tables. Included refunds and internal transactions.",
+    footnote:
+      "Joined a duplicate table and staging data. Included refunds and internal transactions.",
   },
   governed: {
     label: "Evid · published context",
     contextLines: [
       "Dashboard · Revenue (published)",
-      "Tables · orders_fact, campaigns, enrolments",
+      "Tables · orders_fact, campaigns, customers",
       "Rule · exclude refunds & internal",
       "Caveat · campaign ended mid-month",
     ] as const,
@@ -60,10 +61,10 @@ export const DATA_SOURCES: Array<{ name: string; live: boolean }> = [
 ];
 
 export const SECURITY_POINTS = [
-  { id: "stays", title: "Data stays in your warehouse", icon: "database" },
-  { id: "scope", title: "Only approved tables are queried", icon: "table" },
-  { id: "keys", title: "Credentials encrypted at rest", icon: "lock" },
-  { id: "sql", title: "Every query is inspectable", icon: "code" },
+  { id: "stays", title: "Data stays in your warehouse", icon: "database", spec: "ZERO COPY" },
+  { id: "scope", title: "Only approved tables are queried", icon: "table", spec: "ALLOWLIST" },
+  { id: "keys", title: "Credentials encrypted at rest", icon: "lock", spec: "AES-256" },
+  { id: "sql", title: "Every query is inspectable", icon: "code", spec: "FULL AUDIT" },
 ] as const;
 
 export const SECURITY_FLOW = [
@@ -86,6 +87,16 @@ export const DEPLOY_OPTIONS: Array<{
   available: boolean;
 }> = [
   {
+    id: "assisted",
+    name: "Your infrastructure",
+    status: "Assisted",
+    blurb: "We set Evid up in your environment and hand it over.",
+    points: ["Runs in your cloud", "First dashboards published", "Handover included"],
+    ctaLabel: "Book a demo",
+    cta: { type: "demo" },
+    available: true,
+  },
+  {
     id: "cloud",
     name: "Evid Cloud",
     status: "Available",
@@ -94,16 +105,6 @@ export const DEPLOY_OPTIONS: Array<{
     ctaLabel: "Book a demo",
     cta: { type: "demo" },
     highlighted: true,
-    available: true,
-  },
-  {
-    id: "assisted",
-    name: "Your infrastructure",
-    status: "Assisted",
-    blurb: "We set Evid up in your environment and hand it over.",
-    points: ["Runs in your cloud", "First dashboards published", "Handover included"],
-    ctaLabel: "Book a demo",
-    cta: { type: "demo" },
     available: true,
   },
   {
