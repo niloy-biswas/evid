@@ -80,7 +80,8 @@ export function AnalyticsShowcase() {
             <motion.div
               key={q.id}
               initial={reduced ? false : { opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
+              whileInView={reduced ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
               exit={reduced ? undefined : { opacity: 0, y: -6 }}
               transition={{ duration: 0.3 }}
               className="rounded-2xl border border-border/60 bg-card/60 p-5 sm:p-6"
@@ -172,7 +173,7 @@ function ShowcaseChart({
             axisLine={false}
             tickLine={false}
           />
-          <Tooltip contentStyle={tooltipStyle} />
+          <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "var(--foreground)", opacity: 0.06 }} />
           <Bar
             dataKey="growth"
             fill="var(--primary)"
@@ -191,7 +192,7 @@ function ShowcaseChart({
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
           <XAxis dataKey="label" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} axisLine={false} tickLine={false} />
           <YAxis tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} axisLine={false} tickLine={false} />
-          <Tooltip contentStyle={tooltipStyle} />
+          <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "var(--foreground)", opacity: 0.06 }} />
           {q.series.map((s, i) => (
             <Bar
               key={s}

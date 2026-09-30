@@ -439,6 +439,7 @@ export function HeroDemo({ embedded = false }: { embedded?: boolean }) {
                                 borderRadius: 8,
                                 fontSize: 12,
                               }}
+                              cursor={{ fill: "var(--foreground)", opacity: 0.06 }}
                             />
                             <ReferenceLine
                               x="W4"
