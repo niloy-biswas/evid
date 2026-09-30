@@ -172,7 +172,7 @@ export function ProblemContrastDemo() {
       </div>
 
       <div className="grid md:grid-cols-2 md:divide-x divide-border/50">
-        <div className="relative p-5 sm:p-6 bg-warning/[0.04] min-h-[22rem]">
+        <div className="relative flex flex-col p-5 sm:p-6 bg-warning/[0.04] min-h-[22rem]">
           <div className="flex items-center justify-between gap-3 mb-5">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-warning">
               {ungoverned.label}
@@ -208,7 +208,7 @@ export function ProblemContrastDemo() {
 
           <div
             className={cn(
-              "flex h-[9.25rem] flex-col rounded-xl border border-warning/35 bg-background/50 px-4 py-3.5 transition-opacity duration-300",
+              "mt-auto flex h-[9.25rem] flex-col rounded-xl border border-warning/35 bg-background/50 px-4 py-3.5 transition-opacity duration-300",
               leftMetricOn ? "opacity-100" : "opacity-40"
             )}
           >
@@ -244,7 +244,7 @@ export function ProblemContrastDemo() {
           </div>
         </div>
 
-        <div className="relative p-5 sm:p-6 bg-primary/[0.05] min-h-[22rem]">
+        <div className="relative flex flex-col p-5 sm:p-6 bg-primary/[0.05] min-h-[22rem]">
           <div className="flex items-center justify-between gap-3 mb-5">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
               {governed.label}
@@ -276,7 +276,7 @@ export function ProblemContrastDemo() {
 
           <div
             className={cn(
-              "flex h-[9.25rem] flex-col rounded-xl border border-primary/35 bg-background/50 px-4 py-3.5 transition-opacity duration-300",
+              "mt-auto flex h-[9.25rem] flex-col rounded-xl border border-primary/35 bg-background/50 px-4 py-3.5 transition-opacity duration-300",
               rightMetricOn ? "opacity-100" : "opacity-40"
             )}
           >
