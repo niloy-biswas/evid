@@ -84,28 +84,28 @@ export function SecuritySection() {
                   <li key={node.id}>
                     <div
                       className={cn(
-                        "relative flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors duration-300",
+                        "relative flex items-center gap-3 overflow-hidden rounded-xl border px-4 py-3 transition-colors duration-300",
                         active
-                          ? "border-primary/40 bg-primary/10"
+                          ? "border-primary/40 bg-muted/10"
                           : "border-border/50 bg-muted/10"
                       )}
                     >
+                      {active ? (
+                        <CycleBar running={cycle.running} ms={CYCLE_MS} />
+                      ) : null}
                       <Icon
                         className={cn(
-                          "h-4 w-4 shrink-0 transition-colors duration-300",
+                          "relative h-4 w-4 shrink-0 transition-colors duration-300",
                           active ? "text-primary" : "text-muted-foreground"
                         )}
                         aria-hidden
                       />
-                      <div className="min-w-0">
+                      <div className="relative min-w-0">
                         <p className="text-sm font-semibold">{node.title}</p>
                         <p className="text-xs text-muted-foreground">
                           {node.hint}
                         </p>
                       </div>
-                      {active ? (
-                        <CycleBar running={cycle.running} ms={CYCLE_MS} />
-                      ) : null}
                     </div>
                     {i < SECURITY_FLOW.length - 1 && (
                       <div

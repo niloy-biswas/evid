@@ -179,15 +179,15 @@ export function HowItWorksSection() {
                     onClick={() => cycle.select(i)}
                     aria-current={active ? "step" : undefined}
                     className={cn(
-                      "relative w-full text-left rounded-xl border px-4 py-3 transition-colors",
+                      "relative w-full overflow-hidden text-left rounded-xl border px-4 py-3 transition-colors",
                       active
-                        ? "border-primary/40 bg-primary/10"
+                        ? "border-primary/40 bg-card/50"
                         : "border-border/50 bg-card/50 hover:bg-white/[0.04]"
                     )}
                   >
-                    <span className="text-[11px] font-mono text-muted-foreground">0{i + 1}</span>
-                    <p className="text-sm font-semibold mt-0.5">{s.title}</p>
                     {active ? <CycleBar running={cycle.running} ms={CYCLE_MS} /> : null}
+                    <span className="relative text-[11px] font-mono text-muted-foreground">0{i + 1}</span>
+                    <p className="relative text-sm font-semibold mt-0.5">{s.title}</p>
                   </button>
                 </li>
               );

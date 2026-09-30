@@ -27,7 +27,7 @@ const SERIES_COLORS = [
   "var(--chart-4)",
 ];
 
-const CYCLE_MS = 6000;
+const CYCLE_MS = 4000;
 
 export function AnalyticsShowcase() {
   const reduced = usePrefersReducedMotion();
@@ -63,14 +63,14 @@ export function AnalyticsShowcase() {
                   aria-selected={active}
                   onClick={() => cycle.select(i)}
                   className={cn(
-                    "relative shrink-0 text-left rounded-xl border px-3.5 py-3 text-sm transition-colors max-w-[260px] lg:max-w-none",
+                    "relative shrink-0 overflow-hidden text-left rounded-xl border px-3.5 py-3 text-sm transition-colors max-w-[260px] lg:max-w-none",
                     active
-                      ? "border-primary/40 bg-primary/10 text-foreground"
+                      ? "border-primary/40 bg-card/50 text-foreground"
                       : "border-border/50 bg-card/50 text-muted-foreground hover:text-foreground hover:bg-white/[0.04]"
                   )}
                 >
-                  {item.question}
                   {active ? <CycleBar running={cycle.running} ms={CYCLE_MS} /> : null}
+                  <span className="relative">{item.question}</span>
                 </button>
               );
             })}
