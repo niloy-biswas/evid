@@ -87,6 +87,16 @@ export const DEPLOY_OPTIONS: Array<{
   available: boolean;
 }> = [
   {
+    id: "assisted",
+    name: "Your infrastructure",
+    status: "Assisted",
+    blurb: "We set Evid up in your environment and hand it over.",
+    points: ["Runs in your cloud", "First dashboards published", "Handover included"],
+    ctaLabel: "Book a demo",
+    cta: { type: "demo" },
+    available: true,
+  },
+  {
     id: "cloud",
     name: "Evid Cloud",
     status: "Available",
@@ -95,16 +105,6 @@ export const DEPLOY_OPTIONS: Array<{
     ctaLabel: "Book a demo",
     cta: { type: "demo" },
     highlighted: true,
-    available: true,
-  },
-  {
-    id: "assisted",
-    name: "Your infrastructure",
-    status: "Assisted",
-    blurb: "We set Evid up in your environment and hand it over.",
-    points: ["Runs in your cloud", "First dashboards published", "Handover included"],
-    ctaLabel: "Book a demo",
-    cta: { type: "demo" },
     available: true,
   },
   {
