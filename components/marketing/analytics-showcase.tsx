@@ -16,6 +16,7 @@ import {
 } from "recharts";
 import { SHOWCASE_QUESTIONS } from "@/components/marketing/demo-data";
 import { CycleBar, useAutoCycle } from "@/components/marketing/auto-cycle";
+import { MarketingCtaPair } from "@/components/marketing/marketing-cta-pair";
 import { SectionLabel } from "@/components/marketing/section-label";
 import { usePrefersReducedMotion } from "@/components/marketing/use-reduced-motion";
 import { cn } from "@/lib/utils";
@@ -29,7 +30,7 @@ const SERIES_COLORS = [
 
 const CYCLE_MS = 4000;
 
-export function AnalyticsShowcase() {
+export function AnalyticsShowcase({ isLoggedIn }: { isLoggedIn: boolean }) {
   const reduced = usePrefersReducedMotion();
   const cycle = useAutoCycle(SHOWCASE_QUESTIONS.length, CYCLE_MS);
   const q = SHOWCASE_QUESTIONS[cycle.active];
@@ -74,6 +75,19 @@ export function AnalyticsShowcase() {
                 </button>
               );
             })}
+
+            <div className="hidden lg:flex flex-1 flex-col justify-end gap-3 rounded-xl border border-border/40 border-dashed p-4">
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                See it answer questions on your own warehouse, with your own rules.
+              </p>
+              <MarketingCtaPair
+                isLoggedIn={isLoggedIn}
+                tone="surface"
+                size="sm"
+                showSecondary={false}
+                className="justify-start"
+              />
+            </div>
           </div>
 
           <AnimatePresence mode="wait">

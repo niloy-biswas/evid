@@ -20,7 +20,7 @@ import { SmoothScroll } from "@/components/marketing/smooth-scroll";
  */
 export function LandingPageView({ isLoggedIn }: { isLoggedIn: boolean }) {
   const afterHero = [
-    { key: "showcase", node: <AnalyticsShowcase /> },
+    { key: "showcase", node: <AnalyticsShowcase isLoggedIn={isLoggedIn} /> },
     { key: "problem", node: <ProblemSection /> },
     { key: "how", node: <HowItWorksSection /> },
     { key: "security", node: <SecuritySection /> },
