@@ -39,7 +39,7 @@ export const PROBLEM_SECTION = {
     label: "Evid · published context",
     contextLines: [
       "Dashboard · Revenue (published)",
-      "Tables · orders_fact, campaigns, enrolments",
+      "Tables · orders_fact, campaigns, customers",
       "Rule · exclude refunds & internal",
       "Caveat · campaign ended mid-month",
     ] as const,
