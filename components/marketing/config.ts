@@ -61,10 +61,10 @@ export const DATA_SOURCES: Array<{ name: string; live: boolean }> = [
 ];
 
 export const SECURITY_POINTS = [
-  { id: "stays", title: "Data stays in your warehouse", icon: "database" },
-  { id: "scope", title: "Only approved tables are queried", icon: "table" },
-  { id: "keys", title: "Credentials encrypted at rest", icon: "lock" },
-  { id: "sql", title: "Every query is inspectable", icon: "code" },
+  { id: "stays", title: "Data stays in your warehouse", icon: "database", spec: "ZERO COPY" },
+  { id: "scope", title: "Only approved tables are queried", icon: "table", spec: "ALLOWLIST" },
+  { id: "keys", title: "Credentials encrypted at rest", icon: "lock", spec: "AES-256" },
+  { id: "sql", title: "Every query is inspectable", icon: "code", spec: "FULL AUDIT" },
 ] as const;
 
 export const SECURITY_FLOW = [
