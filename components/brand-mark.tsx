@@ -16,7 +16,7 @@ const WORDMARK_HEIGHTS = {
   xl: "h-14",
 } as const;
 
-/** Source logo is 2172x724 (wordmark) and 378x378 (icon), see public/brand. */
+/** Source logo is 351x145 (wordmark) and 151x151 (icon), see public/brand. */
 export function BrandMark({
   className,
   showWordmark = true,
@@ -30,18 +30,18 @@ export function BrandMark({
     return (
       <span className={cn("inline-flex items-center shrink-0", ICON_SIZES[size], className)}>
         <Image
-          src="/brand/evid-icon-navy.png"
+          src="/brand/evid-icon-navy.svg"
           alt={BRAND.name}
-          width={378}
-          height={378}
+          width={151}
+          height={151}
           className="h-full w-full object-contain dark:hidden"
           priority
         />
         <Image
-          src="/brand/evid-icon-white.png"
+          src="/brand/evid-icon-white.svg"
           alt={BRAND.name}
-          width={378}
-          height={378}
+          width={151}
+          height={151}
           className="hidden h-full w-full object-contain dark:block"
           priority
         />
@@ -52,18 +52,18 @@ export function BrandMark({
   return (
     <span className={cn("inline-flex items-center", className)}>
       <Image
-        src="/brand/evid-mark-navy.png"
+        src="/brand/evid-mark-navy.svg"
         alt={BRAND.name}
-        width={2172}
-        height={724}
+        width={351}
+        height={145}
         className={cn(WORDMARK_HEIGHTS[size], "w-auto dark:hidden")}
         priority
       />
       <Image
-        src="/brand/evid-mark-white.png"
+        src="/brand/evid-mark-white.svg"
         alt={BRAND.name}
-        width={2172}
-        height={724}
+        width={351}
+        height={145}
         className={cn(WORDMARK_HEIGHTS[size], "hidden w-auto dark:block")}
         priority
       />
