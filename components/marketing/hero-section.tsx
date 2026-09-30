@@ -29,6 +29,9 @@ const EVIDENCE_BOTTOM = "evid.";
 /**
  * On hover, rolls "evidence." up character by character (left to right) to
  * reveal "evid." — same per-character wave as MarketingCtaPair's RollingText.
+ *
+ * Sizer is per-column (max of top/bottom glyph): continuous "evidence." is
+ * narrower via kerning, so that + overflow/flex-shrink squashed the trailing ".".
  */
 function EvidenceSwap({ reduced }: { reduced: boolean }) {
   if (reduced) return <>evidence.</>;
@@ -38,18 +41,24 @@ function EvidenceSwap({ reduced }: { reduced: boolean }) {
     // bottom margin edge the moment overflow isn't "visible", regardless of in-flow content
     // (CSS2.1 10.8.1) — so clipping happens on the nested absolute span below instead.
     <span className="group relative inline-block text-left align-baseline">
-      {/* In-flow and invisible: gives the box the same baseline and width as real text. */}
-      <span className="invisible">evidence.</span>
+      <span aria-hidden className="invisible inline-flex">
+        {EVIDENCE_TOP.map((ch, i) => (
+          <span key={i} className="inline-grid whitespace-pre">
+            <span className="col-start-1 row-start-1">{ch}</span>
+            <span className="col-start-1 row-start-1">{EVIDENCE_BOTTOM[i] ?? "\u00A0"}</span>
+          </span>
+        ))}
+      </span>
       <span className="absolute inset-0 overflow-hidden">
         <span aria-hidden className="absolute inset-x-0 top-0 flex">
           {EVIDENCE_TOP.map((ch, i) => (
             <span
               key={i}
-              className="flex flex-col transition-transform duration-[450ms] ease-[cubic-bezier(0.2,0,0,1)] group-hover:-translate-y-1/2"
+              className="flex shrink-0 flex-col transition-transform duration-[450ms] ease-[cubic-bezier(0.2,0,0,1)] group-hover:-translate-y-1/2"
               style={{ transitionDelay: `${i * 18}ms` }}
             >
               <span className="block whitespace-pre">{ch}</span>
-              <span className="block whitespace-pre">{EVIDENCE_BOTTOM[i] ?? " "}</span>
+              <span className="block whitespace-pre">{EVIDENCE_BOTTOM[i] ?? "\u00A0"}</span>
             </span>
           ))}
         </span>
