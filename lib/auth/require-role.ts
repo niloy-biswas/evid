@@ -1,8 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getProfileByEmail } from "@/lib/supabase/queries";
-import type { Profile } from "@/lib/types";
-
-export type UserRole = "user" | "editor" | "admin";
+import type { Profile, UserRole } from "@/lib/types";
 
 export interface SessionProfile {
   userId: string;

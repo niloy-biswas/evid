@@ -1,3 +1,11 @@
+// ── Shared enums ───────────────────────────────────────────
+
+export type UserRole = "user" | "editor" | "admin";
+
+export type DashboardStatus = "draft" | "published" | "archived";
+
+// ── Database entities ──────────────────────────────────────
+
 export interface Dashboard {
   id: string;
   dashboard_id: string;
@@ -12,7 +20,7 @@ export interface Dashboard {
   /** Legacy column removed after admin migration — omit when absent */
   is_active?: boolean;
   /** After migration `001_admin_workspace`; absent on legacy rows until migrated */
-  status?: "draft" | "published" | "archived";
+  status?: DashboardStatus;
   business_rules?: string | null;
   caveats?: string | null;
   custom_instructions?: string | null;
@@ -28,9 +36,11 @@ export interface Profile {
   name: string;
   email: string;
   role: string;
-  user_role?: "user" | "editor" | "admin";
+  user_role?: UserRole;
   avatar_url: string | null;
 }
+
+// ── Chat wire types ────────────────────────────────────────
 
 export interface ToolCall {
   tool: string;
