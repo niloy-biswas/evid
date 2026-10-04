@@ -6,7 +6,7 @@ import {
   getChatHistoryBySession,
   getPublishedDashboardById,
 } from "@/lib/supabase/queries";
-import { runChatUseCase } from "@/lib/application/use_cases/chat";
+import { streamAgentResponse } from "@/lib/application/orchestrators/chat-orchestrator";
 import { resolveChatRuntime } from "@/lib/application/runtime/resolve-chat-runtime";
 import { resolveWorkspaceAnalytics, toWorkspaceAnalytics } from "@/lib/application/runtime/workspace-analytics";
 import type { ChatPayload, HistoryMessage, MessagePart } from "@/lib/types";
@@ -104,7 +104,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: msg }, { status: 500 });
     }
 
-    const stream = await runChatUseCase(payload, runtime);
+    const stream = await streamAgentResponse(payload, runtime);
 
     return new NextResponse(stream, {
       status: 200,

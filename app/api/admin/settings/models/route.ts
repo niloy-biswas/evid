@@ -3,11 +3,13 @@ import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/require-role";
 import { adminGetSetting, adminUpsertSetting } from "@/lib/supabase/admin-queries";
 import { encryptSecret, isEncryptionConfigured } from "@/lib/secrets/credentials-crypto";
+import { envDefaultModelForProvider, envModelProvider } from "@/lib/env";
 import {
+  MODEL_PROVIDERS,
   ModelProvider,
   isValidModelForProvider,
   parseModelProvider,
-} from "@/lib/application/enums/model-names";
+} from "@/lib/application/llm/model-names";
 import {
   getEncryptedLlmApiKeyBlobForProvider,
   llmApiKeyAppSettingKey,
@@ -16,19 +18,7 @@ import {
   getStoredModelForProvider,
   llmModelAppSettingKey,
 } from "@/lib/application/runtime/llm-model-from-settings";
-
-const PROVIDERS = [ModelProvider.Anthropic, ModelProvider.OpenAI, ModelProvider.OpenRouter] as const;
-
-function envDefaultModel(provider: ModelProvider): string | undefined {
-  switch (provider) {
-    case ModelProvider.Anthropic:
-      return process.env.ANTHROPIC_DEFAULT_MODEL;
-    case ModelProvider.OpenAI:
-      return process.env.OPENAI_DEFAULT_MODEL;
-    case ModelProvider.OpenRouter:
-      return process.env.OPENROUTER_DEFAULT_MODEL;
-  }
-}
+import { handleRouteError, jsonError } from "@/lib/api/route-response";
 
 const saveSchema = z
   .object({
@@ -57,7 +47,7 @@ const saveSchema = z
       });
     }
 
-    for (const provider of PROVIDERS) {
+    for (const provider of MODEL_PROVIDERS) {
       const field = modelField[provider];
       const value = data[field]?.trim();
       if (value && !isValidModelForProvider(provider, value)) {
@@ -74,25 +64,25 @@ export async function GET() {
   try {
     await requireAdmin();
     const providerRaw = await adminGetSetting("ai_provider");
-    const providerEnum = parseModelProvider(providerRaw);
+    const providerEnum = parseModelProvider(providerRaw, envModelProvider());
 
     const models = Object.fromEntries(
       await Promise.all(
-        PROVIDERS.map(async (p) => [p, await getStoredModelForProvider(p)] as const)
+        MODEL_PROVIDERS.map(async (p) => [p, await getStoredModelForProvider(p)] as const)
       )
     ) as Record<ModelProvider, string | null>;
     const hasKeys = Object.fromEntries(
       await Promise.all(
-        PROVIDERS.map(
+        MODEL_PROVIDERS.map(
           async (p) => [p, Boolean(await getEncryptedLlmApiKeyBlobForProvider(p))] as const
         )
       )
     ) as Record<ModelProvider, boolean>;
 
-    const activeModel = models[providerEnum] ?? envDefaultModel(providerEnum) ?? "";
+    const activeModel = models[providerEnum] ?? envDefaultModelForProvider(providerEnum) ?? "";
 
     return NextResponse.json({
-      provider: providerRaw ?? process.env.MODEL_PROVIDER ?? "anthropic",
+      provider: providerRaw ?? envModelProvider() ?? "anthropic",
       model: activeModel,
       anthropic_model: models[ModelProvider.Anthropic] ?? "",
       openai_model: models[ModelProvider.OpenAI] ?? "",
@@ -103,12 +93,7 @@ export async function GET() {
       has_openrouter_api_key_stored: hasKeys[ModelProvider.OpenRouter],
     });
   } catch (e) {
-    const status = e instanceof Error && "status" in e ? (e as { status: number }).status : 500;
-    if (status === 401 || status === 403) {
-      return NextResponse.json({ error: "Forbidden" }, { status });
-    }
-    console.error(e);
-    return NextResponse.json({ error: "Failed to load model settings" }, { status: 500 });
+    return handleRouteError(e, "Failed to load model settings");
   }
 }
 
@@ -141,12 +126,9 @@ export async function POST(req: NextRequest) {
     const needsEncryption = Boolean(keyAnth || keyOpen || keyOpenRouter || keyLegacy);
 
     if (needsEncryption && !isEncryptionConfigured()) {
-      return NextResponse.json(
-        {
-          error:
-            "SETTINGS_ENCRYPTION_KEY is not set (min 16 chars). Required to store API keys.",
-        },
-        { status: 400 }
+      return jsonError(
+        "SETTINGS_ENCRYPTION_KEY is not set (min 16 chars). Required to store API keys.",
+        400
       );
     }
 
@@ -168,14 +150,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true });
   } catch (e) {
-    if (e instanceof z.ZodError) {
-      return NextResponse.json({ error: e.flatten() }, { status: 400 });
-    }
-    const status = e instanceof Error && "status" in e ? (e as { status: number }).status : 500;
-    if (status === 401 || status === 403) {
-      return NextResponse.json({ error: "Forbidden" }, { status });
-    }
-    console.error(e);
-    return NextResponse.json({ error: "Failed to save model settings" }, { status: 500 });
+    return handleRouteError(e, "Failed to save model settings");
   }
 }

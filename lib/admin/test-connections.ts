@@ -1,5 +1,7 @@
 import { BigQuery } from "@google-cloud/bigquery";
-import { ModelProvider } from "@/lib/application/enums/model-names";
+import { ModelProvider } from "@/lib/application/llm/model-names";
+import { envBigQueryLocation } from "@/lib/env";
+import { ANTHROPIC_API_VERSION, upstreamErrorMessage } from "./provider-models";
 
 /** App-supported OpenAI models are GPT-5.x (reasoning); chat completions use `max_completion_tokens`, not `max_tokens`. */
 async function openAiChatPing(model: string, apiKey: string): Promise<void> {
@@ -35,14 +37,7 @@ async function chatCompletionsPing(
   });
   const text = await res.text();
   if (res.ok) return;
-  let msg = text.slice(0, 400);
-  try {
-    const j = JSON.parse(text) as { error?: { message?: string } };
-    if (typeof j.error?.message === "string") msg = j.error.message;
-  } catch {
-    /* keep msg */
-  }
-  throw new Error(msg);
+  throw new Error(upstreamErrorMessage(text));
 }
 
 export async function testBigQueryConnection(opts: {
@@ -50,7 +45,7 @@ export async function testBigQueryConnection(opts: {
   credentialsJson?: string;
   location?: string;
 }): Promise<void> {
-  const location = opts.location ?? process.env.BIGQUERY_LOCATION ?? "US";
+  const location = opts.location ?? envBigQueryLocation();
   let credentials: Record<string, unknown> | undefined;
   if (opts.credentialsJson) {
     try {
@@ -77,7 +72,7 @@ export async function testLlmConnection(
       method: "POST",
       headers: {
         "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
+        "anthropic-version": ANTHROPIC_API_VERSION,
         "content-type": "application/json",
       },
       body: JSON.stringify({
@@ -87,8 +82,7 @@ export async function testLlmConnection(
       }),
     });
     if (!res.ok) {
-      const t = await res.text();
-      throw new Error(t.slice(0, 400));
+      throw new Error(upstreamErrorMessage(await res.text()));
     }
     return;
   }

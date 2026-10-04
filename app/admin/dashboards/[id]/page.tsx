@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { getSessionProfile } from "@/lib/auth/require-role";
 import { adminGetDashboardEditor, adminListDataSources } from "@/lib/supabase/admin-queries";
-import { DashboardEditor } from "../dashboard-editor";
+import { DashboardEditor } from "@/components/admin/dashboards/dashboard-editor";
 
 interface PageProps {
   params: Promise<{ id: string }>;

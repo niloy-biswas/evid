@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/require-role";
 import { adminUpdateUserRole } from "@/lib/supabase/admin-queries";
+import { handleRouteError, jsonError } from "@/lib/api/route-response";
 
 const schema = z.object({
   user_role: z.enum(["user", "editor", "admin"]),
@@ -18,20 +19,12 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
     const body = schema.parse(await req.json());
 
     if (id === session.userId && body.user_role !== "admin") {
-      return NextResponse.json({ error: "You cannot remove your own admin role" }, { status: 400 });
+      return jsonError("You cannot remove your own admin role", 400);
     }
 
     await adminUpdateUserRole(id, body.user_role);
     return NextResponse.json({ ok: true });
   } catch (e) {
-    if (e instanceof z.ZodError) {
-      return NextResponse.json({ error: e.flatten() }, { status: 400 });
-    }
-    const status = e instanceof Error && "status" in e ? (e as { status: number }).status : 500;
-    if (status === 401 || status === 403) {
-      return NextResponse.json({ error: "Forbidden" }, { status });
-    }
-    console.error(e);
-    return NextResponse.json({ error: "Failed to update role" }, { status: 500 });
+    return handleRouteError(e, "Failed to update role");
   }
 }

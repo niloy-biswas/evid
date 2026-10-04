@@ -1,0 +1,113 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { Layers, Settings, Sparkles } from "lucide-react";
+import { BrandMark } from "@/components/brand-mark";
+import { DashboardSelector } from "@/components/dashboard/dashboard-selector";
+import { LogoutButton } from "@/components/auth/logout-button";
+import { UserAvatar } from "@/components/auth/user-avatar";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { BRAND } from "@/lib/brand";
+import type { Dashboard, Profile } from "@/lib/types";
+
+interface SelectorScreenProps {
+  dashboards: Dashboard[];
+  profile: Profile | null;
+}
+
+export function SelectorScreen({ dashboards, profile }: SelectorScreenProps) {
+  const router = useRouter();
+
+  const handleSelect = (dashboard: Dashboard) => {
+    router.push(`/chat/${dashboard.dashboard_id}`);
+  };
+
+  return (
+    <main className="min-h-screen flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden">
+      {/* Ambient glow background */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[700px] h-[500px] rounded-full bg-primary/5 blur-[120px]" />
+        <div className="absolute bottom-[-10%] left-[30%] w-[400px] h-[400px] rounded-full bg-[var(--glow-accent)] blur-[100px]" />
+      </div>
+
+      {/* Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: "easeOut" }}
+        className="relative w-full max-w-lg bg-card border border-border/60 rounded-2xl shadow-2xl overflow-hidden"
+      >
+        {/* Top gradient line */}
+        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
+
+        <div className="px-8 pt-8 pb-4">
+          {/* Brand + profile row */}
+          <div className="flex items-center justify-between mb-7">
+            <div className="flex items-center gap-2.5">
+              <BrandMark showWordmark={false} size="md" />
+              <div>
+                <p className="text-base font-black tracking-tight text-foreground">{BRAND.name}</p>
+                <p className="text-xs text-muted-foreground">{BRAND.productLabel}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {profile && (
+                <>
+                  <div className="text-right">
+                    <p className="text-xs font-medium text-foreground">{profile.name}</p>
+                    <p className="text-xs text-muted-foreground">{profile.role}</p>
+                  </div>
+                  <UserAvatar name={profile.name} avatarUrl={profile.avatar_url} size="sm" />
+                  {(profile.user_role === "editor" || profile.user_role === "admin") && (
+                    <Link
+                      href="/admin"
+                      className="text-xs font-medium text-primary hover:underline inline-flex items-center gap-1 px-2 py-1 rounded-md hover:bg-muted transition-colors"
+                    >
+                      <Settings className="h-3.5 w-3.5" />
+                      Admin
+                    </Link>
+                  )}
+                  <LogoutButton />
+                </>
+              )}
+              <ThemeToggle />
+            </div>
+          </div>
+
+          {/* Heading */}
+          <div className="mb-6 text-center">
+            <div className="inline-flex items-center gap-1.5 bg-primary/10 border border-primary/20 rounded-full px-3 py-1 text-xs text-primary font-medium mb-3">
+              <Sparkles className="h-3 w-3" />
+              AI-Powered Analytics
+            </div>
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">Select a Dashboard</h1>
+            <p className="text-sm text-muted-foreground mt-1.5">
+              Choose a dashboard to start asking questions
+            </p>
+          </div>
+
+          {/* Selector list */}
+          {dashboards.length === 0 ? (
+            <div className="py-12 text-center text-muted-foreground text-sm">
+              <Layers className="h-10 w-10 mx-auto opacity-20 mb-3" />
+              No published dashboards yet. Ask an admin to publish one.
+            </div>
+          ) : (
+            <DashboardSelector dashboards={dashboards} onSelect={handleSelect} />
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="px-8 py-4 border-t border-border/40 flex items-center justify-between mt-2">
+          <p className="text-xs text-muted-foreground/50">
+            {dashboards.length} dashboard{dashboards.length !== 1 ? "s" : ""} available
+          </p>
+          <p className="text-xs text-muted-foreground/40 font-mono">{BRAND.name}</p>
+        </div>
+      </motion.div>
+    </main>
+  );
+}

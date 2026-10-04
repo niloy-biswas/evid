@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getDashboards, getProfileByEmail } from "@/lib/supabase/queries";
-import { SelectorScreen } from "@/app/selector-screen";
+import { SelectorScreen } from "@/components/dashboard/selector-screen";
 
 export default async function AppHomePage() {
   const supabase = await createClient();

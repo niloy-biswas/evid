@@ -6,8 +6,8 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, LogIn, AlertCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { GoogleIcon } from "@/components/auth/google-icon";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { GoogleIcon } from "@/components/icons/google-icon";
+import { ThemeToggle } from "@/components/theme-toggle";
 import {
   googleOAuthHostedDomain,
   normalizeAllowedEmailDomainHost,

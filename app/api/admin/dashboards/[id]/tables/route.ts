@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { requireEditorOrAdmin } from "@/lib/auth/require-role";
 import { adminAddDashboardTable } from "@/lib/supabase/admin-queries";
+import { emptyToNull } from "@/lib/utils";
+import { handleRouteError } from "@/lib/api/route-response";
 
 const tableSchema = z.object({
   table_name: z.string().trim().min(1),
@@ -12,12 +14,6 @@ const tableSchema = z.object({
 
 interface RouteParams {
   params: Promise<{ id: string }>;
-}
-
-function emptyToNull(value?: string | null): string | null {
-  if (!value) return null;
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
 }
 
 export async function POST(req: NextRequest, { params }: RouteParams) {
@@ -33,14 +29,6 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     });
     return NextResponse.json({ ok: true });
   } catch (e) {
-    if (e instanceof z.ZodError) {
-      return NextResponse.json({ error: e.flatten() }, { status: 400 });
-    }
-    const status = e instanceof Error && "status" in e ? (e as { status: number }).status : 500;
-    if (status === 401 || status === 403) {
-      return NextResponse.json({ error: "Forbidden" }, { status });
-    }
-    console.error(e);
-    return NextResponse.json({ error: "Failed to add table" }, { status: 500 });
+    return handleRouteError(e, "Failed to add table");
   }
 }

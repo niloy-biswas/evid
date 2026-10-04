@@ -7,6 +7,7 @@ import {
   resolveWorkspaceAnalytics,
   toWorkspaceAnalytics,
 } from "@/lib/application/runtime/workspace-analytics";
+import { handleRouteError } from "@/lib/api/route-response";
 
 const putSchema = z.object({
   org_name: z.string(),
@@ -23,12 +24,7 @@ export async function GET() {
     await requireAdmin();
     return NextResponse.json(toWorkspaceAnalytics(await resolveWorkspaceAnalytics()));
   } catch (e) {
-    const status = e instanceof Error && "status" in e ? (e as { status: number }).status : 500;
-    if (status === 401 || status === 403) {
-      return NextResponse.json({ error: "Forbidden" }, { status });
-    }
-    console.error(e);
-    return NextResponse.json({ error: "Failed to load workspace settings" }, { status: 500 });
+    return handleRouteError(e, "Failed to load workspace settings");
   }
 }
 
@@ -55,14 +51,6 @@ export async function PUT(req: NextRequest) {
       ...toWorkspaceAnalytics(await resolveWorkspaceAnalytics()),
     });
   } catch (e) {
-    if (e instanceof z.ZodError) {
-      return NextResponse.json({ error: e.flatten() }, { status: 400 });
-    }
-    const status = e instanceof Error && "status" in e ? (e as { status: number }).status : 500;
-    if (status === 401 || status === 403) {
-      return NextResponse.json({ error: "Forbidden" }, { status });
-    }
-    console.error(e);
-    return NextResponse.json({ error: "Failed to save workspace settings" }, { status: 500 });
+    return handleRouteError(e, "Failed to save workspace settings");
   }
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/require-role";
 import { adminTransitionDashboardStatus } from "@/lib/supabase/admin-queries";
+import { handleRouteError } from "@/lib/api/route-response";
 
 const schema = z.object({
   status: z.enum(["draft", "published", "archived"]),
@@ -19,14 +20,6 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     await adminTransitionDashboardStatus(id, body.status, session.userId);
     return NextResponse.json({ ok: true });
   } catch (e) {
-    if (e instanceof z.ZodError) {
-      return NextResponse.json({ error: e.flatten() }, { status: 400 });
-    }
-    const status = e instanceof Error && "status" in e ? (e as { status: number }).status : 500;
-    if (status === 401 || status === 403) {
-      return NextResponse.json({ error: "Forbidden" }, { status });
-    }
-    console.error(e);
-    return NextResponse.json({ error: "Failed to update status" }, { status: 500 });
+    return handleRouteError(e, "Failed to update status");
   }
 }

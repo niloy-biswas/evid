@@ -1,6 +1,6 @@
 import { HumanMessage, AIMessage } from "@langchain/core/messages";
 import { createAnalyticsAgent } from "../agents/analytics-agent";
-import { createOpikHandler } from "../config/opik";
+import { createOpikHandler } from "../tracing/opik";
 import type { ResolvedChatRuntime } from "../runtime/resolve-chat-runtime";
 import type { ChatPayload } from "@/lib/types";
 

@@ -19,7 +19,7 @@ interface SidebarSectionProps {
   defaultOpen?: boolean;
 }
 
-export function SidebarSection({ title, icon, children, defaultOpen = false }: SidebarSectionProps) {
+function SidebarSection({ title, icon, children, defaultOpen = false }: SidebarSectionProps) {
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="border border-border/60 rounded-xl overflow-hidden">

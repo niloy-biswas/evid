@@ -9,7 +9,7 @@ import type { ChatMessage } from "@/lib/types";
 import { HighlightedCode } from "@/components/chat/highlighted-code";
 import { ChartBlock, type ChartSpec } from "@/components/chat/chart-block";
 import { ToolCallBlock } from "@/components/chat/tool-call-block";
-import { THINKING_MESSAGES, QUERYING_MESSAGES } from "@/lib/thinking-messages";
+import { THINKING_MESSAGES, QUERYING_MESSAGES } from "@/components/chat/thinking-messages";
 
 // Extract plain text from React children recursively
 function extractText(node: React.ReactNode): string {

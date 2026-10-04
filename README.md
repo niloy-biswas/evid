@@ -97,9 +97,9 @@ Prefer configuring BigQuery under **Admin → Settings → Data sources** and as
 ## Project structure
 
 ```text
-app/           Pages and API routes (chat, sessions, admin)
-components/    marketing/, chat/, admin/, dashboard/
-lib/           brand.ts, application/ (LangGraph agent), supabase/
+app/           Routes only: pages and API routes (chat, sessions, admin)
+components/    UI by domain: admin/, chat/, dashboard/, marketing/; ui/ primitives; icons/
+lib/           application/ (LangGraph agent), supabase/ (all DB access), api/, auth/, env.ts, brand.ts
 supabase/      migrations/ and seeds/
 ```
 

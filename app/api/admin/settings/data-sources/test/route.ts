@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/require-role";
+import { handleRouteError, jsonError } from "@/lib/api/route-response";
 import { testBigQueryConnection } from "@/lib/admin/test-connections";
 import {
   adminMarkDataSourceTested,
@@ -34,10 +35,7 @@ export async function POST(req: NextRequest) {
       : (body.credentials_json ?? "").trim();
 
     if (!credentialsJson) {
-      return NextResponse.json(
-        { error: "credentials_json is required when testing a new source" },
-        { status: 400 }
-      );
+      return jsonError("credentials_json is required when testing a new source", 400);
     }
 
     await testBigQueryConnection({
@@ -56,14 +54,6 @@ export async function POST(req: NextRequest) {
       last_tested_at,
     });
   } catch (e) {
-    if (e instanceof z.ZodError) {
-      return NextResponse.json({ error: e.flatten() }, { status: 400 });
-    }
-    const status = e instanceof Error && "status" in e ? (e as { status: number }).status : 500;
-    if (status === 401 || status === 403) {
-      return NextResponse.json({ error: "Forbidden" }, { status });
-    }
-    const msg = e instanceof Error ? e.message : "Connection test failed";
-    return NextResponse.json({ error: msg }, { status: 400 });
+    return handleRouteError(e, "Connection test failed", { exposeMessage: true, status: 400 });
   }
 }

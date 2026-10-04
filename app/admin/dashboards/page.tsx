@@ -1,6 +1,6 @@
 import { getSessionProfile } from "@/lib/auth/require-role";
 import { adminListAllDashboards } from "@/lib/supabase/admin-queries";
-import { DashboardRegistry } from "../dashboard-registry";
+import { DashboardRegistry } from "@/components/admin/dashboards/dashboard-registry";
 
 export default async function DashboardsPage() {
   const session = await getSessionProfile();

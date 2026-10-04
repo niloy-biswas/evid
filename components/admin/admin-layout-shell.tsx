@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { UserAvatar } from "@/components/auth/user-avatar";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { BRAND } from "@/lib/brand";
 import { BrandMark } from "@/components/brand-mark";
 import type { Profile } from "@/lib/types";
@@ -37,7 +37,6 @@ function getAdminSectionTitle(pathname: string): string {
   if (pathname.startsWith("/admin/settings/data-sources")) return "Data sources";
   if (pathname.startsWith("/admin/settings/models")) return "AI models";
   if (pathname.startsWith("/admin/settings/auth")) return "Auth";
-  if (pathname.startsWith("/admin/settings/users")) return "Users";
   if (pathname.startsWith("/admin/settings")) return "Settings";
   return "Workspace admin";
 }

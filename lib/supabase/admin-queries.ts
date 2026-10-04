@@ -1,4 +1,5 @@
 import { decryptSecret, encryptSecret } from "@/lib/secrets/credentials-crypto";
+import type { DashboardStatus, UserRole } from "@/lib/types";
 import { createAdminClient, tryCreateAdminClient } from "./admin-client";
 
 export interface DataSourcePublic {
@@ -16,8 +17,6 @@ export interface DataSourceRow extends DataSourcePublic {
   vault_secret_id: string | null;
   credentials_encrypted: string | null;
 }
-
-export type UserRoleValue = "user" | "editor" | "admin";
 
 export async function adminGetSetting(key: string): Promise<string | null> {
   const admin = tryCreateAdminClient();
@@ -205,7 +204,7 @@ export async function adminListProfiles(): Promise<ProfileAdminRow[]> {
   return (data ?? []) as ProfileAdminRow[];
 }
 
-export async function adminUpdateUserRole(profileId: string, user_role: UserRoleValue): Promise<void> {
+export async function adminUpdateUserRole(profileId: string, user_role: UserRole): Promise<void> {
   const admin = createAdminClient();
   const { error } = await admin.from("profiles").update({ user_role }).eq("id", profileId);
   if (error) throw error;
@@ -282,8 +281,6 @@ export async function adminListAllDashboards(): Promise<DashboardAdminRow[]> {
   if (error) throw error;
   return (data ?? []) as DashboardAdminRow[];
 }
-
-export type DashboardStatus = "draft" | "published" | "archived";
 
 export async function adminCreateDashboard(payload: DashboardEditorPayload): Promise<string> {
   const admin = createAdminClient();

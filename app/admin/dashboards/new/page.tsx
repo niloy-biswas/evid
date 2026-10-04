@@ -1,6 +1,6 @@
 import { getSessionProfile } from "@/lib/auth/require-role";
 import { adminListDataSources } from "@/lib/supabase/admin-queries";
-import { DashboardEditor } from "../dashboard-editor";
+import { DashboardEditor } from "@/components/admin/dashboards/dashboard-editor";
 
 export default async function NewDashboardPage() {
   const session = await getSessionProfile();

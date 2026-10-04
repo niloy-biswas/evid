@@ -7,7 +7,7 @@ import {
   getChatSessions,
   getChatHistoryBySession,
 } from "@/lib/supabase/queries";
-import { ChatScreen } from "../chat-screen";
+import { ChatScreen } from "@/components/chat/chat-screen";
 
 interface SessionPageProps {
   params: Promise<{ dashboardId: string; sessionNumber: string }>;
