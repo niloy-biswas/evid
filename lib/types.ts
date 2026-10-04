@@ -98,6 +98,13 @@ export interface WorkspaceAnalytics {
   pii_refusal: string;
 }
 
+/** Body of `POST /api/chat`. Everything else is resolved server-side from the owned session. */
+export interface ChatRequest {
+  session_id: string;
+  message: string;
+}
+
+/** Agent input built by `app/api/chat/route.ts` from the session, dashboard and profile rows. */
 export interface ChatPayload {
   session_id: string | null;
   dashboard_id: string;

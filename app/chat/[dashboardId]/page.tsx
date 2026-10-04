@@ -14,14 +14,14 @@ export default async function ChatPage({ params }: ChatPageProps) {
   if (!user) redirect("/login");
 
   const [dashboard, profile] = await Promise.all([
-    getPublishedDashboardByAnyId(dashboardId),
-    getProfileByEmail(user.email!),
+    getPublishedDashboardByAnyId(supabase, dashboardId),
+    getProfileByEmail(supabase, user.email!),
   ]);
 
   if (!dashboard) notFound();
   if (!profile) redirect("/login");
 
-  const session = await getOrCreateLatestSession(dashboard.id, profile.id);
+  const session = await getOrCreateLatestSession(supabase, dashboard.id, profile.id);
   if (!session) notFound();
 
   redirect(`/chat/${dashboard.dashboard_id}/${session.session_number}`);

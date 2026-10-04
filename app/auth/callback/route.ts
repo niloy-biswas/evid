@@ -105,9 +105,11 @@ export async function GET(request: NextRequest) {
       .eq("email", email);
   }
 
-  // Redirect to ?next= if provided, otherwise home
+  // Redirect to ?next= if it is a same-origin path, otherwise home. Without the check,
+  // `next=@evil.com` would produce `https://<origin>@evil.com` (open redirect after login).
   const next = searchParams.get("next");
-  const destination = next ? `${origin}${next}` : `${origin}/app`;
+  const isSafeNext = !!next && next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/\\");
+  const destination = isSafeNext ? `${origin}${next}` : `${origin}/app`;
   const response = NextResponse.redirect(destination);
   cookiesToApply.forEach(({ name, value, options }) => {
     response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2]);

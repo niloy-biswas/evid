@@ -1,14 +1,11 @@
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Dashboard, Profile, ChatMessage, ChatSession, MessagePart } from "@/lib/types";
 
-// Anon client for DB queries — all tables use permissive RLS (USING true)
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+// Every function takes the caller's server client (`lib/supabase/server.ts`) so RLS sees the
+// signed-in user. Never pass the service-role client here.
 
-export async function getDashboards(): Promise<Dashboard[]> {
-  const { data, error } = await supabase
+export async function getDashboards(client: SupabaseClient): Promise<Dashboard[]> {
+  const { data, error } = await client
     .from("dashboards")
     .select("*")
     .eq("status", "published")
@@ -21,8 +18,11 @@ export async function getDashboards(): Promise<Dashboard[]> {
   return data as Dashboard[];
 }
 
-export async function getPublishedDashboardById(id: string): Promise<Dashboard | null> {
-  const { data, error } = await supabase
+export async function getPublishedDashboardById(
+  client: SupabaseClient,
+  id: string
+): Promise<Dashboard | null> {
+  const { data, error } = await client
     .from("dashboards")
     .select("*")
     .eq("id", id)
@@ -37,10 +37,13 @@ export async function getPublishedDashboardById(id: string): Promise<Dashboard |
 }
 
 /** Chat and public selector: only published dashboards */
-export async function getPublishedDashboardByAnyId(id: string): Promise<Dashboard | null> {
+export async function getPublishedDashboardByAnyId(
+  client: SupabaseClient,
+  id: string
+): Promise<Dashboard | null> {
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
   const col = isUuid ? "id" : "dashboard_id";
-  const { data, error } = await supabase
+  const { data, error } = await client
     .from("dashboards")
     .select("*")
     .eq(col, id)
@@ -54,8 +57,8 @@ export async function getPublishedDashboardByAnyId(id: string): Promise<Dashboar
   return data as Dashboard | null;
 }
 
-export async function getProfileByEmail(email: string): Promise<Profile | null> {
-  const { data, error } = await supabase
+export async function getProfileByEmail(client: SupabaseClient, email: string): Promise<Profile | null> {
+  const { data, error } = await client
     .from("profiles")
     .select("*")
     .eq("email", email)
@@ -67,10 +70,11 @@ export async function getProfileByEmail(email: string): Promise<Profile | null> 
 // ── Chat Sessions ──────────────────────────────────────────
 
 export async function getChatSessions(
+  client: SupabaseClient,
   dashboardId: string,
   profileId: string
 ): Promise<ChatSession[]> {
-  const { data, error } = await supabase
+  const { data, error } = await client
     .from("chat_sessions")
     .select("*")
     .eq("dashboard_id", dashboardId)
@@ -81,11 +85,12 @@ export async function getChatSessions(
 }
 
 export async function getChatSessionByNumber(
+  client: SupabaseClient,
   dashboardId: string,
   profileId: string,
   sessionNumber: number
 ): Promise<ChatSession | null> {
-  const { data, error } = await supabase
+  const { data, error } = await client
     .from("chat_sessions")
     .select("*")
     .eq("dashboard_id", dashboardId)
@@ -96,11 +101,28 @@ export async function getChatSessionByNumber(
   return data as ChatSession;
 }
 
+/** Session by id, only when `profileId` owns it. Use `requireOwnedSession` in API routes. */
+export async function getOwnedChatSession(
+  client: SupabaseClient,
+  sessionId: string,
+  profileId: string
+): Promise<ChatSession | null> {
+  const { data, error } = await client
+    .from("chat_sessions")
+    .select("*")
+    .eq("id", sessionId)
+    .eq("profile_id", profileId)
+    .maybeSingle();
+  if (error) return null;
+  return data as ChatSession | null;
+}
+
 export async function createChatSession(
+  client: SupabaseClient,
   dashboardId: string,
   profileId: string
 ): Promise<ChatSession | null> {
-  const { data: existing } = await supabase
+  const { data: existing } = await client
     .from("chat_sessions")
     .select("session_number")
     .eq("dashboard_id", dashboardId)
@@ -111,7 +133,7 @@ export async function createChatSession(
   const nextNumber =
     existing && existing.length > 0 ? existing[0].session_number + 1 : 1;
 
-  const { data, error } = await supabase
+  const { data, error } = await client
     .from("chat_sessions")
     .insert({ dashboard_id: dashboardId, profile_id: profileId, session_number: nextNumber, title: "New Chat" })
     .select()
@@ -122,10 +144,11 @@ export async function createChatSession(
 }
 
 export async function getOrCreateLatestSession(
+  client: SupabaseClient,
   dashboardId: string,
   profileId: string
 ): Promise<ChatSession | null> {
-  const { data } = await supabase
+  const { data } = await client
     .from("chat_sessions")
     .select("*")
     .eq("dashboard_id", dashboardId)
@@ -135,7 +158,7 @@ export async function getOrCreateLatestSession(
     .single();
 
   if (data) return data as ChatSession;
-  return createChatSession(dashboardId, profileId);
+  return createChatSession(client, dashboardId, profileId);
 }
 
 /** `chat_messages` columns read by the chat UI. */
@@ -163,8 +186,11 @@ function toChatMessage(row: ChatMessageRow, { withParts }: { withParts: boolean 
   };
 }
 
-export async function getChatHistoryBySession(sessionId: string): Promise<ChatMessage[]> {
-  const { data, error } = await supabase
+export async function getChatHistoryBySession(
+  client: SupabaseClient,
+  sessionId: string
+): Promise<ChatMessage[]> {
+  const { data, error } = await client
     .from("chat_messages")
     .select("*")
     .eq("session_id", sessionId)
@@ -174,32 +200,34 @@ export async function getChatHistoryBySession(sessionId: string): Promise<ChatMe
   return (data as ChatMessageRow[]).map((row) => toChatMessage(row, { withParts: true }));
 }
 
+/** Appends a message to `session`. Callers must load the session with ownership checked. */
 export async function saveChatMessageToSession(
-  sessionId: string,
-  dashboardId: string,
-  profileId: string,
+  client: SupabaseClient,
+  session: Pick<ChatSession, "id" | "dashboard_id" | "profile_id">,
   role: "user" | "assistant",
   content: string,
-  metadata?: Record<string, any>,
   parts?: MessagePart[]
 ): Promise<string | null> {
   // Only persist parts when they contain at least one tool call (otherwise content alone is sufficient)
   const hasToolCalls = parts?.some((p) => p.type === "tool_call");
-  const { data, error } = await supabase.from("chat_messages").insert({
-    session_id: sessionId,
-    dashboard_id: dashboardId,
-    profile_id: profileId,
+  const { data, error } = await client.from("chat_messages").insert({
+    session_id: session.id,
+    dashboard_id: session.dashboard_id,
+    profile_id: session.profile_id,
     role,
     content,
-    metadata,
     tool_calls: hasToolCalls ? parts : null,
   }).select("id").single();
   if (error) return null;
   return data.id;
 }
 
-export async function toggleSessionSharing(sessionId: string, isShared: boolean): Promise<string | null> {
-  const { data, error } = await supabase
+export async function toggleSessionSharing(
+  client: SupabaseClient,
+  sessionId: string,
+  isShared: boolean
+): Promise<string | null> {
+  const { data, error } = await client
     .from("chat_sessions")
     .update({ is_shared: isShared, updated_at: new Date().toISOString() })
     .eq("id", sessionId)
@@ -210,8 +238,8 @@ export async function toggleSessionSharing(sessionId: string, isShared: boolean)
 }
 
 /**
- * Read-only shared session for `/share/[token]`. Takes the caller's server client (not the anon
- * client above) so RLS sees the logged-in viewer. Tool-call parts are intentionally omitted.
+ * Read-only shared session for `/share/[token]`. RLS lets any signed-in viewer read
+ * sessions with `is_shared = true`. Tool-call parts are intentionally omitted.
  */
 export async function getSharedChatByToken(
   client: SupabaseClient,
@@ -247,29 +275,39 @@ export async function getSharedChatByToken(
   };
 }
 
-export async function updateSessionTitle(sessionId: string, title: string): Promise<void> {
-  await supabase
+export async function updateSessionTitle(
+  client: SupabaseClient,
+  sessionId: string,
+  title: string
+): Promise<void> {
+  await client
     .from("chat_sessions")
     .update({ title: title.slice(0, 60), updated_at: new Date().toISOString() })
     .eq("id", sessionId);
 }
 
+/** Returns `false` when no message matched (missing or not owned by `profileId`), `null` on error. */
 export async function saveMessageReaction(
+  client: SupabaseClient,
   messageId: string,
+  profileId: string,
   reaction: "liked" | "disliked",
   feedback?: string
-): Promise<boolean> {
-  const { error } = await supabase
+): Promise<boolean | null> {
+  const { data, error } = await client
     .from("chat_messages")
     .update({ reaction, feedback: feedback ?? null })
-    .eq("id", messageId);
-  return !error;
+    .eq("id", messageId)
+    .eq("profile_id", profileId)
+    .select("id");
+  if (error) return null;
+  return data.length > 0;
 }
 
 // ── Dashboard Tables ───────────────────────────────────────
 
-export async function getDashboardTables(dashboardId: string) {
-  const { data, error } = await supabase
+export async function getDashboardTables(client: SupabaseClient, dashboardId: string) {
+  const { data, error } = await client
     .from("dashboard_tables")
     .select("table_name, row_count, description, notes")
     .eq("dashboard_id", dashboardId);

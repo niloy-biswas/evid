@@ -1,23 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createChatSession } from "@/lib/supabase/queries";
+import { z } from "zod";
+import { requireSignedIn } from "@/lib/auth/require-role";
+import { createClient } from "@/lib/supabase/server";
+import { createChatSession, getPublishedDashboardById } from "@/lib/supabase/queries";
+import { handleRouteError, jsonError } from "@/lib/api/route-response";
+
+const createSessionSchema = z.object({
+  dashboardId: z.string().uuid(),
+});
 
 export async function POST(req: NextRequest) {
   try {
-    const { dashboardId, profileId } = await req.json();
+    const { userId } = await requireSignedIn();
+    const { dashboardId } = createSessionSchema.parse(await req.json());
+    const supabase = await createClient();
 
-    if (!dashboardId || !profileId) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    const dashboard = await getPublishedDashboardById(supabase, dashboardId);
+    if (!dashboard) {
+      return jsonError("Dashboard not found or not published", 404);
     }
 
-    const session = await createChatSession(dashboardId, profileId);
-
+    const session = await createChatSession(supabase, dashboard.id, userId);
     if (!session) {
-      return NextResponse.json({ error: "Failed to create session" }, { status: 500 });
+      return jsonError("Failed to create session", 500);
     }
 
     return NextResponse.json({ sessionNumber: session.session_number, sessionId: session.id });
-  } catch (err) {
-    console.error("Session create error:", err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  } catch (e) {
+    return handleRouteError(e, "Failed to create session");
   }
 }
