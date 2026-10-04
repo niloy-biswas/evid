@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { safeNextPath, withNextParam } from "@/lib/auth/next-path";
 
 /** Crawler files, social image, and legal pages must never bounce to /login. */
 const PUBLIC_PATHS = new Set([
@@ -59,15 +60,14 @@ export async function proxy(request: NextRequest) {
     PUBLIC_PATHS.has(pathname);
 
   if (!user && !isAuthPage && !isPublicApi && !isPublicMarketing) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
+    // Remember the page (e.g. /share/<token>) so login/signup can return to it; API calls have no page
+    const next = pathname.startsWith("/api/") ? null : safeNextPath(pathname + request.nextUrl.search);
+    return NextResponse.redirect(new URL(withNextParam("/login", next), request.url));
   }
 
   if (user && isAuthPage) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/app";
-    return NextResponse.redirect(url);
+    const next = safeNextPath(request.nextUrl.searchParams.get("next"));
+    return NextResponse.redirect(new URL(next ?? "/app", request.url));
   }
 
   return supabaseResponse;

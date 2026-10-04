@@ -13,6 +13,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { safeNextPath, withNextParam } from "@/lib/auth/next-path";
 import { GoogleIcon } from "@/components/icons/google-icon";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
@@ -33,6 +34,13 @@ export default function SignupPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [allowedEmailHost, setAllowedEmailHost] = useState("*");
+  // Where to go after sign-up (e.g. /share/<token>); carried through OAuth and the sign-in link
+  const [nextPath, setNextPath] = useState<string | null>(null);
+
+  useEffect(() => {
+    const next = safeNextPath(new URLSearchParams(window.location.search).get("next"));
+    queueMicrotask(() => setNextPath(next));
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -59,7 +67,7 @@ export default function SignupPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${window.location.origin}${withNextParam("/auth/callback", nextPath)}`,
         ...(hd ? { queryParams: { hd } } : {}),
       },
     });
@@ -124,7 +132,7 @@ export default function SignupPage() {
       return;
     }
 
-    router.push("/app");
+    router.push(nextPath ?? "/app");
     router.refresh();
   };
 
@@ -359,7 +367,7 @@ export default function SignupPage() {
             <p className="text-xs text-muted-foreground">
               Already have access?{" "}
               <Link
-                href="/login"
+                href={withNextParam("/login", nextPath)}
                 className="text-primary hover:text-primary/80 font-semibold transition-colors"
               >
                 Sign in

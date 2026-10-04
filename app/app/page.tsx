@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { withNextParam } from "@/lib/auth/next-path";
 import { getDashboards, getProfileByEmail } from "@/lib/supabase/queries";
 import { SelectorScreen } from "@/components/dashboard/selector-screen";
 
@@ -9,7 +10,7 @@ export default async function AppHomePage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) redirect("/login?next=/app");
+  if (!user) redirect(withNextParam("/login", "/app"));
 
   const [dashboards, profile] = await Promise.all([
     getDashboards(supabase),
