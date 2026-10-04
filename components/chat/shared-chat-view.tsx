@@ -4,15 +4,9 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Lock } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ChatMessageBubble } from "@/components/chat/chat-message";
-import type { Dashboard, ChatSession, ChatMessage } from "@/lib/types";
+import type { SharedChat } from "@/lib/types";
 
-interface SharedChatViewProps {
-  session: ChatSession;
-  dashboard: Dashboard;
-  messages: ChatMessage[];
-}
-
-export function SharedChatView({ session, dashboard, messages }: SharedChatViewProps) {
+export function SharedChatView({ session, dashboard, messages }: SharedChat) {
   const router = useRouter();
 
   return (

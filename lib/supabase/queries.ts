@@ -1,8 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Dashboard, Profile, ChatMessage, ChatSession, MessagePart } from "@/lib/types";
+import type { Dashboard, Profile, ChatMessage, ChatSession, MessagePart, SharedChat } from "@/lib/types";
 
 // Every function takes the caller's server client (`lib/supabase/server.ts`) so RLS sees the
 // signed-in user. Never pass the service-role client here.
+
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function getDashboards(client: SupabaseClient): Promise<Dashboard[]> {
   const { data, error } = await client
@@ -41,8 +43,7 @@ export async function getPublishedDashboardByAnyId(
   client: SupabaseClient,
   id: string
 ): Promise<Dashboard | null> {
-  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
-  const col = isUuid ? "id" : "dashboard_id";
+  const col = UUID_PATTERN.test(id) ? "id" : "dashboard_id";
   const { data, error } = await client
     .from("dashboards")
     .select("*")
@@ -173,7 +174,7 @@ interface ChatMessageRow {
   tool_calls: MessagePart[] | null;
 }
 
-function toChatMessage(row: ChatMessageRow, { withParts }: { withParts: boolean }): ChatMessage {
+function toChatMessage(row: ChatMessageRow): ChatMessage {
   return {
     id: row.id,
     role: row.role,
@@ -182,7 +183,7 @@ function toChatMessage(row: ChatMessageRow, { withParts }: { withParts: boolean 
     createdAt: row.created_at,
     reaction: row.reaction ?? null,
     feedback: row.feedback ?? null,
-    ...(withParts ? { parts: row.tool_calls ?? undefined } : {}),
+    parts: row.tool_calls ?? undefined,
   };
 }
 
@@ -197,7 +198,7 @@ export async function getChatHistoryBySession(
     .order("created_at", { ascending: true });
 
   if (error) return [];
-  return (data as ChatMessageRow[]).map((row) => toChatMessage(row, { withParts: true }));
+  return (data as ChatMessageRow[]).map(toChatMessage);
 }
 
 /** Appends a message to `session`. Callers must load the session with ownership checked. */
@@ -237,41 +238,40 @@ export async function toggleSessionSharing(
   return data.share_token;
 }
 
+/** `get_shared_chat` result (migration 007). */
+interface SharedChatRow {
+  session: SharedChat["session"];
+  dashboard: SharedChat["dashboard"];
+  messages: Pick<ChatMessageRow, "id" | "role" | "content" | "created_at">[];
+}
+
 /**
- * Read-only shared session for `/share/[token]`. RLS lets any signed-in viewer read
- * sessions with `is_shared = true`. Tool-call parts are intentionally omitted.
+ * Read-only shared session for `/share/[token]`, via the `get_shared_chat` RPC: it matches
+ * one token and returns only the fields the view renders (no tool calls, feedback or ids).
  */
 export async function getSharedChatByToken(
   client: SupabaseClient,
   token: string
-): Promise<{ session: ChatSession; dashboard: Dashboard; messages: ChatMessage[] } | null> {
-  const { data: session } = await client
-    .from("chat_sessions")
-    .select("*")
-    .eq("share_token", token)
-    .eq("is_shared", true)
-    .single();
-  if (!session) return null;
+): Promise<SharedChat | null> {
+  if (!UUID_PATTERN.test(token)) return null;
 
-  const { data: dashboard } = await client
-    .from("dashboards")
-    .select("*")
-    .eq("id", session.dashboard_id)
-    .single();
-  if (!dashboard) return null;
+  const { data, error } = await client.rpc("get_shared_chat", { p_token: token });
+  if (error) {
+    console.error("Error fetching shared chat:", error.message);
+    return null;
+  }
+  if (!data) return null;
 
-  const { data: messages } = await client
-    .from("chat_messages")
-    .select("*")
-    .eq("session_id", session.id)
-    .order("created_at", { ascending: true });
-
+  const row = data as SharedChatRow;
   return {
-    session: session as ChatSession,
-    dashboard: dashboard as Dashboard,
-    messages: ((messages ?? []) as ChatMessageRow[]).map((row) =>
-      toChatMessage(row, { withParts: false })
-    ),
+    session: row.session,
+    dashboard: row.dashboard,
+    messages: row.messages.map((m) => ({
+      id: m.id,
+      role: m.role,
+      content: m.content,
+      createdAt: m.created_at,
+    })),
   };
 }
 

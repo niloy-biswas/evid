@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSharedChatByToken } from "@/lib/supabase/queries";
+import { withNextParam } from "@/lib/auth/next-path";
 import { SharedChatView } from "@/components/chat/shared-chat-view";
 
 interface SharePageProps {
@@ -12,16 +13,11 @@ export default async function SharePage({ params }: SharePageProps) {
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect(`/login?next=/share/${token}`);
+  // proxy.ts normally redirects first; this covers requests it lets through
+  if (!user) redirect(withNextParam("/login", `/share/${token}`));
 
   const shared = await getSharedChatByToken(supabase, token);
   if (!shared) notFound();
 
-  return (
-    <SharedChatView
-      session={shared.session}
-      dashboard={shared.dashboard}
-      messages={shared.messages}
-    />
-  );
+  return <SharedChatView {...shared} />;
 }
