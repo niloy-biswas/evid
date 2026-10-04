@@ -1,5 +1,5 @@
 import { adminGetSetting } from "@/lib/supabase/admin-queries";
-import { ModelProvider } from "../enums/model-names";
+import { ModelProvider } from "../llm/model-names";
 
 export function llmModelAppSettingKey(
   provider: ModelProvider

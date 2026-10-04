@@ -1,6 +1,6 @@
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
-import { createLLM } from "../config/llm";
-import { createBigQueryTools } from "../config/bigquery-tools";
+import { createLLM } from "../llm/providers";
+import { createBigQueryTools } from "../tools/bigquery-tools";
 import { buildSystemPrompt } from "../prompts/analytics-prompt";
 import type { ResolvedChatRuntime } from "../runtime/resolve-chat-runtime";
 import type { ChatPayload } from "@/lib/types";

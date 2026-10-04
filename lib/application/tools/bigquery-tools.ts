@@ -1,6 +1,7 @@
 import { tool } from "@langchain/core/tools";
 import { BigQuery } from "@google-cloud/bigquery";
 import { z } from "zod";
+import type { ResolvedChatRuntime } from "../runtime/resolve-chat-runtime";
 
 function parseCredentials(raw: string) {
   try {
@@ -10,15 +11,9 @@ function parseCredentials(raw: string) {
   }
 }
 
-export interface BigQueryRuntimeOptions {
-  projectId: string;
-  location?: string;
-  /** Service account JSON string — required; do not fall back to ADC. */
-  credentialsJson: string;
-}
-
-export function createBigQueryTools(options: BigQueryRuntimeOptions) {
-  const location = options.location ?? process.env.BIGQUERY_LOCATION ?? "US";
+/** Chat always runs with explicit service-account JSON from `resolveChatRuntime`; no ADC fallback. */
+export function createBigQueryTools(options: ResolvedChatRuntime["bigQuery"]) {
+  const { location } = options;
   const credentialsJson = options.credentialsJson.trim();
   if (!credentialsJson) {
     throw new Error("BigQuery credentialsJson is required");

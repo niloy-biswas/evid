@@ -1,15 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/require-role";
+import { handleRouteError, jsonError } from "@/lib/api/route-response";
 import {
-  ModelProvider,
   isValidModelForProvider,
   parseModelProvider,
-} from "@/lib/application/enums/model-names";
-import {
-  envApiKeyForProvider,
-  resolveLlmApiKeyFromSettings,
-} from "@/lib/application/runtime/llm-api-key-from-settings";
+} from "@/lib/application/llm/model-names";
+import { resolveLlmApiKey } from "@/lib/application/runtime/llm-api-key-from-settings";
 import { testLlmConnection } from "@/lib/admin/test-connections";
 
 const schema = z.object({
@@ -22,20 +19,6 @@ const schema = z.object({
   openrouter_api_key: z.string().optional(),
 });
 
-function bodyApiKey(
-  body: z.infer<typeof schema>,
-  provider: ModelProvider
-): string | undefined {
-  switch (provider) {
-    case ModelProvider.Anthropic:
-      return body.anthropic_api_key?.trim();
-    case ModelProvider.OpenAI:
-      return body.openai_api_key?.trim();
-    case ModelProvider.OpenRouter:
-      return body.openrouter_api_key?.trim();
-  }
-}
-
 export async function POST(req: NextRequest) {
   try {
     await requireAdmin();
@@ -43,31 +26,20 @@ export async function POST(req: NextRequest) {
     const provider = parseModelProvider(body.provider);
 
     if (!isValidModelForProvider(provider, body.model)) {
-      return NextResponse.json({ error: "Invalid model for provider" }, { status: 400 });
+      return jsonError("Invalid model for provider", 400);
     }
 
-    let apiKey: string | undefined =
-      bodyApiKey(body, provider) ||
-      body.api_key?.trim() ||
-      (await resolveLlmApiKeyFromSettings(provider));
+    const apiKey = await resolveLlmApiKey(
+      provider,
+      body[`${provider}_api_key`]?.trim() || body.api_key
+    );
     if (!apiKey) {
-      apiKey = envApiKeyForProvider(provider);
-    }
-    if (!apiKey) {
-      return NextResponse.json({ error: "No API key available to test" }, { status: 400 });
+      return jsonError("No API key available to test", 400);
     }
 
     await testLlmConnection(provider, apiKey, body.model);
     return NextResponse.json({ ok: true });
   } catch (e) {
-    if (e instanceof z.ZodError) {
-      return NextResponse.json({ error: e.flatten() }, { status: 400 });
-    }
-    const status = e instanceof Error && "status" in e ? (e as { status: number }).status : 500;
-    if (status === 401 || status === 403) {
-      return NextResponse.json({ error: "Forbidden" }, { status });
-    }
-    const msg = e instanceof Error ? e.message : "Test failed";
-    return NextResponse.json({ error: msg }, { status: 500 });
+    return handleRouteError(e, "Test failed", { exposeMessage: true });
   }
 }

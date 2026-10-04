@@ -4,6 +4,7 @@ import { requireAdmin } from "@/lib/auth/require-role";
 import { adminInsertBigQueryDataSource, adminListDataSources } from "@/lib/supabase/admin-queries";
 import { isEncryptionConfigured } from "@/lib/secrets/credentials-crypto";
 import { testBigQueryConnection } from "@/lib/admin/test-connections";
+import { handleRouteError, jsonError } from "@/lib/api/route-response";
 
 const createSchema = z.object({
   label: z.string().min(1),
@@ -18,12 +19,7 @@ export async function GET() {
     const list = await adminListDataSources();
     return NextResponse.json({ data_sources: list });
   } catch (e) {
-    const status = e instanceof Error && "status" in e ? (e as { status: number }).status : 500;
-    if (status === 401 || status === 403) {
-      return NextResponse.json({ error: "Forbidden" }, { status });
-    }
-    console.error(e);
-    return NextResponse.json({ error: "Failed to list data sources" }, { status: 500 });
+    return handleRouteError(e, "Failed to list data sources");
   }
 }
 
@@ -31,12 +27,9 @@ export async function POST(req: NextRequest) {
   try {
     const session = await requireAdmin();
     if (!isEncryptionConfigured()) {
-      return NextResponse.json(
-        {
-          error:
-            "SETTINGS_ENCRYPTION_KEY is not set (min 16 chars). Required to store credentials securely.",
-        },
-        { status: 400 }
+      return jsonError(
+        "SETTINGS_ENCRYPTION_KEY is not set (min 16 chars). Required to store credentials securely.",
+        400
       );
     }
     const body = createSchema.parse(await req.json());
@@ -54,14 +47,6 @@ export async function POST(req: NextRequest) {
     });
     return NextResponse.json({ id });
   } catch (e) {
-    if (e instanceof z.ZodError) {
-      return NextResponse.json({ error: e.flatten() }, { status: 400 });
-    }
-    const status = e instanceof Error && "status" in e ? (e as { status: number }).status : 500;
-    if (status === 401 || status === 403) {
-      return NextResponse.json({ error: "Forbidden" }, { status });
-    }
-    console.error(e);
-    return NextResponse.json({ error: "Failed to create data source" }, { status: 500 });
+    return handleRouteError(e, "Failed to create data source");
   }
 }

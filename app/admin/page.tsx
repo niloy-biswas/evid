@@ -10,6 +10,7 @@ import {
   Users,
 } from "lucide-react";
 import { getSessionProfile } from "@/lib/auth/require-role";
+import { envModelProvider } from "@/lib/env";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { adminGetWorkspaceOverviewStats } from "@/lib/supabase/admin-queries";
 
@@ -29,7 +30,7 @@ export default async function AdminOverviewPage() {
     stats = null;
   }
 
-  const envProvider = (process.env.MODEL_PROVIDER ?? "anthropic").toLowerCase();
+  const envProvider = (envModelProvider() ?? "anthropic").toLowerCase();
   const displayProvider = (stats?.ai_provider ?? envProvider).toLowerCase();
   const displayModel = stats?.ai_model?.trim() || null;
 

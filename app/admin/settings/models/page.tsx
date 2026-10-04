@@ -8,7 +8,7 @@ import {
   ANTHROPIC_MODEL_CHOICES,
   OPENAI_MODEL_CHOICES,
   OPENROUTER_MODEL_CHOICES,
-} from "@/lib/application/enums/model-names";
+} from "@/lib/application/llm/model-names";
 
 type ModelOption = { value: string; label: string };
 type CatalogModel = { id: string; created?: number };

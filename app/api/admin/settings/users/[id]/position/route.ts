@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { requireEditorOrAdmin } from "@/lib/auth/require-role";
 import { adminUpdateProfilePosition } from "@/lib/supabase/admin-queries";
+import { handleRouteError, jsonError } from "@/lib/api/route-response";
 
 const schema = z.object({
   role: z.string().trim().min(1).max(120),
@@ -18,23 +19,12 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
     const body = schema.parse(await req.json());
 
     if (session.userRole !== "admin" && session.userId !== id) {
-      return NextResponse.json(
-        { error: "Editors can only change their own position" },
-        { status: 403 }
-      );
+      return jsonError("Editors can only change their own position", 403);
     }
 
     await adminUpdateProfilePosition(id, body.role);
     return NextResponse.json({ ok: true });
   } catch (e) {
-    if (e instanceof z.ZodError) {
-      return NextResponse.json({ error: e.flatten() }, { status: 400 });
-    }
-    const status = e instanceof Error && "status" in e ? (e as { status: number }).status : 500;
-    if (status === 401 || status === 403) {
-      return NextResponse.json({ error: "Forbidden" }, { status });
-    }
-    console.error(e);
-    return NextResponse.json({ error: "Failed to update position" }, { status: 500 });
+    return handleRouteError(e, "Failed to update position");
   }
 }

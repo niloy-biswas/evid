@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/require-role";
+import { handleRouteError, jsonError } from "@/lib/api/route-response";
 import {
   adminDeleteDataSource,
   adminResolveDataSourceCredentials,
@@ -27,12 +28,9 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
     const body = updateSchema.parse(await req.json());
 
     if (body.credentials_json?.trim() && !isEncryptionConfigured()) {
-      return NextResponse.json(
-        {
-          error:
-            "SETTINGS_ENCRYPTION_KEY is not set (min 16 chars). Required to store credentials securely.",
-        },
-        { status: 400 }
+      return jsonError(
+        "SETTINGS_ENCRYPTION_KEY is not set (min 16 chars). Required to store credentials securely.",
+        400
       );
     }
 
@@ -54,16 +52,7 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ ok: true });
   } catch (e) {
-    if (e instanceof z.ZodError) {
-      return NextResponse.json({ error: e.flatten() }, { status: 400 });
-    }
-    const status = e instanceof Error && "status" in e ? (e as { status: number }).status : 500;
-    if (status === 401 || status === 403) {
-      return NextResponse.json({ error: "Forbidden" }, { status });
-    }
-    const msg = e instanceof Error ? e.message : "Failed to update data source";
-    console.error(e);
-    return NextResponse.json({ error: msg }, { status: 400 });
+    return handleRouteError(e, "Failed to update data source", { exposeMessage: true, status: 400 });
   }
 }
 
@@ -74,15 +63,9 @@ export async function DELETE(_req: Request, { params }: RouteParams) {
     await adminDeleteDataSource(id);
     return NextResponse.json({ ok: true });
   } catch (e) {
-    const msg = e instanceof Error ? e.message : "Failed to delete";
-    const status = e instanceof Error && "status" in e ? (e as { status: number }).status : 500;
-    if (status === 401 || status === 403) {
-      return NextResponse.json({ error: "Forbidden" }, { status });
+    if (e instanceof Error && e.message.includes("Cannot delete")) {
+      return jsonError(e.message, 409);
     }
-    if (msg.includes("Cannot delete")) {
-      return NextResponse.json({ error: msg }, { status: 409 });
-    }
-    console.error(e);
-    return NextResponse.json({ error: msg }, { status: 500 });
+    return handleRouteError(e, "Failed to delete", { exposeMessage: true });
   }
 }

@@ -1,6 +1,7 @@
 import { decryptSecret } from "@/lib/secrets/credentials-crypto";
+import { envApiKeyForProvider } from "@/lib/env";
 import { adminGetSetting } from "@/lib/supabase/admin-queries";
-import { ModelProvider } from "../enums/model-names";
+import { ModelProvider } from "../llm/model-names";
 
 /**
  * Encrypted blob for the LLM API key for this provider.
@@ -20,7 +21,7 @@ export async function getEncryptedLlmApiKeyBlobForProvider(
   return (await adminGetSetting(llmApiKeyAppSettingKey(provider))) ?? null;
 }
 
-export async function resolveLlmApiKeyFromSettings(
+async function resolveLlmApiKeyFromSettings(
   provider: ModelProvider
 ): Promise<string | undefined> {
   const enc = await getEncryptedLlmApiKeyBlobForProvider(provider);
@@ -45,14 +46,14 @@ export function llmApiKeyAppSettingKey(
   }
 }
 
-/** Env var fallback for this provider's API key, used when nothing is stored in settings. */
-export function envApiKeyForProvider(provider: ModelProvider): string | undefined {
-  switch (provider) {
-    case ModelProvider.Anthropic:
-      return process.env.ANTHROPIC_API_KEY;
-    case ModelProvider.OpenAI:
-      return process.env.OPENAI_API_KEY;
-    case ModelProvider.OpenRouter:
-      return process.env.OPENROUTER_API_KEY;
-  }
+/** Pasted key (`override`), then the encrypted key in settings, then the provider's env var. */
+export async function resolveLlmApiKey(
+  provider: ModelProvider,
+  override?: string | null
+): Promise<string | undefined> {
+  return (
+    override?.trim() ||
+    (await resolveLlmApiKeyFromSettings(provider)) ||
+    envApiKeyForProvider(provider)
+  );
 }

@@ -4,22 +4,40 @@ export enum ModelProvider {
   OpenRouter = "openrouter",
 }
 
-/** Falls back to `process.env.MODEL_PROVIDER`, then Anthropic, for anything unrecognized. */
-export function parseModelProvider(v: string | null | undefined): ModelProvider {
-  const p = (v ?? process.env.MODEL_PROVIDER ?? "anthropic").toLowerCase();
+export const MODEL_PROVIDERS = [
+  ModelProvider.Anthropic,
+  ModelProvider.OpenAI,
+  ModelProvider.OpenRouter,
+] as const;
+
+export const MODEL_PROVIDER_LABEL: Record<ModelProvider, string> = {
+  [ModelProvider.Anthropic]: "Anthropic",
+  [ModelProvider.OpenAI]: "OpenAI",
+  [ModelProvider.OpenRouter]: "OpenRouter",
+};
+
+/**
+ * Pure: `v`, then `fallback` (server callers pass `envModelProvider()` from `@/lib/env`),
+ * then Anthropic for anything unrecognized.
+ */
+export function parseModelProvider(
+  v: string | null | undefined,
+  fallback?: string | null
+): ModelProvider {
+  const p = (v ?? fallback ?? "anthropic").toLowerCase();
   if (p === "openai") return ModelProvider.OpenAI;
   if (p === "openrouter") return ModelProvider.OpenRouter;
   return ModelProvider.Anthropic;
 }
 
 export enum AnthropicModel {
-  Sonnet4_5 = "claude-sonnet-4-6",
-  Opus4 = "claude-opus-4-5",
+  Sonnet4_6 = "claude-sonnet-4-6",
+  Opus4_5 = "claude-opus-4-5",
   Haiku4_5 = "claude-haiku-4-5",
 }
 
 /** Seed choices shown before the admin refreshes the live OpenAI catalog. */
-export enum OpenAIModel {
+enum OpenAIModel {
   gpt5_5 = "gpt-5.5",
   gpt5_4 = "gpt-5.4",
   gpt5_2 = "gpt-5.2",
@@ -27,8 +45,8 @@ export enum OpenAIModel {
 
 /** Seed choices shown before the admin refreshes the live Anthropic catalog. */
 export const ANTHROPIC_MODEL_CHOICES: ReadonlyArray<{ value: AnthropicModel; label: string }> = [
-  { value: AnthropicModel.Sonnet4_5, label: "Claude Sonnet 4.6" },
-  { value: AnthropicModel.Opus4, label: "Claude Opus 4.5" },
+  { value: AnthropicModel.Sonnet4_6, label: "Claude Sonnet 4.6" },
+  { value: AnthropicModel.Opus4_5, label: "Claude Opus 4.5" },
   { value: AnthropicModel.Haiku4_5, label: "Claude Haiku 4.5" },
 ];
 
@@ -44,7 +62,7 @@ export const OPENROUTER_MODEL_CHOICES: ReadonlyArray<{ value: string; label: str
 ];
 
 /** Any Claude model id from Anthropic's catalog. */
-export function isAnthropicChatModelId(id: string): boolean {
+function isAnthropicChatModelId(id: string): boolean {
   return /^claude-/i.test(id.trim());
 }
 
@@ -63,7 +81,7 @@ export function isOpenAiChatModelId(id: string): boolean {
 }
 
 /** OpenRouter ids are `vendor/model` (e.g. `anthropic/claude-sonnet-4`, `openrouter/auto`). */
-export function isOpenRouterModelId(id: string): boolean {
+function isOpenRouterModelId(id: string): boolean {
   return /^[a-z0-9._-]+\/[a-z0-9._-]+$/i.test(id.trim());
 }
 
