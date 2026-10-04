@@ -3,19 +3,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { NativeSelect } from "@/components/ui/native-select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-
-interface ProfileRow {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  user_role: string;
-  created_at: string;
-}
+import { AdminPageHeader, FormError } from "@/components/admin/admin-form";
+import { apiErrorMessage } from "@/lib/api/read-api-error";
+import type { ProfileAdminRow } from "@/lib/supabase/admin-queries";
 
 export function UsersManagement() {
-  const [profiles, setProfiles] = useState<ProfileRow[]>([]);
+  const [profiles, setProfiles] = useState<ProfileAdminRow[]>([]);
   const [positions, setPositions] = useState<Record<string, string>>({});
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [currentUserRole, setCurrentUserRole] = useState<string>("user");
@@ -34,7 +30,7 @@ export function UsersManagement() {
       return;
     }
     const data = await res.json();
-    const rows = (data.profiles ?? []) as ProfileRow[];
+    const rows = (data.profiles ?? []) as ProfileAdminRow[];
     setProfiles(rows);
     setPositions(Object.fromEntries(rows.map((p) => [p.id, p.role ?? ""])));
     setCurrentUserId(data.current_user_id ?? null);
@@ -57,7 +53,7 @@ export function UsersManagement() {
     setBusyId(null);
     if (!res.ok) {
       const j = await res.json().catch(() => ({}));
-      setError(j.error ?? "Access role update failed");
+      setError(apiErrorMessage(j, "Access role update failed"));
       await load();
       return;
     }
@@ -75,7 +71,7 @@ export function UsersManagement() {
     setBusyId(null);
     if (!res.ok) {
       const j = await res.json().catch(() => ({}));
-      setError(j.error ?? "Position update failed");
+      setError(apiErrorMessage(j, "Position update failed"));
       await load();
       return;
     }
@@ -84,18 +80,12 @@ export function UsersManagement() {
 
   return (
     <div className="w-full space-y-8">
-      <div>
-        <h1 className="text-xl font-semibold text-foreground tracking-tight">Users</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Manage profile positions and access roles. Editors can update only their own position.
-        </p>
-      </div>
+      <AdminPageHeader
+        title="Users"
+        description="Manage profile positions and access roles. Editors can update only their own position."
+      />
 
-      {error ? (
-        <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {error}
-        </div>
-      ) : null}
+      {error ? <FormError>{error}</FormError> : null}
 
       <Card>
         <CardHeader>
@@ -129,7 +119,7 @@ export function UsersManagement() {
                         <td className="py-2 pr-4 font-mono text-xs">{p.email}</td>
                         <td className="py-2 pr-4 min-w-56">
                           <div className="flex items-center gap-2">
-                            <input
+                            <Input
                               value={positions[p.id] ?? ""}
                               disabled={!canEditPosition || busyId === p.id}
                               onChange={(e) =>
@@ -138,7 +128,7 @@ export function UsersManagement() {
                                   [p.id]: e.target.value,
                                 }))
                               }
-                              className="h-9 w-full px-3 rounded-md bg-input border border-border text-sm disabled:opacity-60"
+                              className="h-9 rounded-md disabled:opacity-60"
                               placeholder="Data Analyst"
                             />
                             {canEditPosition ? (
@@ -156,16 +146,16 @@ export function UsersManagement() {
                           </div>
                         </td>
                         <td className="py-2">
-                          <select
+                          <NativeSelect
                             value={p.user_role ?? "user"}
                             disabled={!isAdmin || busyId === p.id}
                             onChange={(e) => handleAccessRoleChange(p.id, e.target.value)}
-                            className="h-9 px-2 rounded-md bg-input border border-border text-sm disabled:opacity-60"
+                            className="h-9 w-auto px-2 rounded-md disabled:opacity-60"
                           >
                             <option value="user">user</option>
                             <option value="editor">editor</option>
                             <option value="admin">admin</option>
-                          </select>
+                          </NativeSelect>
                         </td>
                       </tr>
                     );

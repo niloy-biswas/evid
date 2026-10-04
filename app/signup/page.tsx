@@ -13,8 +13,8 @@ import {
   XCircle,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { GoogleIcon } from "@/components/auth/google-icon";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { GoogleIcon } from "@/components/icons/google-icon";
+import { ThemeToggle } from "@/components/theme-toggle";
 import {
   emailMatchesAllowedDomain,
   googleOAuthHostedDomain,

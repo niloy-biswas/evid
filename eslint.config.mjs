@@ -20,7 +20,7 @@ const eslintConfig = defineConfig([
   {
     files: ["app/**/*.{ts,tsx}", "components/**/*.{ts,tsx}", "lib/**/*.{ts,tsx}"],
     ignores: [
-      "components/auth/google-icon.tsx", // Google brand guidelines mandate exact hexes
+      "components/icons/google-icon.tsx", // Google brand guidelines mandate exact hexes
       "components/ui/chart.tsx", // matches Recharts' own SVG attribute selectors, not a color
     ],
     rules: {

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Hash, ChevronRight, Zap, LayoutDashboard } from "lucide-react";
+import { Search, ChevronRight, Zap, LayoutDashboard } from "lucide-react";
 import type { Dashboard } from "@/lib/types";
 
 interface DashboardSearchProps {
@@ -10,7 +10,7 @@ interface DashboardSearchProps {
   onChange: (val: string) => void;
 }
 
-export function DashboardSearch({ query, onChange }: DashboardSearchProps) {
+function DashboardSearch({ query, onChange }: DashboardSearchProps) {
   return (
     <div className="relative">
       <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
@@ -33,7 +33,7 @@ interface DashboardListItemProps {
   onSelect: (d: Dashboard) => void;
 }
 
-export function DashboardListItem({ dashboard, isSelected, onSelect }: DashboardListItemProps) {
+function DashboardListItem({ dashboard, isSelected, onSelect }: DashboardListItemProps) {
   return (
     <motion.button
       layout

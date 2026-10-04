@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import { GitHubIcon } from "@/components/marketing/github-icon";
+import { GitHubIcon } from "@/components/icons/github-icon";
 import { BrandMark } from "@/components/brand-mark";
 import { MarketingCtaPair } from "@/components/marketing/marketing-cta-pair";
 import { MARKETING_NAV } from "@/components/marketing/config";

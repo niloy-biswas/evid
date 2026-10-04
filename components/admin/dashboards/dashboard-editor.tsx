@@ -5,7 +5,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Archive, ArrowLeft, ExternalLink, Globe, Plus, Save, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Field, FormError } from "@/components/admin/admin-form";
+import { apiErrorMessage } from "@/lib/api/read-api-error";
+import type { DashboardStatus } from "@/lib/types";
+import { updateDashboardStatus } from "./dashboard-status";
 import type {
   DashboardEditorRow,
   DashboardTableAdminRow,
@@ -79,23 +86,6 @@ function buildPayload(form: DashboardFormState) {
   };
 }
 
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-        {label}
-      </label>
-      {children}
-    </div>
-  );
-}
-
 export function DashboardEditor({
   mode,
   dashboard,
@@ -138,7 +128,7 @@ export function DashboardEditor({
     setIsSaving(false);
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      setError(typeof data.error === "string" ? data.error : "Failed to save dashboard");
+      setError(apiErrorMessage(data, "Failed to save dashboard"));
       return;
     }
 
@@ -151,19 +141,14 @@ export function DashboardEditor({
     router.refresh();
   }
 
-  async function handleStatus(status: "draft" | "published" | "archived") {
+  async function handleStatus(status: DashboardStatus) {
     if (!dashboard) return;
     setError(null);
     setBusyStatus(true);
-    const res = await fetch(`/api/admin/dashboards/${dashboard.id}/status`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
+    const statusError = await updateDashboardStatus(dashboard.id, status);
     setBusyStatus(false);
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      setError(data.error ?? "Failed to update status");
+    if (statusError) {
+      setError(statusError);
       return;
     }
     router.refresh();
@@ -181,8 +166,7 @@ export function DashboardEditor({
     });
     setIsTableSaving(false);
     if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      setError(data.error ?? "Failed to add table");
+      setError(apiErrorMessage(await res.json().catch(() => ({})), "Failed to add table"));
       return;
     }
     setTables((prev) => [
@@ -208,8 +192,7 @@ export function DashboardEditor({
       { method: "DELETE" }
     );
     if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      setError(data.error ?? "Failed to remove table");
+      setError(apiErrorMessage(await res.json().catch(() => ({})), "Failed to remove table"));
       return;
     }
     setTables((prev) => prev.filter((table) => table.table_name !== tableName));
@@ -288,11 +271,7 @@ export function DashboardEditor({
         ) : null}
       </div>
 
-      {error ? (
-        <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {error}
-        </div>
-      ) : null}
+      {error ? <FormError>{error}</FormError> : null}
 
       <form onSubmit={handleSave} className="space-y-6">
         <Card>
@@ -304,52 +283,47 @@ export function DashboardEditor({
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Field label="Dashboard short ID">
-              <input
+              <Input
                 required
                 value={form.dashboard_id}
                 onChange={(e) => updateField("dashboard_id", e.target.value)}
-                className="w-full h-10 px-3 rounded-lg bg-input border border-border text-sm font-mono"
+                className="font-mono"
                 placeholder="G107"
               />
             </Field>
             <Field label="Dashboard name">
-              <input
+              <Input
                 required
                 value={form.dashboard_name}
                 onChange={(e) => updateField("dashboard_name", e.target.value)}
-                className="w-full h-10 px-3 rounded-lg bg-input border border-border text-sm"
                 placeholder="Sales Performance"
               />
             </Field>
             <Field label="Vertical">
-              <input
+              <Input
                 value={form.vertical}
                 onChange={(e) => updateField("vertical", e.target.value)}
-                className="w-full h-10 px-3 rounded-lg bg-input border border-border text-sm"
                 placeholder="Sales & Marketing"
               />
             </Field>
             <Field label="Refresh window">
-              <input
+              <Input
                 value={form.refresh_window}
                 onChange={(e) => updateField("refresh_window", e.target.value)}
-                className="w-full h-10 px-3 rounded-lg bg-input border border-border text-sm"
                 placeholder="Daily"
               />
             </Field>
             <Field label="Dashboard link">
-              <input
+              <Input
                 value={form.link}
                 onChange={(e) => updateField("link", e.target.value)}
-                className="w-full h-10 px-3 rounded-lg bg-input border border-border text-sm"
                 placeholder="https://lookerstudio.google.com/..."
               />
             </Field>
             <Field label="Data source">
-              <select
+              <NativeSelect
                 value={form.data_source_id}
                 onChange={(e) => updateField("data_source_id", e.target.value)}
-                className="w-full h-10 px-3 rounded-lg bg-input border border-border text-sm"
               >
                 <option value="">Default connected source (or env)</option>
                 {dataSources.map((source) => (
@@ -357,15 +331,14 @@ export function DashboardEditor({
                     {source.label} ({source.project_id}, {source.location})
                   </option>
                 ))}
-              </select>
+              </NativeSelect>
             </Field>
             <div className="md:col-span-2">
               <Field label="Purpose">
-                <textarea
+                <Textarea
                   value={form.purpose}
                   onChange={(e) => updateField("purpose", e.target.value)}
                   rows={3}
-                  className="w-full px-3 py-2 rounded-lg bg-input border border-border text-sm"
                   placeholder="What business question does this dashboard answer?"
                 />
               </Field>
@@ -387,46 +360,41 @@ export function DashboardEditor({
           </CardHeader>
           <CardContent className="space-y-4">
             <Field label="Description">
-              <textarea
+              <Textarea
                 value={form.description}
                 onChange={(e) => updateField("description", e.target.value)}
                 rows={3}
-                className="w-full px-3 py-2 rounded-lg bg-input border border-border text-sm"
               />
             </Field>
             <Field label="Business rules">
-              <textarea
+              <Textarea
                 value={form.business_rules}
                 onChange={(e) => updateField("business_rules", e.target.value)}
                 rows={5}
-                className="w-full px-3 py-2 rounded-lg bg-input border border-border text-sm"
                 placeholder="Revenue filters, definitions, attribution rules..."
               />
             </Field>
             <Field label="Caveats">
-              <textarea
+              <Textarea
                 value={form.caveats}
                 onChange={(e) => updateField("caveats", e.target.value)}
                 rows={4}
-                className="w-full px-3 py-2 rounded-lg bg-input border border-border text-sm"
                 placeholder="Known data gaps, delayed tables, fields to avoid..."
               />
             </Field>
             <Field label="Custom prompt instructions">
-              <textarea
+              <Textarea
                 value={form.custom_instructions}
                 onChange={(e) => updateField("custom_instructions", e.target.value)}
                 rows={4}
-                className="w-full px-3 py-2 rounded-lg bg-input border border-border text-sm"
                 placeholder="Dashboard-specific response behavior..."
               />
             </Field>
             <Field label="Example questions (one per line)">
-              <textarea
+              <Textarea
                 value={form.example_questions}
                 onChange={(e) => updateField("example_questions", e.target.value)}
                 rows={4}
-                className="w-full px-3 py-2 rounded-lg bg-input border border-border text-sm"
                 placeholder={"What was revenue last week?\nWhich products declined month over month?"}
               />
             </Field>
@@ -506,42 +474,39 @@ export function DashboardEditor({
             <form onSubmit={handleAddTable} className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <Field label="Table name">
-                  <input
+                  <Input
                     required
                     value={tableForm.table_name}
                     onChange={(e) =>
                       setTableForm((prev) => ({ ...prev, table_name: e.target.value }))
                     }
-                    className="w-full h-10 px-3 rounded-lg bg-input border border-border text-sm font-mono"
+                    className="font-mono"
                     placeholder="dataset.table"
                   />
                 </Field>
               </div>
               <Field label="Row count">
-                <input
+                <Input
                   value={tableForm.row_count}
                   onChange={(e) => setTableForm((prev) => ({ ...prev, row_count: e.target.value }))}
-                  className="w-full h-10 px-3 rounded-lg bg-input border border-border text-sm"
                   placeholder="1.2M"
                 />
               </Field>
               <Field label="Description">
-                <input
+                <Input
                   value={tableForm.description}
                   onChange={(e) =>
                     setTableForm((prev) => ({ ...prev, description: e.target.value }))
                   }
-                  className="w-full h-10 px-3 rounded-lg bg-input border border-border text-sm"
                   placeholder="What this table contains"
                 />
               </Field>
               <div className="md:col-span-2">
                 <Field label="Notes">
-                  <textarea
+                  <Textarea
                     value={tableForm.notes}
                     onChange={(e) => setTableForm((prev) => ({ ...prev, notes: e.target.value }))}
                     rows={3}
-                    className="w-full px-3 py-2 rounded-lg bg-input border border-border text-sm"
                     placeholder="Known filters, JSON fields, partition notes..."
                   />
                 </Field>

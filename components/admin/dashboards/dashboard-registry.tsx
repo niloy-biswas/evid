@@ -4,9 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { Archive, BarChart2, ExternalLink, FileText, Globe, Pencil, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AdminPageHeader, FormError } from "@/components/admin/admin-form";
 import type { DashboardAdminRow } from "@/lib/supabase/admin-queries";
+import type { DashboardStatus } from "@/lib/types";
+import { updateDashboardStatus } from "./dashboard-status";
 
-type StatusFilter = "all" | "draft" | "published" | "archived";
+type StatusFilter = "all" | DashboardStatus;
 
 const STATUS_TABS: { label: string; value: StatusFilter }[] = [
   { label: "All", value: "all" },
@@ -59,18 +62,13 @@ export function DashboardRegistry({ dashboards: initial, isAdmin }: Props) {
     archived: dashboards.filter((d) => d.status === "archived").length,
   };
 
-  async function transition(id: string, status: "draft" | "published" | "archived") {
+  async function transition(id: string, status: DashboardStatus) {
     setBusyId(id);
     setError(null);
-    const res = await fetch(`/api/admin/dashboards/${id}/status`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
+    const statusError = await updateDashboardStatus(id, status);
     setBusyId(null);
-    if (!res.ok) {
-      const j = await res.json().catch(() => ({}));
-      setError(j.error ?? "Failed to update status");
+    if (statusError) {
+      setError(statusError);
       return;
     }
     setDashboards((prev) => prev.map((d) => (d.id === id ? { ...d, status } : d)));
@@ -78,37 +76,34 @@ export function DashboardRegistry({ dashboards: initial, isAdmin }: Props) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-semibold text-foreground tracking-tight">Dashboard registry</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+      <AdminPageHeader
+        title="Dashboard registry"
+        description={
+          <>
             {dashboards.length} dashboard{dashboards.length !== 1 ? "s" : ""} · Chat serves{" "}
             <span className="font-mono text-xs">published</span> only
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link href="/admin/dashboards/new">
-            <Button size="sm">
-              <Plus className="size-4" />
-              New Dashboard
-            </Button>
-          </Link>
-          {isAdmin ? (
-            <Link href="/admin/settings">
-              <Button variant="outline" size="sm">
-                Settings
+          </>
+        }
+        actions={
+          <div className="flex items-center gap-2">
+            <Link href="/admin/dashboards/new">
+              <Button size="sm">
+                <Plus className="size-4" />
+                New Dashboard
               </Button>
             </Link>
-          ) : null}
-        </div>
-      </div>
+            {isAdmin ? (
+              <Link href="/admin/settings">
+                <Button variant="outline" size="sm">
+                  Settings
+                </Button>
+              </Link>
+            ) : null}
+          </div>
+        }
+      />
 
-      {error && (
-        <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {error}
-        </div>
-      )}
+      {error && <FormError>{error}</FormError>}
 
       {/* Status filter tabs */}
       <div className="flex gap-1 border-b border-border pb-0">

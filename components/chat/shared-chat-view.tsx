@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Lock } from "lucide-react";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { ChatMessageBubble } from "@/components/chat/chat-message";
 import type { Dashboard, ChatSession, ChatMessage } from "@/lib/types";
 

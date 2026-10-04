@@ -8,7 +8,7 @@ import { BrandMark } from "@/components/brand-mark";
 import { DashboardSelector } from "@/components/dashboard/dashboard-selector";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { UserAvatar } from "@/components/auth/user-avatar";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { BRAND } from "@/lib/brand";
 import type { Dashboard, Profile } from "@/lib/types";
 
