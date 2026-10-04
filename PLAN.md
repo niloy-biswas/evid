@@ -10,6 +10,8 @@ Living document: **Phases 1–3 are done** (admin workspace, context editor, set
   - `supabase/migrations/000_current_schema.sql`
   - `supabase/migrations/001_admin_workspace.sql`
   - `supabase/migrations/002_admin_top_dashboards_by_messages.sql`
+  - `supabase/migrations/003_workspace_analytics_settings.sql`
+  - `supabase/migrations/004_workspace_org_profile.sql`
 - **Optional seed data:** `supabase/seeds/001_dashboards.sql` (replace for non-internal deployments).
 - **App:** `/admin` workspace, dashboard registry + draft/publish/archive, context + table mapping, `/admin/settings/*` (data sources, models, auth domain), `/admin/users`; chat serves **published** dashboards only; dashboard context fields injected into the agent prompt; BigQuery credentials from **`data_sources`** when `dashboards.data_source_id` is set, else **env** fallback (see `.env.example`).
 - **Secrets:** AES-GCM with `SETTINGS_ENCRYPTION_KEY` in `data_sources.credentials_encrypted` and `app_settings` (including encrypted AI key). Supabase Vault as an alternate backend remains future work.

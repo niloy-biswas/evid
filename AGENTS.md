@@ -8,7 +8,7 @@ License: **Elastic License 2.0** (`LICENSE`); source-available, not OSI open sou
 
 ## What this is
 
-Next.js app: **published** BI dashboards (`dashboards`), **per-dashboard chat** (`chat_sessions` / `chat_messages`), **LangGraph** analytics agent against **BigQuery**, optional **share-by-link**. **Admin workspace** (`/admin`) lets editors/admins manage dashboard lifecycle, context (rules, caveats, instructions, example questions, table allowlist), data sources, AI provider settings, and signup email domain, without editing SQL by hand for day-to-day work.
+Next.js app: **published** BI dashboards (`dashboards`), **per-dashboard chat** (`chat_sessions` / `chat_messages`), **LangGraph** analytics agent against **BigQuery**, optional **share-by-link**. **Admin workspace** (`/admin`) lets editors/admins manage dashboard lifecycle, context (rules, caveats, instructions, example questions, table allowlist), org analytics defaults (`/admin/settings/workspace`), data sources, AI provider settings, and signup email domain, without editing SQL by hand for day-to-day work.
 
 ## Stack
 
@@ -44,6 +44,7 @@ See **`.env.example`**. Highlights:
 
 - Supabase: `NEXT_PUBLIC_SUPABASE_*`, **`SUPABASE_SERVICE_ROLE_KEY`** (server; admin APIs + encrypted field access).
 - **`SETTINGS_ENCRYPTION_KEY`** — required to store encrypted AI keys and BigQuery JSON from the admin UI.
+- **`SETTINGS_KDF_SALT`** — optional; required only when decrypting secrets encrypted with a previous salt (see `.env.example`).
 - **`ADMIN_EMAIL`** — optional first-boot admin promotion when service role is available.
 - **`ALLOWED_EMAIL_DOMAIN`** — optional until overridden in DB via admin settings.
 - LLM: `MODEL_PROVIDER`, provider API keys, optional model overrides (admin UI can override at runtime).
@@ -70,11 +71,13 @@ For a fresh database, apply numbered files in order under **`supabase/migrations
 000_current_schema.sql
 001_admin_workspace.sql
 002_admin_top_dashboards_by_messages.sql
+003_workspace_analytics_settings.sql
+004_workspace_org_profile.sql
 ```
 
-Optional demo/catalog data: **`supabase/seeds/`**.
+Optional generic demo data: **`supabase/seeds/`** (not a production dump). Private org dumps belong under **`supabase/seeds/internal/`** (gitignored).
 
-## Chat pipeline (happy path)
+Org-wide agent defaults (organization name/about, timezone, currency, language, business definitions, PII refusal) live in **`app_settings`** and are edited at **`/admin/settings/workspace`**.## Chat pipeline (happy path)
 
 1. Client sends **`ChatPayload`** to **`POST /api/chat`** (`session_id`, user, dashboard fields, `message`; optional `history`, `model`).
 2. Route saves the **user** message via `saveChatMessageToSession`, may **auto-title** the session (`getChatHistoryBySession`).
