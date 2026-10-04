@@ -48,6 +48,7 @@ lib/
   supabase/             ALL database access: queries.ts (app), admin-queries.ts (service role), clients
   theme/tokens.ts       Reads CSS color tokens at runtime (chart export)
   env.ts                Shared server env fallbacks (MODEL_PROVIDER, provider keys/models, BigQuery, email domain)
+  chat-parts.ts         Client-safe stream/parts helpers shared by use-chat.ts and the chat orchestrator
   brand.ts, types.ts, utils.ts
 supabase/               migrations/ (apply in order), seeds/
 scripts/check-tokens.mjs  Color-literal guard (has a path ALLOWLIST; update it when moving allowlisted files)
@@ -143,6 +144,8 @@ For a fresh database, apply numbered files in order under **`supabase/migrations
 002_admin_top_dashboards_by_messages.sql
 003_workspace_analytics_settings.sql
 004_workspace_org_profile.sql
+005_rls_hotfix.sql
+006_rls_owner_scoped_chat.sql   (apply only after the app uses the signed-in client; see file header)
 ```
 
 Optional generic demo data: **`supabase/seeds/`** (not a production dump). Private org dumps belong under **`supabase/seeds/internal/`** (gitignored).
@@ -151,17 +154,18 @@ Org-wide agent defaults (organization name/about, timezone, currency, language, 
 
 ## Chat pipeline (happy path)
 
-1. Client (`hooks/use-chat.ts`) sends **`ChatPayload`** to **`POST /api/chat`** (`session_id`, user, dashboard fields, `message`; optional `history`, `model`).
-2. The route saves the **user** message via `saveChatMessageToSession`, may **auto-title** the session, builds history, injects dashboard context, tables and workspace defaults.
-3. **`resolveChatRuntime`** → **`streamAgentResponse`** streams the assistant; the client persists it via **`POST /api/chat/save`** (including **parts** / tool metadata).
+1. Client (`hooks/use-chat.ts`) sends **`ChatRequest`** (`session_id`, `message`) to **`POST /api/chat`**. The route builds the agent's **`ChatPayload`** server-side.
+2. The route checks the session belongs to the signed-in user, builds the agent payload from the session, dashboard and profile rows, saves the **user** message via `saveChatMessageToSession`, may **auto-title** the session, builds history, and injects dashboard context, tables and workspace defaults.
+3. **`resolveChatRuntime`** → **`streamAgentResponse`** streams the assistant. When the stream finishes, the orchestrator rebuilds the reply (content + **parts** / tool metadata) and the route's `saveReply` callback persists it, then a final `{ type: "saved", messageId }` chunk tells the client the stored id. The client never writes assistant messages; partial replies are saved on agent errors and client disconnects.
 
 Related: **`POST /api/chat/reaction`**, **`POST /api/sessions`**, **`POST /api/sessions/share`**.
 
 ## Security notes (do not ignore)
 
-- **Chat and session APIs** (`app/api/chat/*`, `app/api/sessions/*`) accept `profileId` / `session_id` from the request body and do not re-verify them against the cookie session; `lib/supabase/queries.ts` uses an anon client that assumes permissive RLS. Treat this as a **known hardening gap**: any new endpoint there should call `requireSignedIn()` and check ownership.
+- **Chat and session APIs** (`app/api/chat/*`, `app/api/sessions/*`) take identity from the cookie session only: `requireSignedIn()`, then `requireOwnedSession(client, sessionId, userId)` for anything session-scoped (404 for missing or foreign sessions). Never read `profileId`, `dashboardId` or `model` from the request body; derive them from the session and dashboard rows.
+- **`lib/supabase/queries.ts`** functions take the caller's server client (`lib/supabase/server.ts`) so RLS sees the signed-in user. Do not pass the service-role client there.
+- **RLS** (`005`, `006`): no anon access to app tables; chat rows are owner-scoped via `current_profile_id()` (email lookup, because `profiles.id` can differ from `auth.uid()`); `profiles.user_role` and `chat_sessions.share_token` are not client-writable (column grants). New tables need explicit policies; never add `USING (true)` for writes.
 - **Admin APIs** enforce roles server-side with `requireAdmin` / `requireEditorOrAdmin`; keep it that way.
-- **RLS:** confirm live Supabase policies; do not assume permissive `USING true` in all environments.
 
 ## Commands
 
