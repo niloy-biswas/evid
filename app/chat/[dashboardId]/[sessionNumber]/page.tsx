@@ -24,21 +24,21 @@ export default async function SessionPage({ params }: SessionPageProps) {
   if (!user) redirect("/login");
 
   const [dashboard, profile] = await Promise.all([
-    getPublishedDashboardByAnyId(dashboardId),
-    getProfileByEmail(user.email!),
+    getPublishedDashboardByAnyId(supabase, dashboardId),
+    getProfileByEmail(supabase, user.email!),
   ]);
 
   if (!dashboard) notFound();
   if (!profile) redirect("/login");
 
   const [session, sessions] = await Promise.all([
-    getChatSessionByNumber(dashboard.id, profile.id, sessionNum),
-    getChatSessions(dashboard.id, profile.id),
+    getChatSessionByNumber(supabase, dashboard.id, profile.id, sessionNum),
+    getChatSessions(supabase, dashboard.id, profile.id),
   ]);
 
   if (!session) notFound();
 
-  const initialMessages = await getChatHistoryBySession(session.id);
+  const initialMessages = await getChatHistoryBySession(supabase, session.id);
 
   return (
     <ChatScreen

@@ -1,23 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { requireSignedIn } from "@/lib/auth/require-role";
+import { createClient } from "@/lib/supabase/server";
 import { saveMessageReaction } from "@/lib/supabase/queries";
+import { handleRouteError, jsonError } from "@/lib/api/route-response";
+
+const reactionSchema = z.object({
+  messageId: z.string().uuid(),
+  reaction: z.enum(["liked", "disliked"]),
+  feedback: z.string().max(2000).optional(),
+});
 
 export async function POST(req: NextRequest) {
   try {
-    const { messageId, reaction, feedback } = await req.json();
+    const { userId } = await requireSignedIn();
+    const { messageId, reaction, feedback } = reactionSchema.parse(await req.json());
+    const supabase = await createClient();
 
-    if (!messageId || !reaction) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    const saved = await saveMessageReaction(supabase, messageId, userId, reaction, feedback);
+
+    if (saved === null) {
+      return jsonError("Failed to save reaction", 500);
     }
-
-    const success = await saveMessageReaction(messageId, reaction, feedback);
-
-    if (!success) {
-      return NextResponse.json({ error: "Failed to save reaction" }, { status: 500 });
+    if (!saved) {
+      return jsonError("Message not found", 404);
     }
 
     return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error("Reaction API error:", err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  } catch (e) {
+    return handleRouteError(e, "Failed to save reaction");
   }
 }

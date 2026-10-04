@@ -2,14 +2,73 @@ import { HumanMessage, AIMessage } from "@langchain/core/messages";
 import { createAnalyticsAgent } from "../agents/analytics-agent";
 import { createOpikHandler } from "../tracing/opik";
 import type { ResolvedChatRuntime } from "../runtime/resolve-chat-runtime";
-import type { ChatPayload } from "@/lib/types";
+import { finalizeParts, findOpenToolCallIndex, normalizeStreamText } from "@/lib/chat-parts";
+import type { ChatPayload, MessagePart } from "@/lib/types";
 
 type WireChunk =
   | { type: "begin"; metadata: { nodeName: string } }
   | { type: "item"; content: string }
   | { type: "tool_start"; tool: string; input: Record<string, unknown> }
   | { type: "tool_end"; tool: string; output: string; isError?: boolean }
-  | { type: "error"; message?: string };
+  | { type: "error"; message?: string }
+  /** Last chunk when the reply was persisted; the client swaps its temp id for `messageId`. */
+  | { type: "saved"; messageId: string };
+
+export interface AssistantReply {
+  content: string;
+  parts: MessagePart[];
+}
+
+export interface StreamAgentOptions {
+  /** Persists the finished reply and returns its message id (null on failure). */
+  saveReply: (reply: AssistantReply) => Promise<string | null>;
+}
+
+/**
+ * Rebuilds the assistant reply from the wire chunks, in the same shape `hooks/use-chat.ts`
+ * renders, so the server persists exactly what the user saw.
+ */
+function createReplyRecorder() {
+  let content = "";
+  let segment = "";
+  const parts: MessagePart[] = [];
+
+  const commitSegment = () => {
+    if (!segment) return;
+    parts.push({ type: "text", content: segment });
+    segment = "";
+  };
+
+  return {
+    record(chunk: WireChunk) {
+      if (chunk.type === "item") {
+        content += chunk.content;
+        segment += chunk.content;
+      } else if (chunk.type === "tool_start") {
+        commitSegment();
+        parts.push({ type: "tool_call", toolCall: { tool: chunk.tool, input: chunk.input } });
+      } else if (chunk.type === "tool_end") {
+        const i = findOpenToolCallIndex(parts, chunk.tool);
+        const open = i >= 0 ? parts[i] : undefined;
+        if (open?.type === "tool_call") {
+          parts[i] = {
+            type: "tool_call",
+            toolCall: {
+              ...open.toolCall,
+              output: chunk.output ?? (chunk.isError ? "Tool failed" : ""),
+              isError: chunk.isError || undefined,
+            },
+          };
+        }
+      }
+    },
+
+    finish(): AssistantReply {
+      commitSegment();
+      return { content: normalizeStreamText(content), parts: finalizeParts(parts) };
+    },
+  };
+}
 
 function toolOutputToString(raw: unknown): { output: string; isError: boolean } {
   if (raw == null) return { output: "", isError: false };
@@ -63,17 +122,34 @@ function toolErrorToString(raw: unknown): string {
 
 export async function streamAgentResponse(
   payload: ChatPayload,
-  runtime: ResolvedChatRuntime
+  runtime: ResolvedChatRuntime,
+  { saveReply }: StreamAgentOptions
 ): Promise<ReadableStream> {
   const agent = await createAnalyticsAgent(payload, runtime);
   const opik = createOpikHandler();
+  const reply = createReplyRecorder();
+
+  // If the client disconnects mid-answer the agent still finishes and the reply is saved,
+  // so it shows up on reload instead of leaving a dangling user message.
+  let clientGone = false;
 
   return new ReadableStream({
     async start(controller) {
       const enc = new TextEncoder();
 
-      const emit = (chunk: WireChunk) =>
-        controller.enqueue(enc.encode(JSON.stringify(chunk) + "\n"));
+      const send = (chunk: WireChunk) => {
+        if (clientGone) return;
+        try {
+          controller.enqueue(enc.encode(JSON.stringify(chunk) + "\n"));
+        } catch {
+          clientGone = true;
+        }
+      };
+
+      const emit = (chunk: WireChunk) => {
+        reply.record(chunk);
+        send(chunk);
+      };
 
       try {
         const history = (payload.history ?? []).map((m) =>
@@ -123,10 +199,29 @@ export async function streamAgentResponse(
       } catch (err) {
         console.error("Agent stream error:", err);
         emit({ type: "error", message: toolErrorToString(err) });
+      }
+
+      try {
+        const finished = reply.finish();
+        if (finished.content) {
+          const messageId = await saveReply(finished);
+          if (messageId) send({ type: "saved", messageId });
+        }
+      } catch (err) {
+        console.error("Failed to save assistant reply:", err);
       } finally {
         await opik.flushAsync();
-        controller.close();
+        if (!clientGone) {
+          try {
+            controller.close();
+          } catch {
+            /* stream already cancelled */
+          }
+        }
       }
+    },
+    cancel() {
+      clientGone = true;
     },
   });
 }

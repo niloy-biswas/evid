@@ -54,16 +54,7 @@ export function ChatScreen({ dashboard, profile, session, sessions, initialMessa
         prev.map((s) => s.id === session.id ? { ...s, title: text.slice(0, 60) } : s)
       );
     }
-    sendMessage({
-      session_id: session.id,
-      dashboard_id: dashboard.id,
-      dashboard_number: dashboard.dashboard_id,
-      dashboard_name: dashboard.dashboard_name,
-      user: profile
-        ? { id: profile.id, name: profile.name, email: profile.email, role: profile.role }
-        : null,
-      message: text,
-    });
+    sendMessage({ session_id: session.id, message: text });
   };
 
   const isEmpty = messages.length === 0;

@@ -1,6 +1,7 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
-import { getProfileByEmail } from "@/lib/supabase/queries";
-import type { Profile, UserRole } from "@/lib/types";
+import { getOwnedChatSession, getProfileByEmail } from "@/lib/supabase/queries";
+import type { ChatSession, Profile, UserRole } from "@/lib/types";
 
 export interface SessionProfile {
   userId: string;
@@ -17,7 +18,7 @@ export async function getSessionProfile(): Promise<SessionProfile | null> {
   } = await supabase.auth.getUser();
   if (!user?.email) return null;
 
-  const profile = await getProfileByEmail(user.email);
+  const profile = await getProfileByEmail(supabase, user.email);
   if (!profile) return null;
 
   const userRole = (profile.user_role ?? "user") as UserRole;
@@ -46,6 +47,22 @@ export async function requireAdmin(): Promise<SessionProfile> {
     throw new AuthError("Forbidden", 403);
   }
   return sp;
+}
+
+/**
+ * Chat session owned by `profileId`. Throws 404 (not 403) for both missing and foreign
+ * sessions so callers cannot probe which session ids exist.
+ */
+export async function requireOwnedSession(
+  client: SupabaseClient,
+  sessionId: string,
+  profileId: string
+): Promise<ChatSession> {
+  const session = await getOwnedChatSession(client, sessionId, profileId);
+  if (!session) {
+    throw new AuthError("Session not found", 404);
+  }
+  return session;
 }
 
 export class AuthError extends Error {

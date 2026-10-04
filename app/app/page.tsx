@@ -12,8 +12,8 @@ export default async function AppHomePage() {
   if (!user) redirect("/login?next=/app");
 
   const [dashboards, profile] = await Promise.all([
-    getDashboards(),
-    getProfileByEmail(user.email!),
+    getDashboards(supabase),
+    getProfileByEmail(supabase, user.email!),
   ]);
 
   return <SelectorScreen dashboards={dashboards} profile={profile} />;

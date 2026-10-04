@@ -1,44 +1,8 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import type { ChatMessage, ChatPayload, MessagePart, ToolCall } from "@/lib/types";
-
-const INCOMPLETE_TOOL_OUTPUT = "Tool did not complete successfully.";
-
-/** Normalize text parts and mark tools that never received tool_end as errors. */
-function finalizePartsForSave(parts: MessagePart[]): MessagePart[] {
-  return parts.map((p) => {
-    if (p.type === "text") {
-      return { type: "text" as const, content: p.content.replace(/\\n/g, "\n").trim() };
-    }
-    if (!p.toolCall.output && !p.toolCall.isError) {
-      return {
-        type: "tool_call" as const,
-        toolCall: {
-          ...p.toolCall,
-          output: INCOMPLETE_TOOL_OUTPUT,
-          isError: true,
-        },
-      };
-    }
-    return p;
-  });
-}
-
-function findOpenToolCallIndex(parts: MessagePart[], toolName: string): number {
-  for (let i = parts.length - 1; i >= 0; i--) {
-    const part = parts[i];
-    if (
-      part?.type === "tool_call" &&
-      part.toolCall.tool === toolName &&
-      !part.toolCall.output &&
-      !part.toolCall.isError
-    ) {
-      return i;
-    }
-  }
-  return -1;
-}
+import { finalizeParts, findOpenToolCallIndex, normalizeStreamText } from "@/lib/chat-parts";
+import type { ChatMessage, ChatRequest, MessagePart, ToolCall } from "@/lib/types";
 
 export function useChat(initialMessages: ChatMessage[] = []) {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
@@ -46,13 +10,13 @@ export function useChat(initialMessages: ChatMessage[] = []) {
   const [error, setError] = useState<string | null>(null);
 
   const sendMessage = useCallback(
-    async (payload: ChatPayload) => {
+    async (request: ChatRequest) => {
       setError(null);
 
       const userMsg: ChatMessage = {
         id: crypto.randomUUID(),
         role: "user",
-        content: payload.message,
+        content: request.message,
         createdAt: new Date().toISOString(),
       };
 
@@ -75,7 +39,7 @@ export function useChat(initialMessages: ChatMessage[] = []) {
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(request),
         });
 
         if (!res.ok) {
@@ -89,9 +53,7 @@ export function useChat(initialMessages: ChatMessage[] = []) {
         let streamedContent = "";  // full raw text across all segments — used for finalContent
         let segmentContent = "";   // raw text for the current segment between tool calls
         let streamDone = false;
-
-        const normalize = (raw: string) =>
-          raw.replace(/\\n/g, "\n").trim();
+        let savedMessageId: string | null = null; // set by the server's final "saved" chunk
 
         // Smooth display: drain received chars to screen at a controlled rate
         const CHARS_PER_FRAME = 30;
@@ -147,14 +109,12 @@ export function useChat(initialMessages: ChatMessage[] = []) {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          if (streamDone) continue;
 
           buffer += decoder.decode(value, { stream: true });
           const chunks = buffer.replace(/\}\}\s+\{/g, "}}\n{").split("\n");
           buffer = chunks.pop() ?? "";
 
           for (const raw of chunks) {
-            if (streamDone) break;
             try {
               const chunk = JSON.parse(raw) as {
                 type: string;
@@ -165,7 +125,15 @@ export function useChat(initialMessages: ChatMessage[] = []) {
                 output?: string;
                 isError?: boolean;
                 message?: string;
+                messageId?: string;
               };
+
+              // "saved" arrives after an "error" too (partial replies are persisted)
+              if (chunk.type === "saved" && chunk.messageId) {
+                savedMessageId = chunk.messageId;
+                continue;
+              }
+              if (streamDone) continue;
 
               if (chunk.type === "tool_start" && chunk.tool) {
                 flushDisplay();
@@ -222,13 +190,13 @@ export function useChat(initialMessages: ChatMessage[] = []) {
                 streamDone = true;
                 flushDisplay();
                 commitSegmentToParts();
-                parts = finalizePartsForSave(parts);
+                parts = finalizeParts(parts);
                 setMessages((prev) =>
                   prev.map((m) =>
                     m.id === assistantId
                       ? {
                           ...m,
-                          content: normalize(streamedContent),
+                          content: normalizeStreamText(streamedContent),
                           parts,
                           isStreaming: false,
                           hasError: true,
@@ -237,7 +205,6 @@ export function useChat(initialMessages: ChatMessage[] = []) {
                       : m
                   )
                 );
-                break;
               }
             } catch { /* incomplete JSON chunk, skip */ }
           }
@@ -245,34 +212,16 @@ export function useChat(initialMessages: ChatMessage[] = []) {
 
         flushDisplay();
         commitSegmentToParts();
-        finalContent = normalize(streamedContent);
-        parts = finalizePartsForSave(parts);
+        finalContent = normalizeStreamText(streamedContent);
+        parts = finalizeParts(parts);
 
+        // The server persists the reply; swap the temp id for the stored one so reactions target it.
+        const finalId = savedMessageId ?? assistantId;
         setMessages((prev) =>
           prev.map((m) =>
-            m.id === assistantId ? { ...m, content: finalContent, parts, isStreaming: false } : m
+            m.id === assistantId ? { ...m, id: finalId, content: finalContent, parts, isStreaming: false } : m
           )
         );
-
-        if (payload.session_id && payload.user?.id) {
-          const saveRes = await fetch("/api/chat/save", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              sessionId: payload.session_id,
-              dashboardId: payload.dashboard_id,
-              profileId: payload.user.id,
-              content: finalContent,
-              parts,
-            }),
-          });
-          const saveData = await saveRes.json().catch(() => ({}));
-          if (saveData.messageId) {
-            setMessages((prev) =>
-              prev.map((m) => m.id === assistantId ? { ...m, id: saveData.messageId } : m)
-            );
-          }
-        }
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : "Unknown error";
         setError(message);

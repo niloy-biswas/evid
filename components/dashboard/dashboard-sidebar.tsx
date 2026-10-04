@@ -72,10 +72,9 @@ interface SessionsPanelProps {
   currentSessionNumber: number;
   dashboardUuid: string;
   dashboardShortId: string;
-  profileId: string;
 }
 
-function SessionsPanel({ sessions, currentSessionNumber, dashboardUuid, dashboardShortId, profileId }: SessionsPanelProps) {
+function SessionsPanel({ sessions, currentSessionNumber, dashboardUuid, dashboardShortId }: SessionsPanelProps) {
   const router = useRouter();
   const [creating, setCreating] = useState(false);
   const [loadingSession, setLoadingSession] = useState<number | null>(null);
@@ -86,7 +85,7 @@ function SessionsPanel({ sessions, currentSessionNumber, dashboardUuid, dashboar
       const res = await fetch("/api/sessions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ dashboardId: dashboardUuid, profileId }),
+        body: JSON.stringify({ dashboardId: dashboardUuid }),
       });
       const data = await res.json();
       if (data.sessionNumber) {
@@ -239,7 +238,6 @@ export function DashboardSidebar({ dashboard, profile, sessions = [], currentSes
           currentSessionNumber={currentSessionNumber}
           dashboardUuid={dashboard.id}
           dashboardShortId={dashboard.dashboard_id}
-          profileId={profile.id}
         />
       )}
 

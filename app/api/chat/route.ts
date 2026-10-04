@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { requireOwnedSession, requireSignedIn } from "@/lib/auth/require-role";
+import { createClient } from "@/lib/supabase/server";
+import { handleRouteError, jsonError } from "@/lib/api/route-response";
 import {
   saveChatMessageToSession,
   updateSessionTitle,
@@ -34,45 +38,62 @@ function buildHistoryContent(content: string, parts?: MessagePart[]): string {
   return `${content}\n\n[SQL queries used in this response]\n${sqlNote}`;
 }
 
+// Only the session and the message come from the client. User, dashboard and model are resolved
+// server-side so a caller cannot write into another user's session or pick an arbitrary model.
+const chatRequestSchema = z.object({
+  session_id: z.string().uuid(),
+  message: z.string().trim().min(1, "Message cannot be empty"),
+});
+
 export async function POST(req: NextRequest) {
   try {
-    const payload: ChatPayload = await req.json();
+    const { userId, profile } = await requireSignedIn();
+    const body = chatRequestSchema.parse(await req.json());
+    const supabase = await createClient();
 
-    if (!payload.message?.trim()) {
-      return NextResponse.json({ error: "Message cannot be empty" }, { status: 400 });
+    const session = await requireOwnedSession(supabase, body.session_id, userId);
+    const dashboard = await getPublishedDashboardById(supabase, session.dashboard_id);
+    if (!dashboard) {
+      return jsonError("Dashboard not found or not published", 404);
     }
 
+    const payload: ChatPayload = {
+      session_id: session.id,
+      dashboard_id: dashboard.id,
+      dashboard_number: dashboard.dashboard_id,
+      dashboard_name: dashboard.dashboard_name,
+      user: { id: profile.id, name: profile.name, email: profile.email, role: profile.role },
+      message: body.message,
+      description: dashboard.description,
+      business_rules: dashboard.business_rules ?? null,
+      caveats: dashboard.caveats ?? null,
+      custom_instructions: dashboard.custom_instructions ?? null,
+      example_questions: dashboard.example_questions ?? null,
+    };
+
     // Save user message to session
-    if (payload.session_id && payload.user?.id) {
-      await saveChatMessageToSession(
-        payload.session_id,
-        payload.dashboard_id,
-        payload.user.id,
-        "user",
-        payload.message
-      );
+    await saveChatMessageToSession(supabase, session, "user", payload.message);
 
-      // Auto-title session from first user message only
-      const existing = await getChatHistoryBySession(payload.session_id);
-      if (existing.length === 1) {
-        await updateSessionTitle(payload.session_id, payload.message);
-      }
+    // Auto-title session from first user message only
+    const existing = await getChatHistoryBySession(supabase, session.id);
+    if (existing.length === 1) {
+      await updateSessionTitle(supabase, session.id, payload.message);
+    }
 
-      // Build history for agent context — all messages except the current one (last)
-      // Assistant messages include SQL queries used (Option C: inputs only, no results)
-      const HISTORY_LIMIT = 14; // max combined user + assistant messages sent as context
-      if (existing.length > 1) {
-        payload.history = existing.slice(-HISTORY_LIMIT - 1, -1).map((msg): HistoryMessage => ({
-          role: msg.role,
-          content: msg.role === "assistant"
-            ? buildHistoryContent(msg.content, msg.parts)
-            : msg.content,
-        }));
-      }
+    // Build history for agent context — all messages except the current one (last)
+    // Assistant messages include SQL queries used (Option C: inputs only, no results)
+    const HISTORY_LIMIT = 14; // max combined user + assistant messages sent as context
+    if (existing.length > 1) {
+      payload.history = existing.slice(-HISTORY_LIMIT - 1, -1).map((msg): HistoryMessage => ({
+        role: msg.role,
+        content: msg.role === "assistant"
+          ? buildHistoryContent(msg.content, msg.parts)
+          : msg.content,
+      }));
     }
 
     // Fetch and inject dashboard tables context
-    const contextTables = await getDashboardTables(payload.dashboard_number);
+    const contextTables = await getDashboardTables(supabase, dashboard.dashboard_id);
     if (contextTables && contextTables.length > 0) {
       payload.context_tables = contextTables.map((t) => ({
         table_name: t.table_name,
@@ -81,16 +102,6 @@ export async function POST(req: NextRequest) {
         notes: t.notes,
       }));
     }
-
-    const dashboard = await getPublishedDashboardById(payload.dashboard_id);
-    if (!dashboard) {
-      return NextResponse.json({ error: "Dashboard not found or not published" }, { status: 404 });
-    }
-    payload.description = dashboard.description;
-    payload.business_rules = dashboard.business_rules ?? null;
-    payload.caveats = dashboard.caveats ?? null;
-    payload.custom_instructions = dashboard.custom_instructions ?? null;
-    payload.example_questions = dashboard.example_questions ?? null;
 
     const workspace = await resolveWorkspaceAnalytics();
     payload.workspace = toWorkspaceAnalytics(workspace);
@@ -101,10 +112,14 @@ export async function POST(req: NextRequest) {
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to resolve LLM / data connection";
       console.error("resolveChatRuntime:", err);
-      return NextResponse.json({ error: msg }, { status: 500 });
+      return jsonError(msg, 500);
     }
 
-    const stream = await streamAgentResponse(payload, runtime);
+    // The reply is persisted server-side when the stream finishes, into the session checked above.
+    const stream = await streamAgentResponse(payload, runtime, {
+      saveReply: ({ content, parts }) =>
+        saveChatMessageToSession(supabase, session, "assistant", content, parts),
+    });
 
     return new NextResponse(stream, {
       status: 200,
@@ -116,8 +131,7 @@ export async function POST(req: NextRequest) {
         "X-Accel-Buffering": "no",
       },
     });
-  } catch (err) {
-    console.error("Chat API error:", err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  } catch (e) {
+    return handleRouteError(e, "Internal server error");
   }
 }
