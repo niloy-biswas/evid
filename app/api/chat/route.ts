@@ -8,6 +8,7 @@ import {
 } from "@/lib/supabase/queries";
 import { runChatUseCase } from "@/lib/application/use_cases/chat";
 import { resolveChatRuntime } from "@/lib/application/runtime/resolve-chat-runtime";
+import { resolveWorkspaceAnalytics, toWorkspaceAnalytics } from "@/lib/application/runtime/workspace-analytics";
 import type { ChatPayload, HistoryMessage, MessagePart } from "@/lib/types";
 
 // Extract SQL queries from stored parts (Option C: tool inputs only, no results)
@@ -90,6 +91,9 @@ export async function POST(req: NextRequest) {
     payload.caveats = dashboard.caveats ?? null;
     payload.custom_instructions = dashboard.custom_instructions ?? null;
     payload.example_questions = dashboard.example_questions ?? null;
+
+    const workspace = await resolveWorkspaceAnalytics();
+    payload.workspace = toWorkspaceAnalytics(workspace);
 
     let runtime;
     try {

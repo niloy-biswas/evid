@@ -377,7 +377,12 @@ export function DashboardEditor({
           <CardHeader>
             <CardTitle>Context</CardTitle>
             <CardDescription>
-              These fields are injected into the dashboard context block for the agent.
+              These fields are injected into the dashboard context block for the agent. Org-wide
+              defaults (currency, timezone, business definitions) are under{" "}
+              <Link href="/admin/settings/workspace" className="underline underline-offset-2">
+                Settings → Workspace
+              </Link>
+              .
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

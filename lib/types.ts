@@ -77,6 +77,17 @@ export interface HistoryMessage {
   content: string;
 }
 
+/** Org-wide analytics defaults from Admin → Workspace (`app_settings`). */
+export interface WorkspaceAnalytics {
+  org_name: string;
+  org_about: string;
+  timezone: string;
+  currency: string;
+  language_policy: string;
+  business_definitions: string;
+  pii_refusal: string;
+}
+
 export interface ChatPayload {
   session_id: string | null;
   dashboard_id: string;
@@ -102,4 +113,6 @@ export interface ChatPayload {
     row_count: string;
     notes: string;
   }[];
+  /** Injected server-side from `app_settings` (not sent by the client). */
+  workspace?: WorkspaceAnalytics;
 }

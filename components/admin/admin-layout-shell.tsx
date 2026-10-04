@@ -13,6 +13,7 @@ import {
   Bot,
   Lock,
   Settings,
+  Building2,
 } from "lucide-react";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { UserAvatar } from "@/components/auth/user-avatar";
@@ -32,6 +33,7 @@ function getAdminSectionTitle(pathname: string): string {
   if (pathname.startsWith("/admin/dashboards/new")) return "New dashboard";
   if (pathname.startsWith("/admin/dashboards")) return "Dashboard registry";
   if (pathname.startsWith("/admin/users")) return "Users";
+  if (pathname.startsWith("/admin/settings/workspace")) return "Workspace";
   if (pathname.startsWith("/admin/settings/data-sources")) return "Data sources";
   if (pathname.startsWith("/admin/settings/models")) return "AI models";
   if (pathname.startsWith("/admin/settings/auth")) return "Auth";
@@ -124,6 +126,10 @@ export function AdminLayoutShell({ profile, isAdmin, children }: AdminLayoutShel
                 Settings
               </p>
               <nav className="flex flex-col gap-0.5">
+                <AdminNavLink href="/admin/settings/workspace" pathname={pathname}>
+                  <Building2 className="h-3.5 w-3.5 shrink-0 text-muted-foreground/50" />
+                  Workspace
+                </AdminNavLink>
                 <AdminNavLink href="/admin/settings/data-sources" pathname={pathname}>
                   <Database className="h-3.5 w-3.5 shrink-0 text-muted-foreground/50" />
                   Data sources
