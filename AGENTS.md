@@ -123,7 +123,7 @@ See **`.env.example`**. Highlights:
 
 ## Auth edge handler
 
-Root **`proxy.ts`** refreshes Supabase session cookies, redirects unauthenticated users to `/login` (except **`/`**, **`/book-demo`**, **`/privacy`**, **`/terms`**, **`/robots.txt`**, **`/sitemap.xml`**, **`/opengraph-image`**, **`/auth/*`**, **`/api/public/*`**, login/signup; extend `PUBLIC_PATHS` for new public pages), and skips **`/auth/*`** so OAuth PKCE cookies are not corrupted before `app/auth/callback/route.ts`. Logged-in users on auth pages redirect to **`/app`**.
+Root **`proxy.ts`** refreshes Supabase session cookies, redirects unauthenticated users to `/login` (except **`/`**, **`/book-demo`**, **`/privacy`**, **`/terms`**, **`/robots.txt`**, **`/sitemap.xml`**, **`/opengraph-image`**, **`/auth/*`**, **`/api/public/*`**, login/signup; extend `PUBLIC_PATHS` for new public pages), and skips **`/auth/*`** so OAuth PKCE cookies are not corrupted before `app/auth/callback/route.ts`. Logged-in users on auth pages redirect to **`/app`**, or to `?next=` when it is a same-origin path. Every post-login redirect (proxy, OAuth callback, login and signup pages, the links between them) goes through `safeNextPath` / `withNextParam` in `lib/auth/next-path.ts`.
 
 > If production ever shows **no redirects** while logged out, confirm Next's expected **`middleware`** export for your deployment; this repo uses **`proxy.ts`** as the session edge entry.
 
@@ -146,6 +146,8 @@ For a fresh database, apply numbered files in order under **`supabase/migrations
 004_workspace_org_profile.sql
 005_rls_hotfix.sql
 006_rls_owner_scoped_chat.sql   (apply only after the app uses the signed-in client; see file header)
+007_shared_chat_lookup.sql      (additive; apply before deploying the get_shared_chat caller)
+008_drop_shared_read_policies.sql (apply after that deploy)
 ```
 
 Optional generic demo data: **`supabase/seeds/`** (not a production dump). Private org dumps belong under **`supabase/seeds/internal/`** (gitignored).
@@ -164,7 +166,8 @@ Related: **`POST /api/chat/reaction`**, **`POST /api/sessions`**, **`POST /api/s
 
 - **Chat and session APIs** (`app/api/chat/*`, `app/api/sessions/*`) take identity from the cookie session only: `requireSignedIn()`, then `requireOwnedSession(client, sessionId, userId)` for anything session-scoped (404 for missing or foreign sessions). Never read `profileId`, `dashboardId` or `model` from the request body; derive them from the session and dashboard rows.
 - **`lib/supabase/queries.ts`** functions take the caller's server client (`lib/supabase/server.ts`) so RLS sees the signed-in user. Do not pass the service-role client there.
-- **RLS** (`005`, `006`): no anon access to app tables; chat rows are owner-scoped via `current_profile_id()` (email lookup, because `profiles.id` can differ from `auth.uid()`); `profiles.user_role` and `chat_sessions.share_token` are not client-writable (column grants). New tables need explicit policies; never add `USING (true)` for writes.
+- **Shared chats** are read only through the `get_shared_chat(token)` RPC (`007`), which returns the fields `/share/[token]` renders. Do not add table-level policies that expose other users' sessions or messages.
+- **RLS** (`005`–`008`): no anon access to app tables; chat rows are owner-scoped via `current_profile_id()` (email lookup, because `profiles.id` can differ from `auth.uid()`); `profiles.user_role` and `chat_sessions.share_token` are not client-writable (column grants). New tables need explicit policies; never add `USING (true)` for writes.
 - **Admin APIs** enforce roles server-side with `requireAdmin` / `requireEditorOrAdmin`; keep it that way.
 
 ## Commands
