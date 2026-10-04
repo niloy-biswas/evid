@@ -1,0 +1,3 @@
+# Private SQL dumps and org-specific seeds.
+# After applying migration 003 and filling Admin → Workspace on a live deploy,
+# dump with pg_dump / supabase db dump into this folder (gitignored).

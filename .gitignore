@@ -42,3 +42,7 @@ next-env.d.ts
 
 # supabase cli local metadata
 supabase/.temp/
+
+# Private org dumps / internal seeds (never publish)
+supabase/seeds/internal/*
+!supabase/seeds/internal/.gitkeep
