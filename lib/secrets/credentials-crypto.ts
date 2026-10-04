@@ -3,34 +3,54 @@ import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from "crypt
 const ALGO = "aes-256-gcm";
 const IV_LENGTH = 16;
 const TAG_LENGTH = 16;
-const KDF_SALT = "10ms-analytics-settings-v1";
 
-function deriveKey(): Buffer {
+/** Default for new installs. Override with SETTINGS_KDF_SALT for existing DBs. */
+const DEFAULT_KDF_SALT = "evid-analytics-settings-v1";
+/** Pre-rebrand salt — kept so older ciphertext still decrypts. */
+const LEGACY_KDF_SALT = "10ms-analytics-settings-v1";
+
+const KDF_SALT = process.env.SETTINGS_KDF_SALT?.trim() || DEFAULT_KDF_SALT;
+
+function encryptionSecret(): string {
   const secret = process.env.SETTINGS_ENCRYPTION_KEY;
   if (!secret || secret.length < 16) {
     throw new Error(
       "SETTINGS_ENCRYPTION_KEY must be set (min 16 characters) to store encrypted settings or credentials"
     );
   }
-  return scryptSync(secret, KDF_SALT, 32);
+  return secret;
+}
+
+function deriveKey(salt: string): Buffer {
+  return scryptSync(encryptionSecret(), salt, 32);
+}
+
+function decryptWithSalt(encoded: string, salt: string): string {
+  const buf = Buffer.from(encoded, "base64");
+  const iv = buf.subarray(0, IV_LENGTH);
+  const tag = buf.subarray(IV_LENGTH, IV_LENGTH + TAG_LENGTH);
+  const data = buf.subarray(IV_LENGTH + TAG_LENGTH);
+  const decipher = createDecipheriv(ALGO, deriveKey(salt), iv);
+  decipher.setAuthTag(tag);
+  return Buffer.concat([decipher.update(data), decipher.final()]).toString("utf8");
 }
 
 export function encryptSecret(plain: string): string {
   const iv = randomBytes(IV_LENGTH);
-  const cipher = createCipheriv(ALGO, deriveKey(), iv);
+  const cipher = createCipheriv(ALGO, deriveKey(KDF_SALT), iv);
   const enc = Buffer.concat([cipher.update(plain, "utf8"), cipher.final()]);
   const tag = cipher.getAuthTag();
   return Buffer.concat([iv, tag, enc]).toString("base64");
 }
 
 export function decryptSecret(encoded: string): string {
-  const buf = Buffer.from(encoded, "base64");
-  const iv = buf.subarray(0, IV_LENGTH);
-  const tag = buf.subarray(IV_LENGTH, IV_LENGTH + TAG_LENGTH);
-  const data = buf.subarray(IV_LENGTH + TAG_LENGTH);
-  const decipher = createDecipheriv(ALGO, deriveKey(), iv);
-  decipher.setAuthTag(tag);
-  return Buffer.concat([decipher.update(data), decipher.final()]).toString("utf8");
+  try {
+    return decryptWithSalt(encoded, KDF_SALT);
+  } catch (primaryErr) {
+    if (KDF_SALT === LEGACY_KDF_SALT) throw primaryErr;
+    // Ciphertext may predate the Evid salt rename.
+    return decryptWithSalt(encoded, LEGACY_KDF_SALT);
+  }
 }
 
 export function isEncryptionConfigured(): boolean {

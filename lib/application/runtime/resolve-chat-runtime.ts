@@ -101,8 +101,14 @@ export async function resolveChatRuntime(dashboard: Dashboard): Promise<Resolved
   const fromAdmin = await resolveBigQueryFromAdmin(dashboard);
   const credentialsJson =
     fromAdmin?.credentialsJson ?? process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON?.trim();
-  const projectId = fromAdmin?.projectId ?? process.env.BIGQUERY_PROJECT ?? "tenms-userdb";
+  const projectId = fromAdmin?.projectId ?? process.env.BIGQUERY_PROJECT?.trim();
   const location = fromAdmin?.location ?? process.env.BIGQUERY_LOCATION ?? "US";
+
+  if (!projectId) {
+    throw new Error(
+      "No BigQuery project configured. Assign a data source on the dashboard (Admin → Data sources) or set BIGQUERY_PROJECT."
+    );
+  }
 
   if (!credentialsJson) {
     throw new Error(

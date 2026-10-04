@@ -55,15 +55,19 @@ Apply the Supabase migrations in order (SQL editor or CLI):
 supabase/migrations/000_current_schema.sql
 supabase/migrations/001_admin_workspace.sql
 supabase/migrations/002_admin_top_dashboards_by_messages.sql
+supabase/migrations/003_workspace_analytics_settings.sql
+supabase/migrations/004_workspace_org_profile.sql
 ```
 
-Optional demo data lives in `supabase/seeds/`. Then:
+Optional generic demo data lives in `supabase/seeds/` (not a full production dump). Then:
 
 ```bash
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000), sign up, and use `/app`. Set `ADMIN_EMAIL` to promote your first admin.
+
+Configure org-wide agent defaults under **Admin → Settings → Workspace** (timezone, currency, language policy, business definitions, PII refusal). Per-dashboard context stays on each dashboard’s Context card.
 
 ### Key environment variables
 
@@ -74,6 +78,7 @@ Full list in [`.env.example`](.env.example).
 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase client |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server only; admin APIs |
 | `SETTINGS_ENCRYPTION_KEY` | Encrypts AI keys and BigQuery credentials stored from the admin UI |
+| `SETTINGS_KDF_SALT` | Optional; set when migrating a DB that used a previous encryption salt |
 | `MODEL_PROVIDER` | `anthropic`, `openai`, or `openrouter` |
 | `BIGQUERY_PROJECT`, `GOOGLE_APPLICATION_CREDENTIALS_JSON` | Fallback when a dashboard has no data source |
 | `NEXT_PUBLIC_SITE_URL` | Canonical origin for sitemap and social tags |

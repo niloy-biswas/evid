@@ -12,6 +12,6 @@ export async function createAnalyticsAgent(payload: ChatPayload, runtime: Resolv
   return createReactAgent({
     llm,
     tools,
-    prompt: buildSystemPrompt(payload),
+    prompt: buildSystemPrompt(payload, { projectId: runtime.bigQuery.projectId }),
   });
 }
