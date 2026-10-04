@@ -12,6 +12,7 @@ import {
   googleOAuthHostedDomain,
   normalizeAllowedEmailDomainHost,
 } from "@/lib/auth/allowed-email-domain";
+import { safeNextPath, withNextParam } from "@/lib/auth/next-path";
 import { BRAND } from "@/lib/brand";
 import { BrandMark } from "@/components/brand-mark";
 
@@ -24,13 +25,17 @@ export default function LoginPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [allowedEmailHost, setAllowedEmailHost] = useState("*");
+  // Where to go after sign-in (e.g. /share/<token>); carried through OAuth and the signup link
+  const [nextPath, setNextPath] = useState<string | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const urlError = params.get("error");
-    if (urlError) {
-      queueMicrotask(() => setError(decodeURIComponent(urlError)));
-    }
+    const next = safeNextPath(params.get("next"));
+    queueMicrotask(() => {
+      if (urlError) setError(decodeURIComponent(urlError));
+      setNextPath(next);
+    });
   }, []);
 
   useEffect(() => {
@@ -53,14 +58,12 @@ export default function LoginPage() {
   const handleGoogleSignIn = async () => {
     setError(null);
     setGoogleLoading(true);
-    const params = new URLSearchParams(window.location.search);
-    const next = params.get("next") ?? "";
     const supabase = createClient();
     const hd = googleOAuthHostedDomain(allowedEmailHost);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback${next ? `?next=${encodeURIComponent(next)}` : ""}`,
+        redirectTo: `${window.location.origin}${withNextParam("/auth/callback", nextPath)}`,
         ...(hd ? { queryParams: { hd } } : {}),
       },
     });
@@ -87,7 +90,7 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/app");
+    router.push(nextPath ?? "/app");
     router.refresh();
   };
 
@@ -281,7 +284,7 @@ export default function LoginPage() {
             <p className="text-xs text-muted-foreground">
               Need access?{" "}
               <Link
-                href="/signup"
+                href={withNextParam("/signup", nextPath)}
                 className="text-primary hover:text-primary/80 font-semibold transition-colors"
               >
                 Sign up

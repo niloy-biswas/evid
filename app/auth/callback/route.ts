@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { emailMatchesAllowedDomain } from "@/lib/auth/allowed-email-domain";
 import { resolveAllowedEmailDomainHost } from "@/lib/auth/resolve-allowed-email-domain";
+import { safeNextPath } from "@/lib/auth/next-path";
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
@@ -105,11 +106,8 @@ export async function GET(request: NextRequest) {
       .eq("email", email);
   }
 
-  // Redirect to ?next= if it is a same-origin path, otherwise home. Without the check,
-  // `next=@evil.com` would produce `https://<origin>@evil.com` (open redirect after login).
-  const next = searchParams.get("next");
-  const isSafeNext = !!next && next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/\\");
-  const destination = isSafeNext ? `${origin}${next}` : `${origin}/app`;
+  // Redirect to ?next= if it is a same-origin path, otherwise home
+  const destination = `${origin}${safeNextPath(searchParams.get("next")) ?? "/app"}`;
   const response = NextResponse.redirect(destination);
   cookiesToApply.forEach(({ name, value, options }) => {
     response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2]);

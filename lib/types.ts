@@ -82,6 +82,13 @@ export interface ChatSession {
   updated_at: string;
 }
 
+/** Read-only `/share/[token]` view, from `get_shared_chat` (only the fields it renders). */
+export interface SharedChat {
+  session: Pick<ChatSession, "session_number" | "title">;
+  dashboard: Pick<Dashboard, "dashboard_id" | "dashboard_name">;
+  messages: ChatMessage[];
+}
+
 export interface HistoryMessage {
   role: "user" | "assistant";
   content: string;
