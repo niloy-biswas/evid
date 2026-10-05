@@ -10,6 +10,7 @@
     "start": "next start",
     "lint": "eslint",
     "lint:tokens": "node scripts/check-tokens.mjs",
+    "lint:rls": "node --env-file-if-exists=.env.local scripts/check-rls.mjs",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit"
   },
