@@ -76,7 +76,9 @@ const SECTIONS: LegalSection[] = [
     body: (
       <p>
         We rely on infrastructure providers for hosting, database storage, authentication, and
-        AI model access. They process data only to provide those services to us.
+        AI model access. On the public marketing site we may also use Google Analytics and
+        Microsoft Clarity to understand traffic and improve the page. They process data only to
+        provide those services to us.
       </p>
     ),
   },
