@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { LandingPageView } from "@/components/marketing/landing-page";
+import { MarketingAnalytics } from "@/components/marketing/marketing-analytics";
 import { BRAND, SITE_URL } from "@/lib/brand";
 
 export const metadata: Metadata = {
@@ -55,6 +56,7 @@ export default async function LandingPage() {
 
   return (
     <>
+      <MarketingAnalytics />
       <script
         type="application/ld+json"
         // Static, first-party JSON only; "<" escaped so it cannot close the tag.
